@@ -40,7 +40,7 @@ See:
 
 - `CURRENT_STATE.md`
 - `ROADMAP.md`
-- `milestones/M01.md`
+- `milestones/M01-foundation.md`
 - `PROJECT_RULES.md`
 
 ## Planned Technology Stack
@@ -106,7 +106,7 @@ The project is developed using:
 | `ARCHITECTURE.md` | Architecture actually implemented or formally approved |
 | `DECISIONS.md` | Important architectural and project decisions |
 | `KNOWN_LIMITATIONS.md` | Honest limitations and deferred work |
-| `milestones/M01.md` | Detailed scope and completion requirements for M01 |
+| `milestones/M01-foundation.md` | Detailed scope and completion requirements for M01 |
 | `docs/handoffs/` | Milestone handoff documents |
 | `docs/verification/` | Reproducible verification reports |
 
