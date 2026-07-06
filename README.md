@@ -120,3 +120,34 @@ GridOps Intelligence does not:
 - replace official system-operator forecasts
 - perform power-flow calculations
 - make unsupported causal claims
+
+## Local Development
+
+### Requirements
+
+- Git
+- uv
+- Python 3.12
+
+### Install dependencies
+
+```powershell
+uv sync --all-groups
+```
+
+### Verify the package import
+
+```powershell
+uv run python -c "import gridops; print(gridops.__name__, gridops.__version__)"
+```
+
+### Run quality checks
+
+```powershell
+uv run ruff format --check .
+uv run ruff check .
+uv run mypy src tests
+uv run pytest -q
+```
+
+The Python version is pinned through `.python-version`, and dependencies are locked in `uv.lock`.
