@@ -11,10 +11,53 @@ Do not describe planned components as complete.
 
 ## Current Implemented Architecture
 
-No application architecture has been implemented yet.
+## Current Implemented Architecture
 
-The repository currently contains only project-governance and milestone-planning documents.
+The following M01 foundation components are implemented:
 
+### Python Foundation
+
+- Python 3.12 project
+- src-based `gridops` package
+- uv dependency management and lockfile
+- Ruff formatting and linting
+- strict MyPy checking
+- Pytest test foundation
+
+### Configuration
+
+- strongly typed Pydantic Settings model
+- `GRIDOPS_` environment-variable prefix
+- optional local `.env` loading
+- typed application environment and log-level values
+- validated API host, port, and readiness timeout
+- PostgreSQL-only database URL validation
+- secret-safe database URL representation
+
+### Logging
+
+- Python standard-library logging
+- one-line structured JSON output
+- UTC timestamps
+- configurable severity
+- stable application logger name
+- idempotent logger initialization
+- structured context fields
+- recognized credential-field redaction
+- common credential-pattern sanitization
+
+The following are not yet implemented:
+
+- FastAPI application
+- health and readiness routes
+- PostgreSQL runtime environment
+- SQLAlchemy
+- Alembic
+- Docker Compose
+- CI
+- electricity time-domain utilities
+- source ingestion
+- forecasting or product features
 ## Approved Target Architecture
 
 The planned system flow is:
