@@ -151,3 +151,42 @@ uv run pytest -q
 ```
 
 The Python version is pinned through `.python-version`, and dependencies are locked in `uv.lock`.
+
+
+## Configuration
+
+Application settings are defined in `gridops.config.Settings` using Pydantic Settings.
+
+Settings can be supplied through environment variables or a local `.env` file. Every supported environment variable uses the `GRIDOPS_` prefix.
+
+Supported settings:
+
+- `GRIDOPS_APP_NAME`
+- `GRIDOPS_APP_ENVIRONMENT`
+- `GRIDOPS_LOG_LEVEL`
+- `GRIDOPS_API_HOST`
+- `GRIDOPS_API_PORT`
+- `GRIDOPS_DATABASE_URL`
+- `GRIDOPS_READINESS_TIMEOUT_SECONDS`
+
+Copy `.env.example` to `.env` for local development:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+The database URL is handled as a secret value and must use a PostgreSQL scheme. Real credentials must never be committed.
+
+## Structured Logging
+
+GridOps uses Python standard-library logging with a project JSON formatter.
+
+Each application log record includes:
+
+- UTC timestamp
+- severity level
+- logger name
+- message
+- explicitly supplied structured context
+
+Recognized credential fields and common credentials embedded in text are redacted before output. Logging currently writes to standard output and does not depend on an external logging service.
