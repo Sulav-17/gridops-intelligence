@@ -44,7 +44,7 @@ def test_settings_defaults() -> None:
     assert settings.readiness_timeout_seconds == 2.0
     assert (
         settings.database_url.get_secret_value()
-        == "postgresql+psycopg://gridops:gridops@localhost:5432/gridops"
+        == "postgresql+psycopg://gridops:gridops@localhost:55432/gridops"
     )
 
 
@@ -60,7 +60,7 @@ def test_environment_variables_override_defaults(
     monkeypatch.setenv("GRIDOPS_API_PORT", "9000")
     monkeypatch.setenv(
         "GRIDOPS_DATABASE_URL",
-        "postgresql+psycopg://test-user:test-password@localhost:5432/test-gridops",
+        "postgresql+psycopg://test-user:test-password@localhost:55432/test-gridops",
     )
     monkeypatch.setenv("GRIDOPS_READINESS_TIMEOUT_SECONDS", "5.5")
 
@@ -74,7 +74,7 @@ def test_environment_variables_override_defaults(
     assert settings.readiness_timeout_seconds == 5.5
     assert (
         settings.database_url.get_secret_value()
-        == "postgresql+psycopg://test-user:test-password@localhost:5432/test-gridops"
+        == "postgresql+psycopg://test-user:test-password@localhost:55432/test-gridops"
     )
 
 
@@ -106,7 +106,7 @@ def test_database_url_is_hidden_from_representation() -> None:
     """Configuration representations do not reveal database credentials."""
 
     database_url = SecretStr(
-        "postgresql+psycopg://sensitive-user:sensitive-password@localhost:5432/gridops"
+        "postgresql+psycopg://sensitive-user:sensitive-password@localhost:55432/gridops"
     )
 
     settings = Settings(database_url=database_url)

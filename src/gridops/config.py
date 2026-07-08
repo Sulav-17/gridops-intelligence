@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     api_host: str = Field(default="127.0.0.1", min_length=1)
     api_port: int = Field(default=8000, ge=1, le=65535)
     database_url: SecretStr = SecretStr(
-        "postgresql+psycopg://gridops:gridops@localhost:5432/gridops"
+        "postgresql+psycopg://gridops:gridops@localhost:55432/gridops"
     )
     readiness_timeout_seconds: float = Field(default=2.0, gt=0, le=30)
 
