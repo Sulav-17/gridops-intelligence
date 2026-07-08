@@ -13,135 +13,57 @@ The system is intended to:
 - support controlled planning scenarios
 - expose results through APIs and an operational dashboard
 
-## Project Positioning
-
-GridOps Intelligence is designed as a portfolio-grade operational decision system rather than a standalone notebook.
-
-Approximate project balance:
-
-- 65% data engineering
-- 35% machine learning
-
-Primary role alignment:
-
-- Data Engineer
-- Analytics Engineer
-- ML Engineer
-- Energy Data Analyst
-- Applied AI Engineer
+M01 is now the implemented foundation only. Source ingestion, forecasting, alerts, scenarios, dashboards, authentication, deployment, dbt, Prefect, and MLflow are intentionally not implemented yet.
 
 ## Current Status
 
-The repository is currently in:
+The repository has completed M01 - Domain Contract and Foundation.
 
-**M01 — Domain Contract and Foundation**
+Implemented foundation:
 
-See:
-
-- `CURRENT_STATE.md`
-- `ROADMAP.md`
-- `milestones/M01-foundation.md`
-- `PROJECT_RULES.md`
-
-## Planned Technology Stack
-
-### Backend
-
-- Python 3.12
-- FastAPI
-- Pydantic
-- SQLAlchemy
-- Alembic
-- PostgreSQL
-- HTTPX
-
-### Data Engineering
-
-- Prefect
-- dbt
-- Pandera or Great Expectations
-
-### Machine Learning
-
-- scikit-learn
-- LightGBM or XGBoost
-- statsmodels
-- SHAP
-- MLflow
-
-### Frontend
-
-- Next.js
-- TypeScript
-- ECharts or Recharts
-
-### Infrastructure and Testing
-
-- Docker Compose
-- GitHub Actions
+- Python 3.12 src-based package managed by uv
+- Ruff formatting and linting
+- strict MyPy
 - Pytest
-- Ruff
-- MyPy
-
-Only the tools needed for the active milestone should be introduced.
-
-## Development Model
-
-The project is developed using:
-
-- one milestone per ChatGPT thread
-- one milestone branch at a time
-- small implementation tickets
-- verification before ticket approval
-- repository-based handoffs between milestones
-- Samantha as Project Leader and final architectural authority
-
-## Project Documents
-
-| Document | Purpose |
-|---|---|
-| `PROJECT_RULES.md` | Permanent project execution rules |
-| `CURRENT_STATE.md` | Current verified repository status |
-| `ROADMAP.md` | Seven-milestone delivery plan |
-| `ARCHITECTURE.md` | Architecture actually implemented or formally approved |
-| `DECISIONS.md` | Important architectural and project decisions |
-| `KNOWN_LIMITATIONS.md` | Honest limitations and deferred work |
-| `milestones/M01-foundation.md` | Detailed scope and completion requirements for M01 |
-| `docs/handoffs/` | Milestone handoff documents |
-| `docs/verification/` | Reproducible verification reports |
-
-## Important Scope Boundaries
-
-GridOps Intelligence does not:
-
-- control or dispatch the electricity grid
-- issue emergency or reliability declarations
-- provide electricity-trading recommendations
-- replace official system-operator forecasts
-- perform power-flow calculations
-- make unsupported causal claims
+- typed `GRIDOPS_` configuration with secret-aware database URL handling
+- structured JSON logging with UTC timestamps and defensive redaction
+- synchronous SQLAlchemy database foundation
+- empty Alembic baseline
+- Docker Compose PostgreSQL on host port 55432
+- FastAPI app factory with `/health` and `/ready`
+- UTC, `America/Toronto`, DST, and IESO hour-ending utilities
+- GitHub Actions CI quality gates
 
 ## Local Development
 
-### Requirements
+Requirements:
 
 - Git
 - uv
 - Python 3.12
+- Docker, for PostgreSQL-backed checks
 
-### Install dependencies
+Install dependencies:
 
 ```powershell
 uv sync --all-groups
 ```
 
-### Verify the package import
+Start PostgreSQL:
+
+```powershell
+docker compose up -d postgres
+```
+
+The local PostgreSQL service maps host port `55432` to container port `5432`. The default application database is `gridops`; the Docker init script creates `gridops_test` for integration tests when the volume is first initialized.
+
+Verify the package import:
 
 ```powershell
 uv run python -c "import gridops; print(gridops.__name__, gridops.__version__)"
 ```
 
-### Run quality checks
+Run quality checks:
 
 ```powershell
 uv run ruff format --check .
@@ -150,14 +72,17 @@ uv run mypy src tests
 uv run pytest -q
 ```
 
-The Python version is pinned through `.python-version`, and dependencies are locked in `uv.lock`.
+Run Alembic against the test database:
 
+```powershell
+$env:GRIDOPS_DATABASE_URL = "postgresql+psycopg://gridops:gridops@127.0.0.1:55432/gridops_test"
+uv run alembic current
+Remove-Item Env:\GRIDOPS_DATABASE_URL
+```
 
 ## Configuration
 
-Application settings are defined in `gridops.config.Settings` using Pydantic Settings.
-
-Settings can be supplied through environment variables or a local `.env` file. Every supported environment variable uses the `GRIDOPS_` prefix.
+Application settings are defined in `gridops.config.Settings` using Pydantic Settings. Settings can be supplied through environment variables or a local `.env` file. Every supported environment variable uses the `GRIDOPS_` prefix.
 
 Supported settings:
 
@@ -175,18 +100,45 @@ Copy `.env.example` to `.env` for local development:
 Copy-Item .env.example .env
 ```
 
-The database URL is handled as a secret value and must use a PostgreSQL scheme. Real credentials must never be committed.
+## API Foundation
 
-## Structured Logging
+Create the FastAPI app with:
 
-GridOps uses Python standard-library logging with a project JSON formatter.
+```python
+from gridops.api import create_app
 
-Each application log record includes:
+app = create_app()
+```
 
-- UTC timestamp
-- severity level
-- logger name
-- message
-- explicitly supplied structured context
+Endpoints:
 
-Recognized credential fields and common credentials embedded in text are redacted before output. Logging currently writes to standard output and does not depend on an external logging service.
+- `GET /health` returns process health and does not touch the database.
+- `GET /ready` checks real PostgreSQL connectivity and returns a safe `503` response when the dependency is unavailable.
+
+## Time Contract
+
+Time utilities live in `gridops.time_utils`.
+
+- canonical timestamps are timezone-aware UTC
+- Ontario local time uses `America/Toronto`
+- naive datetimes are rejected
+- ambiguous fall-back Toronto wall times require an explicit `fold`
+- nonexistent spring-forward Toronto wall times are rejected
+- IESO hour-ending values are valid only from 1 through 24
+- IESO hour-ending values label the end of an operating hour in Toronto local time
+
+## Project Documents
+
+| Document | Purpose |
+|---|---|
+| `PROJECT_RULES.md` | Permanent project execution rules |
+| `CURRENT_STATE.md` | Current verified repository status |
+| `ROADMAP.md` | Seven-milestone delivery plan |
+| `ARCHITECTURE.md` | Architecture actually implemented or formally approved |
+| `DECISIONS.md` | Important architectural and project decisions |
+| `KNOWN_LIMITATIONS.md` | Honest limitations and deferred work |
+| `milestones/M01-foundation.md` | Detailed M01 scope and completion requirements |
+
+## Scope Boundaries
+
+GridOps Intelligence does not control or dispatch the electricity grid, issue emergency or reliability declarations, provide electricity-trading recommendations, replace official system-operator forecasts, perform power-flow calculations, or make unsupported causal claims.

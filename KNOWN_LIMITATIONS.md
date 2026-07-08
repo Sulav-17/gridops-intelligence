@@ -2,47 +2,46 @@
 
 ## Current Repository
 
-The repository contains:
+The repository contains the completed M01 foundation:
 
 - project governance and milestone documents
-- a Python 3.12 package foundation
-- dependency locking through uv
-- formatting, linting, typing, and test configuration
-- strongly typed application settings
+- Python 3.12 package foundation
+- uv dependency locking
+- Ruff, MyPy, and Pytest configuration
+- typed application settings
 - structured JSON application logging
-- automated configuration and logging tests
+- PostgreSQL, SQLAlchemy, Alembic, and Docker Compose foundation
+- FastAPI app factory with health and readiness endpoints
+- explicit UTC, `America/Toronto`, DST, and IESO hour-ending utilities
+- GitHub Actions CI quality gates
 
-The repository does not yet contain a runnable API or database environment.
+## Missing Capabilities
 
-## Current Missing Capabilities
+The following are intentionally not implemented yet:
 
-The following do not yet exist:
-
-- FastAPI service
-- health endpoint
-- readiness endpoint
-- PostgreSQL runtime environment
-- database schema
-- SQLAlchemy configuration
-- Alembic migrations
-- Docker Compose environment
-- GitHub Actions CI
-- source ingestion
-- data-quality checks
-- forecasting models
+- IESO API clients
+- electricity data ingestion
+- weather ingestion
+- immutable raw source snapshots
+- source data-quality checks
+- domain tables beyond the empty Alembic baseline
+- dbt transformations
+- Prefect orchestration
 - MLflow tracking
+- forecasting models
 - operational alerts
 - scenario engine
-- dashboard
-- deployment
+- briefing generation
+- frontend or dashboards
+- authentication or authorization
+- production deployment
 
 ## Configuration Limitations
 
 - The default database URL is a local development placeholder.
-- No live PostgreSQL connection is attempted during configuration creation.
-- Application settings are instantiated directly; a shared application lifecycle has not yet been created.
-- Production secret injection and secret rotation are not implemented.
+- No production secret-injection or secret-rotation mechanism exists.
 - `.env` support is intended for local development, not production secret management.
+- Application settings are instantiated in-process; no deployment configuration layer exists yet.
 
 ## Logging Limitations
 
@@ -51,15 +50,26 @@ The following do not yet exist:
 - Secret redaction covers recognized field names and common text patterns but cannot guarantee sanitization of every possible secret format.
 - Developers must not place credentials in log messages.
 - Request IDs, trace IDs, ingestion-run IDs, and other operational correlation fields have not yet been introduced.
-- Logging has not yet been connected to FastAPI or background workflows.
 
-## Domain Limitations
+## API Limitations
 
-The exact implementation of IESO hour-ending conversion has not yet been established.
+- The FastAPI application has only `/health` and `/ready`.
+- There are no domain API routes.
+- There is no authentication, authorization, rate limiting, request tracing, or deployment server configuration.
+- Readiness verifies basic PostgreSQL connectivity only; it does not validate domain schema readiness because no domain schema exists yet.
 
-Ontario daylight-saving behavior has not yet been implemented or tested.
+## Database Limitations
 
-No assumptions about source behavior should be treated as verified until M01 and M02 evidence exists.
+- The Alembic baseline is intentionally empty.
+- No domain tables exist.
+- No ingestion, forecast, alert, scenario, or model metadata schema exists.
+- Docker Compose is local development infrastructure only.
+
+## Time-Domain Limitations
+
+- IESO hour-ending conversion currently handles the explicit M01 contract only: values 1 through 24 label Toronto local hour endpoints.
+- Ambiguous IESO endpoint times are rejected rather than inferred; later ingestion work must preserve enough source context to resolve them intentionally.
+- No source-specific parser behavior has been implemented or validated yet.
 
 ## Product Limitations
 
@@ -75,6 +85,4 @@ GridOps Intelligence is not intended to:
 
 ## Performance Claims
 
-No forecasting performance claims exist yet.
-
-No reliability, uptime, alert-precision, or operational-value claims should be made before verified evaluation.
+No forecasting performance claims exist yet. No reliability, uptime, alert-precision, or operational-value claims should be made before verified evaluation.
