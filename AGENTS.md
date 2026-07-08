@@ -1,140 +1,304 @@
-# AGENTS.md
+# AGENTS.md — GridOps Intelligence
 
-## Role
+## Project Purpose
 
-You are implementing the remaining M01 foundation work for GridOps Intelligence.
+GridOps Intelligence is a production-style energy data engineering, forecasting, and MLOps platform focused on Ontario electricity demand.
 
-Work carefully, keep scope tight, and do not introduce future milestone features.
+The system will ingest public electricity and weather data, preserve raw source evidence, validate and normalize data, produce day-ahead hourly demand forecasts, quantify uncertainty, detect operational attention conditions, support planning scenarios, expose APIs, and provide an operational dashboard.
 
-## Current Status
+This is not a notebook project. Build it as a tested, reproducible, production-style decision-support system.
 
-Already completed and merged into `m01`:
+## Development Model
 
-- M01-T01 Repository and Python Foundation
-- M01-T02 Configuration and Structured Logging
-- M01-T04 PostgreSQL, SQLAlchemy, Alembic, and Docker
+The project is built milestone by milestone.
 
-Remaining work to complete in one pass:
+Each milestone has its own file:
 
-- M01-T03 FastAPI application foundation
-- M01-T05 UTC, Toronto time, DST, and IESO hour-ending contract
-- M01-T06 GitHub Actions CI quality gates
-- M01-T07 full verification, consolidated documentation, and handoff
+```text
+milestones/M01.md
+milestones/M02.md
+milestones/M03.md
+milestones/M04.md
+milestones/M05.md
+milestones/M06.md
+milestones/M07.md
 
-## Hard Scope Boundaries
+Before working on a milestone, read the active milestone file and follow its scope.
 
-Do not implement:
+Do not start future milestone work early.
 
-- data ingestion
-- IESO API clients
-- weather ingestion
-- raw data snapshots
-- dbt
-- Prefect
-- MLflow
-- forecasting models
-- alerts
-- scenarios
-- frontend
-- dashboards
-- authentication
-- production deployment
-- domain tables beyond the empty Alembic baseline
+Required Files to Read First
 
-## Required Implementation
+Before making changes, read:
 
-### FastAPI
+README.md
+PROJECT_RULES.md
+CURRENT_STATE.md
+ROADMAP.md
+ARCHITECTURE.md
+DECISIONS.md
+KNOWN_LIMITATIONS.md
+the active milestone file in milestones/
+the previous milestone handoff in docs/handoffs/, if present
+the previous milestone verification report in docs/verification/, if present
+Branching Rules
 
-Add a small FastAPI foundation.
+Do not work directly on main.
 
-Required behavior:
+Use the active milestone branch:
 
-- app factory
-- `/health` endpoint
-- `/ready` endpoint
-- `/health` does not touch the database
-- `/ready` checks real PostgreSQL connectivity
-- readiness failures must return a safe 503 response without leaking secrets
-- use existing `Settings`, logging, and database foundation
-- include tests
+m01
+m02
+m03
+m04
+m05
+m06
+m07
 
-Suggested files:
+Before making changes, run:
 
-- `src/gridops/api.py`
-- `tests/test_api.py`
+git status
+git branch --show-current
 
-### Time Contract
+Do not mix unrelated milestone work into the active branch.
 
-Add explicit time utilities and tests.
+Approved High-Level Stack
+Backend
+Python 3.12
+FastAPI
+Pydantic
+Pydantic Settings
+SQLAlchemy 2.x
+Alembic
+PostgreSQL
+HTTPX
+Data Engineering
+Prefect
+dbt
+Pandera or Great Expectations
 
-Required behavior:
+Only introduce these when the active milestone requires them.
 
-- canonical timestamps are timezone-aware UTC
-- Toronto local time uses `America/Toronto`
-- naive datetimes are rejected
-- UTC to Toronto conversion is tested
-- Toronto to UTC conversion is tested
-- DST spring-forward behavior is tested
-- DST fall-back behavior is tested
-- IESO hour-ending values are validated
-- IESO hour-ending conversion is documented and tested
-- ambiguous or nonexistent local times must not be silently guessed
+Machine Learning
+scikit-learn
+LightGBM or XGBoost
+statsmodels
+SHAP
+MLflow
 
-Suggested files:
+Do not introduce ML dependencies before the forecasting and MLOps milestones.
 
-- `src/gridops/time_utils.py`
-- `tests/test_time_utils.py`
+Frontend
+Next.js
+TypeScript
+ECharts or Recharts
 
-Use only Python standard library time-zone support unless there is a strong reason otherwise.
+Do not introduce frontend work before the dashboard milestone.
 
-### CI
+Infrastructure and Testing
+Docker Compose
+GitHub Actions
+Pytest
+Ruff
+MyPy
+Engineering Rules
 
-Add GitHub Actions CI.
+Prioritize:
 
-Required checks:
+correctness
+reproducibility
+explicit contracts
+simple design
+tested behavior
+clear documentation
+honest limitations
 
-- Python 3.12
-- uv install
-- Ruff format check
-- Ruff lint
-- MyPy
-- Pytest
-- PostgreSQL available for integration tests
+Avoid:
 
-Suggested file:
+unnecessary abstraction
+premature frameworks
+unrelated rewrites
+silent data loss
+silent overwrites
+fake production readiness
+invented performance claims
+Time Rules
 
-- `.github/workflows/ci.yml`
+Time handling is critical for this project.
 
-Use Docker Compose if easiest.
+Rules:
 
-### Final Documentation
+Use timezone-aware datetimes.
+Store canonical operational timestamps in UTC.
+Interpret Ontario local time using America/Toronto.
+Do not silently accept naive datetimes.
+Do not assume every Ontario local day has 24 hours.
+Preserve source-native timestamps where relevant.
+Preserve IESO source-native date and hour-ending fields.
+Do not treat IESO hour-ending as a normal zero-based clock hour.
+Handle daylight-saving transitions explicitly.
 
-Only update documentation at the end.
+Any source timestamp ambiguity must be documented and tested.
 
-Update:
+Data Rules
 
-- `README.md`
-- `ARCHITECTURE.md`
-- `DECISIONS.md`
-- `KNOWN_LIMITATIONS.md`
-- `CURRENT_STATE.md`
+For source data:
 
-Documentation must summarize the full completed M01 foundation and clearly state what is not implemented yet.
+preserve raw evidence where required
+store retrieval metadata
+store publication metadata when available
+store source URL or retrieval identifier
+compute content hashes where relevant
+preserve source-native fields
+make ingestion idempotent
+record failures safely
+avoid duplicate facts
+document revision behavior
 
-## Quality Gate
+Do not discard source evidence just because normalized tables are easier to use.
 
-Before finishing, run:
+Testing Rules
 
-```powershell
-uv run ruff format .
+Automated tests must be deterministic.
+
+Do not depend on live internet in automated tests.
+
+Use:
+
+fixtures
+mocks
+temporary directories
+isolated test databases
+controlled sample payloads
+
+Default quality commands:
+
 uv run ruff format --check .
 uv run ruff check .
 uv run mypy src tests
 uv run pytest -q
 
-$env:GRIDOPS_DATABASE_URL = "postgresql+psycopg://gridops:gridops@127.0.0.1:55432/gridops_test"
-uv run alembic current
-Remove-Item Env:\GRIDOPS_DATABASE_URL
+If commands change, update documentation immediately.
 
-git diff --check
-git status --short
+Database and Migration Rules
+
+Use PostgreSQL for integration behavior.
+
+Do not silently replace PostgreSQL with SQLite where PostgreSQL behavior matters.
+
+For migrations:
+
+use Alembic
+support clean-database upgrade
+avoid premature future-domain tables
+document migration commands
+test upgrade behavior where practical
+preserve migration history
+
+Do not create tables for future milestones unless the active milestone requires them.
+
+Documentation Rules
+
+When code changes, update documentation in the same change set.
+
+Keep these files accurate:
+
+README.md
+CURRENT_STATE.md
+ROADMAP.md
+ARCHITECTURE.md
+DECISIONS.md
+KNOWN_LIMITATIONS.md
+
+At milestone completion, create or update:
+
+docs/verification/MXX_VERIFICATION.md
+docs/handoffs/MXX_HANDOFF.md
+
+Documentation must distinguish between:
+
+implemented behavior
+planned behavior
+assumptions
+optional live smoke checks
+known limitations
+deferred work
+
+Do not describe planned components as complete.
+
+Security Rules
+
+Do not commit:
+
+secrets
+API keys
+passwords
+private tokens
+local .env files
+downloaded raw data that should remain local
+credentials in logs
+
+Use .env.example for safe examples.
+
+Never print sensitive values in logs, test output, or documentation.
+
+Stop Conditions
+
+Stop and ask for guidance instead of guessing if:
+
+source behavior contradicts assumptions
+data licensing is unclear
+an API key appears required
+IESO time behavior is uncertain
+weather provider choice has long-term implications
+a database schema decision affects future milestones
+the requested change crosses milestone boundaries
+a tool substitution changes the approved stack
+the work requires a major redesign
+tests cannot be made deterministic
+CI requires a major platform change
+Codex Response Format
+
+Before implementation, report:
+
+Repository state:
+Current branch:
+Files reviewed:
+Understanding of active milestone:
+Implementation plan:
+Risks or uncertainties:
+
+After implementation, report:
+
+Files changed:
+What was implemented:
+Migrations added:
+Commands run:
+Exact results:
+Tests added:
+Known limitations:
+Documentation updated:
+Deferred work:
+Completion gate status:
+
+Do not claim completion without exact command results.
+
+Project Non-Goals
+
+GridOps Intelligence does not:
+
+control the electricity grid
+dispatch resources
+issue emergency declarations
+replace official IESO forecasts
+provide trading recommendations
+perform power-flow calculations
+make unsupported causal claims
+
+All public-facing claims must be supported by verified artifacts.
+
+Final Rule
+
+When uncertain, stop and ask.
+
+Do not guess silently in areas involving time, source data, database design, data quality, model evaluation, or operational claims.
