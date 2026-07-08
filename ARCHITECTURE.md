@@ -2,18 +2,11 @@
 
 ## Document Status
 
-This document distinguishes between:
-
-- approved target architecture
-- architecture actually implemented
-
-Do not describe planned components as complete.
+This document distinguishes between approved target architecture and architecture actually implemented. Planned components are not described as complete until they exist in the repository.
 
 ## Current Implemented Architecture
 
-## Current Implemented Architecture
-
-The following M01 foundation components are implemented:
+M01 - Domain Contract and Foundation is implemented.
 
 ### Python Foundation
 
@@ -46,18 +39,43 @@ The following M01 foundation components are implemented:
 - recognized credential-field redaction
 - common credential-pattern sanitization
 
-The following are not yet implemented:
+### Database Foundation
 
-- FastAPI application
-- health and readiness routes
-- PostgreSQL runtime environment
-- SQLAlchemy
-- Alembic
-- Docker Compose
-- CI
-- electricity time-domain utilities
-- source ingestion
-- forecasting or product features
+- PostgreSQL is the primary relational database
+- Docker Compose provides local PostgreSQL on host port 55432
+- SQLAlchemy synchronous engine and session factory
+- SQLAlchemy declarative base with deterministic naming conventions
+- transactional session scope helper
+- real connectivity check used by readiness behavior
+- Alembic configured with an empty baseline migration
+
+### API Foundation
+
+- FastAPI application factory in `gridops.api`
+- `/health` process-health endpoint
+- `/ready` PostgreSQL readiness endpoint
+- health checks avoid database access
+- readiness failures return safe `503` JSON without connection details or credentials
+- application setup uses existing settings, logging, and database foundation
+
+### Time Foundation
+
+- canonical timestamps use timezone-aware UTC
+- Ontario local time uses `America/Toronto`
+- naive datetimes are rejected
+- UTC-to-Toronto and Toronto-to-UTC conversions are tested
+- nonexistent spring-forward wall times are rejected
+- ambiguous fall-back wall times require explicit fold selection
+- IESO hour-ending values are validated from 1 through 24
+- IESO hour-ending conversion maps the label to the end of the Toronto local operating hour
+
+### CI
+
+- GitHub Actions workflow runs on Python 3.12
+- uv installs locked dependencies
+- PostgreSQL service is available for integration tests
+- CI runs Ruff format check, Ruff lint, MyPy, Pytest, and Alembic current
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -78,83 +96,14 @@ The planned system flow is:
 
 ## Planned Data Layers
 
-### Bronze
+Bronze preserves source evidence such as original payloads, source URLs, publication times, retrieval times, hashes, parser versions, and ingestion-run identifiers.
 
-Preserves source evidence:
+Silver normalizes source data while retaining source meaning, including UTC timestamps, Ontario local-time interpretation, source-native date and time fields, IESO hour-ending values, normalized units, revision metadata, and quality flags.
 
-- original source files or payloads
-- source URL
-- publication time
-- retrieval time
-- file hash
-- parser version
-- ingestion-run identifier
-
-### Silver
-
-Normalizes source data while retaining source meaning:
-
-- UTC timestamp
-- Ontario local-time interpretation
-- source-native date and time fields
-- IESO hour-ending values
-- normalized units
-- revision metadata
-- quality flags
-
-### Gold
-
-Supports operational and analytical use:
-
-- hourly demand facts
-- weather features
-- model feature snapshots
-- forecasts
-- prediction intervals
-- evaluation metrics
-- alerts
-- scenario results
-- briefing facts
+Gold supports operational and analytical use through demand facts, weather features, model feature snapshots, forecasts, prediction intervals, evaluation metrics, alerts, scenarios, and briefing facts.
 
 ## M01 Architectural Boundary
 
-M01 may establish:
+M01 establishes package structure, configuration, logging, PostgreSQL connectivity, SQLAlchemy, Alembic, Docker Compose, FastAPI health and readiness behavior, CI, and time-domain contracts.
 
-- Python package structure
-- FastAPI application structure
-- configuration
-- structured logging
-- PostgreSQL connectivity
-- SQLAlchemy foundation
-- Alembic
-- Docker Compose
-- health and readiness behavior
-- CI
-- time-domain utilities and contracts
-
-M01 must not implement:
-
-- real IESO ingestion
-- weather ingestion
-- Prefect flows
-- dbt models
-- training datasets
-- forecasting models
-- MLflow
-- alert logic
-- scenario logic
-- frontend features
-
-## Time Architecture
-
-Approved principles:
-
-- canonical operational storage uses timezone-aware UTC timestamps
-- Ontario local-time interpretation uses `America/Toronto`
-- naive datetimes must not be accepted silently
-- IESO hour-ending fields must be preserved
-- daylight-saving ambiguity must be handled explicitly
-- source publication and retrieval times must remain distinguishable
-- no implementation may assume that every Ontario local day contains 24 hours
-
-Detailed implementation will be established and tested during M01.
+M01 does not implement real IESO ingestion, weather ingestion, Prefect flows, dbt models, training datasets, forecasting models, MLflow, alert logic, scenario logic, frontend features, authentication, or production deployment.

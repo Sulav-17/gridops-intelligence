@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - m01
+      - m01-finish-foundation
+
+jobs:
+  quality:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: gridops
+          POSTGRES_PASSWORD: gridops
+          POSTGRES_DB: gridops_test
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U gridops -d gridops_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    env:
+      GRIDOPS_DATABASE_URL: postgresql+psycopg://gridops:gridops@127.0.0.1:55432/gridops_test
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --all-groups --frozen
+
+      - name: Ruff format check
+        run: uv run ruff format --check .
+
+      - name: Ruff lint
+        run: uv run ruff check .
+
+      - name: MyPy
+        run: uv run mypy src tests
+
+      - name: Pytest
+        run: uv run pytest -q
+
+      - name: Alembic current
+        run: uv run alembic current
