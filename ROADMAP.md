@@ -49,7 +49,7 @@ M02 completion is fixture-backed. Live source clients, orchestration, and formal
 
 ## M03 - Data Quality and Observability
 
-**Status:** Not started
+**Status:** Complete on branch `m03`, pending approval and merge
 
 **Owner:** Priya Shah, Senior Data Reliability Engineer
 
@@ -64,6 +64,8 @@ Primary outcomes:
 - persisted quality results
 - source-health service or report
 - downstream blocking rules
+
+M03-C01 implemented the quality schema, core contracts, and persistence helpers. M03-C02A implemented deterministic IESO hourly demand quality checks. M03-C02B implemented deterministic weather and source metadata checks. M03-C03 implemented blocking logic and source-health output. M03-C04 implemented the persisted quality runner, deterministic runner coverage, quality documentation, verification, and handoff artifacts.
 
 ## M04 - Baselines and Backtesting
 

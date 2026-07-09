@@ -6,7 +6,7 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01 and M02 are implemented.
+M01, M02, and M03 are implemented on branch `m03`.
 
 ### Foundation
 
@@ -19,7 +19,7 @@ M01 and M02 are implemented.
 - PostgreSQL as the primary relational database
 - Alembic migrations
 - Docker Compose PostgreSQL on host port `55432`
-- FastAPI app factory with `/health` and `/ready`
+- FastAPI app factory with `/health`, `/ready`, and `GET /quality/health`
 - explicit UTC, Toronto time, DST, and IESO hour-ending utilities
 
 ### M02 Ingestion Foundation
@@ -48,6 +48,36 @@ Ingestion code:
 
 Silver rows retain raw snapshot IDs, ingestion run IDs, source-native fields, normalized UTC timestamps, row hashes, `is_current`, and `superseded_at_utc`.
 
+### M03 Quality Layer
+
+Quality storage:
+
+- `quality_runs`
+- `quality_results`
+
+Quality contracts and persistence:
+
+- typed quality severity, run status, result status, and check category contracts
+- dataset quality contract definitions for existing M02 storage tables
+- persistence helpers for quality runs and quality results
+- generic in-memory quality check result utilities compatible with quality result persistence
+
+Implemented dataset checks:
+
+- deterministic IESO hourly demand schema, nullability, uniqueness, range, timestamp, continuity, completeness, freshness, and DST alignment checks
+- deterministic weather observation schema, nullability, uniqueness, range, timestamp, fixture-supported continuity, and freshness checks
+- deterministic weather forecast schema, nullability, uniqueness, range, timestamp, fixture-supported valid-time completeness, and freshness checks
+- deterministic raw snapshot and ingestion run source metadata checks
+
+Implemented quality services:
+
+- persisted blocking decisions over quality runs and results
+- dataset source-health summaries built from latest persisted quality runs and results
+- FastAPI `GET /quality/health` endpoint for safe operational visibility
+- simple persisted quality runner through `python -m gridops.quality.runner`
+
+The quality layer does not auto-run checks from ingestion, implement an alert lifecycle, or introduce orchestration.
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -68,4 +98,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-M02 does not implement live source fetching, Prefect orchestration, dbt transformations, formal data-quality severity checks, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.

@@ -6,15 +6,15 @@ GridOps Intelligence
 
 ## Current Phase
 
-M02 data ingestion foundation complete
+M03 complete on branch `m03`, pending milestone approval and merge
 
 ## Active Milestone
 
-M02 - Data Ingestion Foundation
+M03 - Data Quality and Observability
 
 ## Milestone Owner
 
-Maya Chen - Senior Data Engineer
+Priya Shah - Senior Data Reliability Engineer
 
 ## Project Leader
 
@@ -22,25 +22,23 @@ Samantha
 
 ## Repository Status
 
-The repository has completed the M02 ingestion foundation on branch `m02`.
+M01 is complete.
 
-Implemented M02 work:
+M02 is complete and merged to `main`.
 
-- ingestion run tracking
-- raw snapshot metadata persistence
-- local immutable raw payload storage by source and SHA-256 hash
-- source registry contract
-- IESO hourly demand fixture parser and loader
-- weather observation fixture parser and loader
-- archived weather forecast fixture parser and loader
-- normalized silver tables for the three M02 sources
-- idempotent loading
-- simple changed-record revision evidence
-- simple fixture ingestion runner
-- deterministic parser, loader, storage, runner, and migration tests
-- source contract, runbook, verification, and handoff documentation
+M03 implementation is complete on branch `m03` and has not been merged yet.
 
-No future milestone features have been implemented.
+Implemented storage remains:
+
+- `ingestion_runs`
+- `raw_snapshots`
+- `ieso_hourly_demand`
+- `weather_observations`
+- `weather_forecasts`
+- `quality_runs`
+- `quality_results`
+
+No M04 feature work is implemented yet.
 
 ## Technical State
 
@@ -48,38 +46,48 @@ No future milestone features have been implemented.
 - package: `gridops`
 - database: PostgreSQL
 - local database port: `55432`
-- migrations: empty baseline plus M02 ingestion storage migration
-- API: FastAPI health and readiness only
+- migrations: empty baseline, M02 ingestion storage, and M03 quality storage
+- API: FastAPI health, readiness, and `GET /quality/health`
 - ingestion: fixture mode only through `python -m gridops.ingestion.runner`
-- tests: unit and PostgreSQL integration coverage for M01 and M02 behavior
+- quality: persisted dataset checks through `python -m gridops.quality.runner`
+- tests: deterministic unit and PostgreSQL integration coverage for M01 through M03
 
-## Implemented Data Storage
+## Implemented M03 Capabilities
 
-Bronze tables:
+Quality contracts and persistence:
 
-- `ingestion_runs`
-- `raw_snapshots`
+- typed severity, run status, result status, and check category enums
+- dataset contracts for the five existing M02 datasets
+- persisted `quality_runs` and `quality_results`
+- safe bounded quality-result detail persistence
 
-Silver tables:
+Dataset checks:
 
-- `ieso_hourly_demand`
-- `weather_observations`
-- `weather_forecasts`
+- IESO hourly demand schema, nullability, uniqueness, range, timestamp, continuity, completeness, freshness, and DST alignment checks
+- weather observation schema, nullability, uniqueness, range, timestamp, fixture-supported continuity, and freshness checks
+- weather forecast schema, nullability, uniqueness, range, timestamp, fixture-supported valid-time completeness, and freshness checks
+- raw snapshot and ingestion run source metadata checks
 
-Silver rows preserve raw snapshot references, ingestion run references, source-native fields, normalized UTC timestamps, row hashes, current-state flags, and superseded timestamps.
+Observability and controls:
+
+- persisted blocking decisions over latest applicable quality runs and results
+- source-health summaries for supported datasets
+- `GET /quality/health` safe operational visibility endpoint
+- simple quality runner for supported datasets with optional checked-window and fixed-clock arguments
+- deterministic runner, persistence, blocking, source-health, and API tests
 
 ## Not Implemented Yet
 
 - live source fetching
 - IESO API clients
 - weather provider API clients
-- formal M03 data-quality checks
-- dbt
+- scheduled ingestion
 - Prefect
-- MLflow
+- dbt
+- gold feature tables
 - forecasting models
 - backtesting
-- gold feature tables
+- MLflow
 - alerts
 - scenarios
 - frontend or dashboards
@@ -88,8 +96,9 @@ Silver rows preserve raw snapshot references, ingestion run references, source-n
 
 ## Verification Evidence
 
-Final M02 verification is recorded in `docs/verification/M02_VERIFICATION.md`.
+- M02 verification: `docs/verification/M02_VERIFICATION.md`
+- M03 verification: `docs/verification/M03_VERIFICATION.md`
 
 ## Immediate Next Action
 
-Begin M03 - Data Quality and Observability from the completed M02 ingestion foundation.
+Begin M04-C01 point-in-time feature contracts and trusted gold snapshot foundations.
