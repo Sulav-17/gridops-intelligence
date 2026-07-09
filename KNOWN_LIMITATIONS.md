@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation, M02 ingestion foundation, and M03-C01 quality schema and core contracts.
+The repository contains the completed M01 foundation, M02 ingestion foundation, M03-C01 quality schema and core contracts, and M03-C02A IESO hourly demand quality checks.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -21,6 +21,13 @@ Implemented M03-C01 quality foundation includes:
 - quality run and quality result tables
 - persistence helpers for quality runs and quality results
 
+Implemented M03-C02A quality checks include deterministic IESO hourly demand:
+
+- schema and required-field checks
+- duplicate current source-native key checks
+- conservative demand range checks
+- timestamp, continuity, completeness, freshness, and DST alignment checks
+
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
@@ -30,7 +37,8 @@ The following are intentionally not implemented yet:
 - scheduled ingestion
 - Prefect orchestration
 - dbt transformations
-- executable M03 data-quality checks
+- weather data-quality checks
+- raw snapshot/source metadata checks
 - quality blocking logic
 - source-health scoring
 - source-health API or operational report
@@ -60,6 +68,8 @@ The following are intentionally not implemented yet:
 
 - IESO hour-ending conversion follows the M01 contract.
 - Ambiguous or nonexistent IESO endpoint times are rejected rather than inferred.
+- M03-C02A IESO DST alignment can validate spring-forward records that are representable under the current M02 schema.
+- The current M02 IESO source-native key uses service date plus hour-ending and cannot fully distinguish the repeated fall-back operating hour without additional source-native detail.
 - Real DST transition source behavior must be handled explicitly in future source-specific work.
 
 ## Product Limitations

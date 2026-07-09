@@ -65,7 +65,7 @@ Primary outcomes:
 - source-health service or report
 - downstream blocking rules
 
-M03-C01 has implemented the quality schema, core contracts, and persistence helpers. Executable quality checks, blocking logic, source-health output, runner commands, and milestone handoff/verification remain in progress.
+M03-C01 has implemented the quality schema, core contracts, and persistence helpers. M03-C02A has implemented deterministic IESO hourly demand quality checks. Weather checks, raw snapshot/source metadata checks, blocking logic, source-health output, runner commands, and milestone handoff/verification remain in progress.
 
 ## M04 - Baselines and Backtesting
 

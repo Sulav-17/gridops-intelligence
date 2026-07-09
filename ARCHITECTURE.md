@@ -6,7 +6,7 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01, M02, and M03-C01 are implemented.
+M01, M02, M03-C01, and M03-C02A are implemented.
 
 ### Foundation
 
@@ -63,6 +63,15 @@ Quality code:
 
 The M03-C01 foundation does not execute dataset checks, make blocking decisions, expose source-health output, or run a quality command.
 
+### M03-C02A IESO Quality Checks
+
+Quality check code:
+
+- generic in-memory quality check result utilities compatible with quality result persistence
+- deterministic IESO hourly demand schema, nullability, uniqueness, range, timestamp, continuity, completeness, freshness, and DST alignment checks
+
+The IESO checks return result objects but do not persist automatically, make blocking decisions, expose source-health output, or run through a quality command.
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -83,4 +92,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, executable data-quality checks, blocking logic, source-health output, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, weather quality checks, raw snapshot/source metadata checks, blocking logic, source-health output, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.

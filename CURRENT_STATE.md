@@ -6,7 +6,7 @@ GridOps Intelligence
 
 ## Current Phase
 
-M03-C01 quality schema and core contracts implemented
+M03-C02A generic quality utilities and IESO hourly demand checks implemented
 
 ## Active Milestone
 
@@ -28,8 +28,10 @@ M02 is complete and merged to `main`.
 
 The active milestone is M03 on branch `m03`.
 
-M03-C01 has implemented the quality schema and core contracts. Dataset quality checks,
-blocking logic, source-health output, and a quality runner have not been implemented yet.
+M03-C01 has implemented the quality schema and core contracts. M03-C02A has implemented
+generic in-memory quality check result utilities and deterministic IESO hourly demand checks.
+Weather checks, raw snapshot/source metadata checks, blocking logic, source-health output, and
+a quality runner have not been implemented yet.
 
 Implemented storage that already exists:
 
@@ -82,9 +84,24 @@ Quality tables:
 
 Quality storage records run lifecycle state and individual quality result metadata for existing M02 datasets without storing raw payloads or secrets.
 
+## Implemented Quality Checks
+
+IESO hourly demand:
+
+- required-column schema checks
+- required-field nullability checks
+- duplicate current source-native key checks
+- conservative demand range checks
+- UTC timestamp ordering and one-hour duration checks
+- hourly UTC interval continuity checks
+- source-hour completeness checks
+- fixed-clock freshness checks
+- DST alignment checks using M01 time utilities where the M02 schema can represent the source-native hour
+
 ## Not Implemented Yet
 
-- M03 dataset quality checks
+- M03 weather dataset quality checks
+- M03 raw snapshot/source metadata quality checks
 - M03 blocking logic
 - M03 source-health API or operational report
 - M03 quality runner
@@ -109,4 +126,4 @@ Final M02 verification is recorded in `docs/verification/M02_VERIFICATION.md`.
 
 ## Immediate Next Action
 
-Begin M03-C02 core dataset quality checks.
+Begin M03-C02B weather dataset quality checks.
