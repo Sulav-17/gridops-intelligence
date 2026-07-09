@@ -48,3 +48,6 @@ Desktop.ini
 *.log
 *.tmp
 *.swp
+
+# Local raw ingestion payloads
+data/raw/

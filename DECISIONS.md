@@ -314,3 +314,33 @@ A workflow-level PostgreSQL service keeps CI direct while still exercising integ
 ### Consequences
 
 CI runs dependency installation, Ruff format check, Ruff lint, MyPy, Pytest, and Alembic current.
+
+---
+
+## DEC-011 - Fixture-First M02 Ingestion Foundation
+
+**Status:** Accepted
+
+**Date:** July 2026
+
+### Decision
+
+M02 implements fixture-backed ingestion first, with persisted raw evidence, ingestion runs, source metadata, hashes, and normalized silver tables.
+
+### Context
+
+The project needs deterministic ingestion behavior before adding live clients, orchestration, or formal data-quality checks.
+
+### Alternatives
+
+- implement live source clients immediately
+- add Prefect orchestration in M02
+- build fixture-backed ingestion and defer live clients
+
+### Rationale
+
+Fixture-backed ingestion allows repeatable tests, clear time handling, raw evidence preservation, and revision behavior without depending on live internet or unresolved provider choices.
+
+### Consequences
+
+M02 supports only local fixture ingestion through a simple module runner. Live source clients, scheduling, Prefect, dbt, and formal data-quality checks remain deferred to later milestones.

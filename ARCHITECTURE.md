@@ -6,75 +6,47 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01 - Domain Contract and Foundation is implemented.
+M01 and M02 are implemented.
 
-### Python Foundation
+### Foundation
 
-- Python 3.12 project
-- src-based `gridops` package
+- Python 3.12 project using a `src` layout
 - uv dependency management and lockfile
-- Ruff formatting and linting
-- strict MyPy checking
-- Pytest test foundation
+- Ruff, MyPy, and Pytest
+- typed Pydantic Settings with `GRIDOPS_` prefix
+- structured JSON logging with UTC timestamps and secret redaction
+- synchronous SQLAlchemy engine and session helpers
+- PostgreSQL as the primary relational database
+- Alembic migrations
+- Docker Compose PostgreSQL on host port `55432`
+- FastAPI app factory with `/health` and `/ready`
+- explicit UTC, Toronto time, DST, and IESO hour-ending utilities
 
-### Configuration
+### M02 Ingestion Foundation
 
-- strongly typed Pydantic Settings model
-- `GRIDOPS_` environment-variable prefix
-- optional local `.env` loading
-- typed application environment and log-level values
-- validated API host, port, and readiness timeout
-- PostgreSQL-only database URL validation
-- secret-safe database URL representation
+Bronze storage:
 
-### Logging
+- `ingestion_runs`
+- `raw_snapshots`
+- local raw payload files stored by source and SHA-256 hash
 
-- Python standard-library logging
-- one-line structured JSON output
-- UTC timestamps
-- configurable severity
-- stable application logger name
-- idempotent logger initialization
-- structured context fields
-- recognized credential-field redaction
-- common credential-pattern sanitization
+Silver storage:
 
-### Database Foundation
+- `ieso_hourly_demand`
+- `weather_observations`
+- `weather_forecasts`
 
-- PostgreSQL is the primary relational database
-- Docker Compose provides local PostgreSQL on host port 55432
-- SQLAlchemy synchronous engine and session factory
-- SQLAlchemy declarative base with deterministic naming conventions
-- transactional session scope helper
-- real connectivity check used by readiness behavior
-- Alembic configured with an empty baseline migration
+Ingestion code:
 
-### API Foundation
+- source registry contract
+- SHA-256 hashing utility
+- raw snapshot storage abstraction
+- fixture-backed IESO hourly demand parser and loader
+- fixture-backed weather observation parser and loader
+- fixture-backed archived weather forecast parser and loader
+- simple fixture runner through `python -m gridops.ingestion.runner`
 
-- FastAPI application factory in `gridops.api`
-- `/health` process-health endpoint
-- `/ready` PostgreSQL readiness endpoint
-- health checks avoid database access
-- readiness failures return safe `503` JSON without connection details or credentials
-- application setup uses existing settings, logging, and database foundation
-
-### Time Foundation
-
-- canonical timestamps use timezone-aware UTC
-- Ontario local time uses `America/Toronto`
-- naive datetimes are rejected
-- UTC-to-Toronto and Toronto-to-UTC conversions are tested
-- nonexistent spring-forward wall times are rejected
-- ambiguous fall-back wall times require explicit fold selection
-- IESO hour-ending values are validated from 1 through 24
-- IESO hour-ending conversion maps the label to the end of the Toronto local operating hour
-
-### CI
-
-- GitHub Actions workflow runs on Python 3.12
-- uv installs locked dependencies
-- PostgreSQL service is available for integration tests
-- CI runs Ruff format check, Ruff lint, MyPy, Pytest, and Alembic current
+Silver rows retain raw snapshot IDs, ingestion run IDs, source-native fields, normalized UTC timestamps, row hashes, `is_current`, and `superseded_at_utc`.
 
 ## Approved Target Architecture
 
@@ -94,16 +66,6 @@ The planned system flow is:
 12. FastAPI backend
 13. Next.js operational dashboard
 
-## Planned Data Layers
+## Current Boundaries
 
-Bronze preserves source evidence such as original payloads, source URLs, publication times, retrieval times, hashes, parser versions, and ingestion-run identifiers.
-
-Silver normalizes source data while retaining source meaning, including UTC timestamps, Ontario local-time interpretation, source-native date and time fields, IESO hour-ending values, normalized units, revision metadata, and quality flags.
-
-Gold supports operational and analytical use through demand facts, weather features, model feature snapshots, forecasts, prediction intervals, evaluation metrics, alerts, scenarios, and briefing facts.
-
-## M01 Architectural Boundary
-
-M01 establishes package structure, configuration, logging, PostgreSQL connectivity, SQLAlchemy, Alembic, Docker Compose, FastAPI health and readiness behavior, CI, and time-domain contracts.
-
-M01 does not implement real IESO ingestion, weather ingestion, Prefect flows, dbt models, training datasets, forecasting models, MLflow, alert logic, scenario logic, frontend features, authentication, or production deployment.
+M02 does not implement live source fetching, Prefect orchestration, dbt transformations, formal data-quality severity checks, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.

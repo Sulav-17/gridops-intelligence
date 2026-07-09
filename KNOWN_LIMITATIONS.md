@@ -2,33 +2,33 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation:
+The repository contains the completed M01 foundation and M02 ingestion foundation.
 
-- project governance and milestone documents
-- Python 3.12 package foundation
-- uv dependency locking
-- Ruff, MyPy, and Pytest configuration
-- typed application settings
-- structured JSON application logging
-- PostgreSQL, SQLAlchemy, Alembic, and Docker Compose foundation
-- FastAPI app factory with health and readiness endpoints
-- explicit UTC, `America/Toronto`, DST, and IESO hour-ending utilities
-- GitHub Actions CI quality gates
+Implemented M02 ingestion is fixture-backed only:
+
+- IESO hourly demand CSV fixtures
+- weather observation CSV fixtures
+- archived weather forecast CSV fixtures
+- raw snapshot metadata and local raw file storage
+- ingestion run tracking
+- idempotent silver loaders
+- simple changed-record revision evidence
 
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
 
-- IESO API clients
-- electricity data ingestion
-- weather ingestion
-- immutable raw source snapshots
-- source data-quality checks
-- domain tables beyond the empty Alembic baseline
-- dbt transformations
+- live IESO source clients
+- live weather provider clients
+- scheduled ingestion
 - Prefect orchestration
+- dbt transformations
+- formal M03 data-quality framework
+- source-health scoring
+- gold feature tables
 - MLflow tracking
 - forecasting models
+- backtesting
 - operational alerts
 - scenario engine
 - briefing generation
@@ -36,40 +36,21 @@ The following are intentionally not implemented yet:
 - authentication or authorization
 - production deployment
 
-## Configuration Limitations
+## Ingestion Limitations
 
-- The default database URL is a local development placeholder.
-- No production secret-injection or secret-rotation mechanism exists.
-- `.env` support is intended for local development, not production secret management.
-- Application settings are instantiated in-process; no deployment configuration layer exists yet.
-
-## Logging Limitations
-
-- Logging currently writes only to a configured stream, normally standard output.
-- No centralized log aggregation, persistence, rotation, or retention exists.
-- Secret redaction covers recognized field names and common text patterns but cannot guarantee sanitization of every possible secret format.
-- Developers must not place credentials in log messages.
-- Request IDs, trace IDs, ingestion-run IDs, and other operational correlation fields have not yet been introduced.
-
-## API Limitations
-
-- The FastAPI application has only `/health` and `/ready`.
-- There are no domain API routes.
-- There is no authentication, authorization, rate limiting, request tracing, or deployment server configuration.
-- Readiness verifies basic PostgreSQL connectivity only; it does not validate domain schema readiness because no domain schema exists yet.
-
-## Database Limitations
-
-- The Alembic baseline is intentionally empty.
-- No domain tables exist.
-- No ingestion, forecast, alert, scenario, or model metadata schema exists.
-- Docker Compose is local development infrastructure only.
+- The runner supports only `--mode fixture`.
+- Raw payload files are local development artifacts under `data/raw` by default.
+- Weather provider selection is deferred; weather fixtures use provider-neutral columns.
+- Weather timestamps must include timezone information.
+- Archived weather forecast lead time is derived only for whole-hour issue-to-valid differences.
+- Revision behavior is simple current/superseded state, not a full bitemporal model.
+- Failed runs store bounded sanitized error text, not full stack traces.
 
 ## Time-Domain Limitations
 
-- IESO hour-ending conversion currently handles the explicit M01 contract only: values 1 through 24 label Toronto local hour endpoints.
-- Ambiguous IESO endpoint times are rejected rather than inferred; later ingestion work must preserve enough source context to resolve them intentionally.
-- No source-specific parser behavior has been implemented or validated yet.
+- IESO hour-ending conversion follows the M01 contract.
+- Ambiguous or nonexistent IESO endpoint times are rejected rather than inferred.
+- Real DST transition source behavior must be handled explicitly in future source-specific work.
 
 ## Product Limitations
 
