@@ -2,26 +2,18 @@
 
 GridOps Intelligence is a production-style energy data engineering, forecasting, and MLOps platform focused on Ontario electricity demand.
 
-The system is intended to:
+The system is intended to ingest public electricity and weather data, preserve source evidence, validate and normalize changing source data, produce trusted day-ahead forecasting evaluations, and later support production forecasting, alerts, scenarios, APIs, and an operational dashboard.
 
-- ingest public electricity and weather data
-- preserve immutable source snapshots and metadata
-- validate and normalize changing source data
-- produce day-ahead hourly demand forecasts
-- quantify forecast uncertainty
-- detect operational attention conditions
-- support controlled planning scenarios
-- expose results through APIs and an operational dashboard
-
-M03 is now the implemented data quality and observability milestone on top of the M02 ingestion foundation. Forecasting, alerts, scenarios, dashboards, authentication, deployment, dbt, Prefect, and MLflow are intentionally not implemented yet.
+M04 is complete on branch `m04`, pending approval and merge. M04 is an evaluation foundation, not a production forecast-serving milestone.
 
 ## Current Status
 
-The repository has completed:
+Completed milestones:
 
 - M01 - Foundation and environment readiness
 - M02 - Data ingestion foundation
 - M03 - Data quality and observability
+- M04 - Baselines and backtesting
 
 Implemented foundation:
 
@@ -32,24 +24,31 @@ Implemented foundation:
 - typed `GRIDOPS_` configuration with secret-aware database URL handling
 - structured JSON logging with UTC timestamps and defensive redaction
 - synchronous SQLAlchemy database foundation
-- empty Alembic baseline
-- Docker Compose PostgreSQL on host port 55432
-- FastAPI app factory with `/health` and `/ready`
+- Alembic migrations
+- Docker Compose PostgreSQL on host port `55432`
+- FastAPI app factory with `/health`, `/ready`, and `GET /quality/health`
 - UTC, `America/Toronto`, DST, and IESO hour-ending utilities
-- GitHub Actions CI quality gates
-- ingestion run tracking
-- immutable raw snapshot metadata and local raw file storage
-- SHA-256 payload and row hashing
-- fixture-backed IESO hourly demand ingestion
-- fixture-backed weather observation ingestion
-- fixture-backed archived weather forecast ingestion
-- idempotent silver loaders with simple revision evidence
-- persisted quality contracts for all M02 datasets
-- deterministic dataset quality checks for IESO demand, weather observations, weather forecasts, raw snapshots, and ingestion runs
-- persisted quality runs and quality results
-- blocking decisions based on persisted quality results
-- `GET /quality/health` source-health visibility
-- simple quality runner through `python -m gridops.quality.runner`
+- fixture-backed ingestion for IESO demand, weather observations, and archived weather forecasts
+- persisted data quality checks, quality runs, quality results, blocking decisions, and source-health summaries
+- forecast issue contracts and deterministic hourly horizons
+- point-in-time feature snapshots with leakage-safe demand, calendar, weather observation, and archived forecast features
+- same-hour-yesterday, same-hour-last-week, seasonal hourly mean, and Ridge baselines
+- deterministic rolling or expanding backtest window definitions
+- MAE, RMSE, WAPE, bias, and slice metric calculations
+- persisted baseline run, prediction, aggregate metric, and slice metric rows
+- simple forecasting runner previews through `python -m gridops.forecasting.runner`
+
+Not implemented yet:
+
+- live source fetching
+- orchestration with Prefect
+- dbt transformations
+- production forecast model serving
+- quantile forecasts or prediction intervals
+- MLflow registry
+- scheduled inference
+- production forecast API
+- alerts, scenarios, dashboards, authentication, or deployment
 
 ## Local Development
 
@@ -74,12 +73,6 @@ docker compose up -d postgres
 
 The local PostgreSQL service maps host port `55432` to container port `5432`. The default application database is `gridops`; the Docker init script creates `gridops_test` for integration tests when the volume is first initialized.
 
-Verify the package import:
-
-```powershell
-uv run python -c "import gridops; print(gridops.__name__, gridops.__version__)"
-```
-
 Run quality checks:
 
 ```powershell
@@ -96,6 +89,8 @@ $env:GRIDOPS_DATABASE_URL = "postgresql+psycopg://gridops:gridops@127.0.0.1:5543
 uv run alembic current
 Remove-Item Env:\GRIDOPS_DATABASE_URL
 ```
+
+## Ingestion And Quality
 
 Run fixture ingestion:
 
@@ -120,30 +115,32 @@ uv run python -m gridops.quality.runner --dataset ingestion_runs
 Remove-Item Env:\GRIDOPS_DATABASE_URL
 ```
 
-Optional deterministic runner flags:
+## Forecasting Evaluation
 
-- `--checked-window-start-utc 2026-01-15T05:00:00Z`
-- `--checked-window-end-utc 2026-01-15T08:00:00Z`
-- `--now-utc 2026-01-15T09:00:00Z`
-
-## Configuration
-
-Application settings are defined in `gridops.config.Settings` using Pydantic Settings. Settings can be supplied through environment variables or a local `.env` file. Every supported environment variable uses the `GRIDOPS_` prefix.
-
-Supported settings:
-
-- `GRIDOPS_APP_NAME`
-- `GRIDOPS_APP_ENVIRONMENT`
-- `GRIDOPS_LOG_LEVEL`
-- `GRIDOPS_API_HOST`
-- `GRIDOPS_API_PORT`
-- `GRIDOPS_DATABASE_URL`
-- `GRIDOPS_READINESS_TIMEOUT_SECONDS`
-
-Copy `.env.example` to `.env` for local development:
+Preview feature snapshot generation:
 
 ```powershell
-Copy-Item .env.example .env
+uv run python -m gridops.forecasting.runner build-features --forecast-issue-time-utc 2026-07-09T15:00:00Z --horizon-hours 24 --dry-run
+```
+
+Persist feature snapshots against the configured database:
+
+```powershell
+$env:GRIDOPS_DATABASE_URL = "postgresql+psycopg://gridops:gridops@127.0.0.1:55432/gridops_test"
+uv run python -m gridops.forecasting.runner build-features --forecast-issue-time-utc 2026-07-09T15:00:00Z --horizon-hours 24
+Remove-Item Env:\GRIDOPS_DATABASE_URL
+```
+
+Preview deterministic backtest windows:
+
+```powershell
+uv run python -m gridops.forecasting.runner run-backtest --training-start-utc 2026-07-01T00:00:00Z --start-utc 2026-07-08T00:00:00Z --end-utc 2026-07-10T00:00:00Z --minimum-training-history-hours 24 --dry-run
+```
+
+Summarize forecasting capabilities:
+
+```powershell
+uv run python -m gridops.forecasting.runner report --dry-run
 ```
 
 ## API Foundation
@@ -161,6 +158,8 @@ Endpoints:
 - `GET /health` returns process health and does not touch the database.
 - `GET /ready` checks real PostgreSQL connectivity and returns a safe `503` response when the dependency is unavailable.
 - `GET /quality/health` summarizes latest persisted quality status, worst severity, blocking state, check counts, and safe failure summaries for supported datasets.
+
+No production forecast API exists yet.
 
 ## Time Contract
 
@@ -188,9 +187,13 @@ Time utilities live in `gridops.time_utils`.
 | `docs/data/INGESTION_RUNBOOK.md` | M02 fixture ingestion commands and operations |
 | `docs/quality/QUALITY_CONTRACTS.md` | M03 dataset quality contracts, thresholds, and blocking rules |
 | `docs/quality/QUALITY_RUNBOOK.md` | M03 quality runner usage and troubleshooting |
-| `docs/verification/M03_VERIFICATION.md` | M03 verification evidence and exact command results |
-| `docs/handoffs/M03_HANDOFF.md` | M03 completion handoff for M04 |
-| `milestones/M03.md` | Detailed M03 scope and completion requirements |
+| `docs/forecasting/FORECAST_ISSUE_CONTRACT.md` | M04 forecast issue and horizon contract |
+| `docs/forecasting/FEATURE_SNAPSHOT_CONTRACT.md` | M04 point-in-time feature snapshot contract |
+| `docs/forecasting/BACKTESTING_RUNBOOK.md` | M04 forecasting runner and backtesting runbook |
+| `docs/forecasting/BASELINE_REPORT.md` | M04 baseline evaluation report |
+| `docs/verification/M04_VERIFICATION.md` | M04 verification evidence and exact command results |
+| `docs/handoffs/M04_HANDOFF.md` | M04 completion handoff for M05 |
+| `milestones/M04.md` | Detailed M04 scope and completion requirements |
 
 ## Scope Boundaries
 

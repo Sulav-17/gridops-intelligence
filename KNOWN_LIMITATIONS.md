@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation, M02 ingestion foundation, and M03 data quality and observability milestone.
+The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, and M04 forecasting evaluation foundation.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -41,6 +41,17 @@ Implemented M03 quality services include:
 - `GET /quality/health` operational visibility endpoint
 - `python -m gridops.quality.runner` persisted quality execution for supported datasets
 
+Implemented M04 forecasting evaluation includes:
+
+- forecast issue contract and deterministic hourly horizon generation
+- M04 forecasting and baseline evaluation tables
+- point-in-time feature snapshots with demand, calendar, weather observation, and archived forecast as-of logic
+- M03 quality-blocking integration for trusted feature generation
+- same-hour-yesterday, same-hour-last-week, seasonal hourly mean, and simple Ridge baselines
+- rolling and expanding backtest window definitions
+- MAE, RMSE, WAPE, bias, and slice metrics
+- simple forecasting runner previews through `python -m gridops.forecasting.runner`
+
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
@@ -50,10 +61,12 @@ The following are intentionally not implemented yet:
 - scheduled ingestion
 - Prefect orchestration
 - dbt transformations
-- gold feature tables
 - MLflow tracking
-- forecasting models
-- backtesting
+- production forecasting models
+- quantile forecasts or prediction intervals
+- scheduled production inference
+- production forecast API
+- drift monitoring
 - operational alerts
 - scenario engine
 - briefing generation
@@ -72,6 +85,17 @@ The following are intentionally not implemented yet:
 - Archived weather forecast lead time is derived only for whole-hour issue-to-valid differences.
 - Revision behavior is simple current/superseded state, not a full bitemporal model.
 - Failed runs store bounded sanitized error text, not full stack traces.
+
+## Forecasting Evaluation Limitations
+
+- Feature payloads are stored as structured JSON in `feature_snapshot_rows.lineage_metadata`; there is not yet a dedicated typed feature-store table.
+- M04 operates on fixture-backed and locally seeded data; live data acquisition remains deferred.
+- Ridge is a simple transparent baseline only, with no tuning, registry, or production artifact management.
+- Baseline metrics are implemented as evaluation capabilities, not production performance claims.
+- The forecasting runner provides deterministic previews and feature-building persistence, but it is not an orchestrator or scheduled production inference service.
+- No production forecast API exists.
+- No MLflow registry exists.
+- No prediction intervals, drift monitoring, alerts, scenarios, dashboard, deployment, or production model serving exist.
 
 ## Time-Domain Limitations
 
@@ -95,4 +119,4 @@ GridOps Intelligence is not intended to:
 
 ## Performance Claims
 
-No forecasting performance claims exist yet. No reliability, uptime, alert-precision, or operational-value claims should be made before verified evaluation.
+No production forecasting performance claims exist yet. Baseline metric calculations are implemented, but no reliability, uptime, alert-precision, operational-value, or production-model claims should be made before verified production evaluation.

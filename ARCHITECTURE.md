@@ -6,7 +6,7 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01, M02, and M03 are implemented on branch `m03`.
+M01, M02, M03, and M04 are implemented. M04 is complete on branch `m04`, pending approval and merge.
 
 ### Foundation
 
@@ -78,6 +78,47 @@ Implemented quality services:
 
 The quality layer does not auto-run checks from ingestion, implement an alert lifecycle, or introduce orchestration.
 
+### M04 Forecasting Evaluation Foundation
+
+Forecasting storage:
+
+- `forecast_issues`
+- `feature_snapshot_runs`
+- `feature_snapshot_rows`
+- `baseline_forecast_runs`
+- `baseline_forecast_predictions`
+- `baseline_metric_results`
+- `baseline_slice_metric_results`
+
+Forecasting contracts and feature logic:
+
+- UTC-only forecast issue contract with deterministic horizon generation
+- next-N hourly target interval generation
+- point-in-time feature snapshot rows
+- leakage-safe demand lag, rolling, recent ramp, and calendar features
+- weather observation as-of joins using `observed_at_utc <= forecast_issue_time_utc`
+- archived weather forecast as-of joins using `issue_time_utc <= forecast_issue_time_utc`
+- M03 quality-blocking decisions applied before trusted feature rows are persisted
+
+Baseline evaluation:
+
+- same-hour-yesterday baseline
+- same-hour-last-week baseline
+- seasonal hourly mean baseline
+- simple deterministic Ridge baseline using scikit-learn
+- rolling and expanding backtest window definitions
+- final untouched test-period reservation in backtest configuration
+- MAE, RMSE, WAPE, and bias metrics
+- slice metrics by lead hour, target hour, day of week, weekend flag, month, and season
+- persisted baseline run, prediction, aggregate metric, and slice metric rows
+
+Runner:
+
+- simple standard-library runner through `python -m gridops.forecasting.runner`
+- deterministic dry-run previews for feature building, backtest windows, and reports
+
+M04 is an evaluation foundation, not a production forecasting service.
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -98,4 +139,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, production forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.

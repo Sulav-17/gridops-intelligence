@@ -2,7 +2,7 @@
 
 ## Status
 
-Draft M04-C02 feature snapshot contract. This document describes implemented point-in-time feature behavior only. Baselines, backtesting, metrics, runners, and production forecasts remain deferred.
+Implemented M04 feature snapshot contract. This document describes point-in-time feature behavior only. Production forecasts remain deferred to M05.
 
 ## Point-In-Time Rules
 
@@ -61,6 +61,4 @@ If any required dataset is blocked, the snapshot run is persisted with `status =
 - dedicated typed feature columns or indexed feature store design
 - holiday features
 - richer weather feature aggregation
-- baseline models
-- backtesting and metrics
-- runner commands
+- production feature serving

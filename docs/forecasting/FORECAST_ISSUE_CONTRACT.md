@@ -2,7 +2,7 @@
 
 ## Status
 
-Draft M04-C01 contract foundation. This document describes implemented contract and schema assumptions only; feature generation, baselines, backtesting, and production forecasting are not implemented in this chunk.
+Implemented M04 forecast issue contract. This document describes the evaluation contract only; production forecast serving remains deferred to M05.
 
 ## Implemented Contract
 
@@ -34,11 +34,7 @@ M04-C01 does not silently trust source data. It only creates the storage foundat
 
 ## Deferred Work
 
-- feature snapshot generation
-- demand lag and rolling features
-- weather observation and archived forecast as-of joins
-- baseline model implementations
-- backtesting windows
-- metric computation
-- runner commands
 - production forecast serving
+- scheduled inference
+- prediction intervals
+- MLflow model registry

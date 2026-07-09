@@ -49,7 +49,7 @@ M02 completion is fixture-backed. Live source clients, orchestration, and formal
 
 ## M03 - Data Quality and Observability
 
-**Status:** Complete on branch `m03`, pending approval and merge
+**Status:** Complete
 
 **Owner:** Priya Shah, Senior Data Reliability Engineer
 
@@ -69,7 +69,7 @@ M03-C01 implemented the quality schema, core contracts, and persistence helpers.
 
 ## M04 - Baselines and Backtesting
 
-**Status:** Not started
+**Status:** Complete on branch `m04`, pending approval and merge
 
 **Owner:** Daniel Brooks, Senior Forecasting Scientist
 
@@ -79,13 +79,15 @@ Primary outcomes:
 
 - forecast issuance contract
 - as-of joins
-- gold feature tables
+- persisted feature snapshot foundation
 - seasonal-naive baselines
 - Ridge regression benchmark
 - rolling or expanding evaluation
 - slice metrics
 - leakage tests
 - reproducible evaluation reports
+
+M04-C01 implemented the forecast issue contract, horizon generation, schema foundation, and lineage structures. M04-C02 implemented point-in-time feature snapshots, leakage-safe demand/calendar features, weather observation as-of joins, archived weather forecast issue-time joins, and quality blocking integration. M04-C03 implemented same-hour-yesterday, same-hour-last-week, seasonal hourly mean, and Ridge baselines, deterministic backtest windows, aggregate metrics, slice metrics, and persistence. M04-C04 implemented the simple forecasting runner, final documentation, verification, and handoff artifacts.
 
 ## M05 - Production Forecasting and MLOps
 
