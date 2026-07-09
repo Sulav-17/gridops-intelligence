@@ -6,7 +6,7 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01 and M02 are implemented.
+M01, M02, and M03-C01 are implemented.
 
 ### Foundation
 
@@ -48,6 +48,21 @@ Ingestion code:
 
 Silver rows retain raw snapshot IDs, ingestion run IDs, source-native fields, normalized UTC timestamps, row hashes, `is_current`, and `superseded_at_utc`.
 
+### M03-C01 Quality Foundation
+
+Quality storage:
+
+- `quality_runs`
+- `quality_results`
+
+Quality code:
+
+- typed quality severity, run status, result status, and check category contracts
+- dataset quality contract definitions for existing M02 storage tables
+- persistence helpers for quality runs and quality results
+
+The M03-C01 foundation does not execute dataset checks, make blocking decisions, expose source-health output, or run a quality command.
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -68,4 +83,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-M02 does not implement live source fetching, Prefect orchestration, dbt transformations, formal data-quality severity checks, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, executable data-quality checks, blocking logic, source-health output, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.

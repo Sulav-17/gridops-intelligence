@@ -49,7 +49,7 @@ M02 completion is fixture-backed. Live source clients, orchestration, and formal
 
 ## M03 - Data Quality and Observability
 
-**Status:** Not started
+**Status:** Active
 
 **Owner:** Priya Shah, Senior Data Reliability Engineer
 
@@ -64,6 +64,8 @@ Primary outcomes:
 - persisted quality results
 - source-health service or report
 - downstream blocking rules
+
+M03-C01 has implemented the quality schema, core contracts, and persistence helpers. Executable quality checks, blocking logic, source-health output, runner commands, and milestone handoff/verification remain in progress.
 
 ## M04 - Baselines and Backtesting
 

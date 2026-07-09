@@ -1,4 +1,4 @@
-"""SQLAlchemy models for M02 ingestion storage."""
+"""SQLAlchemy models for persisted GridOps operational storage."""
 
 from datetime import date, datetime
 from decimal import Decimal
@@ -15,6 +15,7 @@ from sqlalchemy import (
     Integer,
     Numeric,
     String,
+    Text,
     UniqueConstraint,
     text,
 )
@@ -244,3 +245,95 @@ class WeatherForecast(Base):
     row_hash_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
     is_current: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     superseded_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class QualityRun(Base):
+    """Track one quality evaluation run for a dataset."""
+
+    __tablename__ = "quality_runs"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('running', 'succeeded', 'failed')",
+            name="quality_runs_status_valid",
+        ),
+        CheckConstraint(
+            "checked_window_start_utc IS NULL OR checked_window_end_utc IS NULL "
+            "OR checked_window_start_utc < checked_window_end_utc",
+            name="quality_runs_checked_window_order_valid",
+        ),
+        Index("ix_quality_runs_dataset_name", "dataset_name"),
+        Index("ix_quality_runs_status", "status"),
+        Index("ix_quality_runs_started_at_utc", "started_at_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    dataset_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    started_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    checked_window_start_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    checked_window_end_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    safe_error_detail: Mapped[str | None] = mapped_column(String(1000))
+
+    results: Mapped[list["QualityResult"]] = relationship(back_populates="quality_run")
+
+
+class QualityResult(Base):
+    """Persist one quality check result without raw payloads or secrets."""
+
+    __tablename__ = "quality_results"
+    __table_args__ = (
+        CheckConstraint(
+            "check_category IN ("
+            "'schema', 'completeness', 'continuity', 'uniqueness', 'range', "
+            "'freshness', 'timestamp', 'dst', 'source_metadata'"
+            ")",
+            name="quality_results_check_category_valid",
+        ),
+        CheckConstraint(
+            "severity IN ('info', 'warning', 'error', 'critical')",
+            name="quality_results_severity_valid",
+        ),
+        CheckConstraint(
+            "status IN ('passed', 'failed', 'skipped', 'error')",
+            name="quality_results_status_valid",
+        ),
+        CheckConstraint(
+            "affected_record_count IS NULL OR affected_record_count >= 0",
+            name="quality_results_affected_record_count_nonnegative",
+        ),
+        Index("ix_quality_results_quality_run_id", "quality_run_id"),
+        Index("ix_quality_results_dataset_name", "dataset_name"),
+        Index("ix_quality_results_check_name", "check_name"),
+        Index("ix_quality_results_severity", "severity"),
+        Index("ix_quality_results_status", "status"),
+        Index("ix_quality_results_created_at_utc", "created_at_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    quality_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("quality_runs.id"),
+        nullable=False,
+    )
+    dataset_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    check_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    check_category: Mapped[str] = mapped_column(String(64), nullable=False)
+    severity: Mapped[str] = mapped_column(String(32), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    observed_value: Mapped[str | None] = mapped_column(Text)
+    expected_value: Mapped[str | None] = mapped_column(Text)
+    affected_record_count: Mapped[int | None] = mapped_column(BigInteger)
+    safe_detail: Mapped[str | None] = mapped_column(String(1000))
+    is_blocking: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    related_ingestion_run_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("ingestion_runs.id"),
+    )
+    related_raw_snapshot_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("raw_snapshots.id"),
+    )
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    quality_run: Mapped[QualityRun] = relationship(back_populates="results")

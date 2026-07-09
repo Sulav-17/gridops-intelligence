@@ -6,7 +6,7 @@ GridOps Intelligence
 
 ## Current Phase
 
-M03 readiness cleanup
+M03-C01 quality schema and core contracts implemented
 
 ## Active Milestone
 
@@ -28,7 +28,8 @@ M02 is complete and merged to `main`.
 
 The active milestone is M03 on branch `m03`.
 
-M03 implementation has not started yet.
+M03-C01 has implemented the quality schema and core contracts. Dataset quality checks,
+blocking logic, source-health output, and a quality runner have not been implemented yet.
 
 Implemented storage that already exists:
 
@@ -74,9 +75,19 @@ Silver tables:
 
 These implemented storage tables preserve raw snapshot references, ingestion run references, source-native fields, normalized UTC timestamps, row hashes, current-state flags, and superseded timestamps.
 
+Quality tables:
+
+- `quality_runs`
+- `quality_results`
+
+Quality storage records run lifecycle state and individual quality result metadata for existing M02 datasets without storing raw payloads or secrets.
+
 ## Not Implemented Yet
 
-- M03 data-quality checks and observability
+- M03 dataset quality checks
+- M03 blocking logic
+- M03 source-health API or operational report
+- M03 quality runner
 - live source fetching
 - IESO API clients
 - weather provider API clients
@@ -98,4 +109,4 @@ Final M02 verification is recorded in `docs/verification/M02_VERIFICATION.md`.
 
 ## Immediate Next Action
 
-Begin M03-C01 quality schema and core contracts.
+Begin M03-C02 core dataset quality checks.

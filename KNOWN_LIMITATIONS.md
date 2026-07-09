@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation and M02 ingestion foundation.
+The repository contains the completed M01 foundation, M02 ingestion foundation, and M03-C01 quality schema and core contracts.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -14,6 +14,13 @@ Implemented M02 ingestion is fixture-backed only:
 - idempotent silver loaders
 - simple changed-record revision evidence
 
+Implemented M03-C01 quality foundation includes:
+
+- quality severity, run status, result status, and check category enums
+- dataset quality contracts for existing M02 tables
+- quality run and quality result tables
+- persistence helpers for quality runs and quality results
+
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
@@ -23,8 +30,11 @@ The following are intentionally not implemented yet:
 - scheduled ingestion
 - Prefect orchestration
 - dbt transformations
-- formal M03 data-quality framework
+- executable M03 data-quality checks
+- quality blocking logic
 - source-health scoring
+- source-health API or operational report
+- quality runner
 - gold feature tables
 - MLflow tracking
 - forecasting models
