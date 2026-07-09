@@ -6,7 +6,7 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01, M02, M03-C01, M03-C02A, M03-C02B, and M03-C03 are implemented.
+M01, M02, and M03 are implemented on branch `m03`.
 
 ### Foundation
 
@@ -19,7 +19,7 @@ M01, M02, M03-C01, M03-C02A, M03-C02B, and M03-C03 are implemented.
 - PostgreSQL as the primary relational database
 - Alembic migrations
 - Docker Compose PostgreSQL on host port `55432`
-- FastAPI app factory with `/health` and `/ready`
+- FastAPI app factory with `/health`, `/ready`, and `GET /quality/health`
 - explicit UTC, Toronto time, DST, and IESO hour-ending utilities
 
 ### M02 Ingestion Foundation
@@ -48,49 +48,35 @@ Ingestion code:
 
 Silver rows retain raw snapshot IDs, ingestion run IDs, source-native fields, normalized UTC timestamps, row hashes, `is_current`, and `superseded_at_utc`.
 
-### M03-C01 Quality Foundation
+### M03 Quality Layer
 
 Quality storage:
 
 - `quality_runs`
 - `quality_results`
 
-Quality code:
+Quality contracts and persistence:
 
 - typed quality severity, run status, result status, and check category contracts
 - dataset quality contract definitions for existing M02 storage tables
 - persistence helpers for quality runs and quality results
-
-The M03-C01 foundation does not execute dataset checks, make blocking decisions, expose source-health output, or run a quality command.
-
-### M03-C02A IESO Quality Checks
-
-Quality check code:
-
 - generic in-memory quality check result utilities compatible with quality result persistence
+
+Implemented dataset checks:
+
 - deterministic IESO hourly demand schema, nullability, uniqueness, range, timestamp, continuity, completeness, freshness, and DST alignment checks
-
-The IESO checks return result objects but do not persist automatically, make blocking decisions, expose source-health output, or run through a quality command.
-
-### M03-C02B Weather And Metadata Quality Checks
-
-Quality check code:
-
 - deterministic weather observation schema, nullability, uniqueness, range, timestamp, fixture-supported continuity, and freshness checks
 - deterministic weather forecast schema, nullability, uniqueness, range, timestamp, fixture-supported valid-time completeness, and freshness checks
 - deterministic raw snapshot and ingestion run source metadata checks
 
-The weather and source metadata checks return result objects but do not persist automatically, make blocking decisions, expose source-health output, or run through a quality command.
-
-### M03-C03 Blocking And Source Health
-
-Quality service code:
+Implemented quality services:
 
 - persisted blocking decisions over quality runs and results
 - dataset source-health summaries built from latest persisted quality runs and results
 - FastAPI `GET /quality/health` endpoint for safe operational visibility
+- simple persisted quality runner through `python -m gridops.quality.runner`
 
-The blocking and source-health layer does not auto-run checks or implement an alert lifecycle.
+The quality layer does not auto-run checks from ingestion, implement an alert lifecycle, or introduce orchestration.
 
 ## Approved Target Architecture
 
@@ -112,4 +98,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, a quality runner, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.

@@ -6,7 +6,7 @@ GridOps Intelligence
 
 ## Current Phase
 
-M03-C03 blocking logic and source-health output implemented
+M03 complete on branch `m03`, pending milestone approval and merge
 
 ## Active Milestone
 
@@ -26,31 +26,19 @@ M01 is complete.
 
 M02 is complete and merged to `main`.
 
-The active milestone is M03 on branch `m03`.
+M03 implementation is complete on branch `m03` and has not been merged yet.
 
-M03-C01 has implemented the quality schema and core contracts. M03-C02A has implemented
-generic in-memory quality check result utilities and deterministic IESO hourly demand checks.
-M03-C02B has implemented deterministic weather dataset and source metadata checks.
-M03-C03 has implemented blocking decisions over persisted quality results and a quality
-health API endpoint. A quality runner has not been implemented yet.
+Implemented storage remains:
 
-Implemented storage that already exists:
+- `ingestion_runs`
+- `raw_snapshots`
+- `ieso_hourly_demand`
+- `weather_observations`
+- `weather_forecasts`
+- `quality_runs`
+- `quality_results`
 
-- ingestion run tracking
-- raw snapshot metadata persistence
-- local immutable raw payload storage by source and SHA-256 hash
-- source registry contract
-- IESO hourly demand fixture parser and loader
-- weather observation fixture parser and loader
-- archived weather forecast fixture parser and loader
-- normalized silver tables for the three M02 sources
-- idempotent loading
-- simple changed-record revision evidence
-- simple fixture ingestion runner
-- deterministic parser, loader, storage, runner, and migration tests
-- source contract, runbook, verification, and handoff documentation
-
-No future milestone features have been implemented.
+No M04 feature work is implemented yet.
 
 ## Technical State
 
@@ -58,90 +46,48 @@ No future milestone features have been implemented.
 - package: `gridops`
 - database: PostgreSQL
 - local database port: `55432`
-- migrations: empty baseline plus M02 ingestion storage migration
-- API: FastAPI health, readiness, and quality health summary endpoint
+- migrations: empty baseline, M02 ingestion storage, and M03 quality storage
+- API: FastAPI health, readiness, and `GET /quality/health`
 - ingestion: fixture mode only through `python -m gridops.ingestion.runner`
-- tests: unit and PostgreSQL integration coverage for M01 and M02 behavior
+- quality: persisted dataset checks through `python -m gridops.quality.runner`
+- tests: deterministic unit and PostgreSQL integration coverage for M01 through M03
 
-## Implemented Data Storage
+## Implemented M03 Capabilities
 
-Bronze tables:
+Quality contracts and persistence:
 
-- `ingestion_runs`
-- `raw_snapshots`
+- typed severity, run status, result status, and check category enums
+- dataset contracts for the five existing M02 datasets
+- persisted `quality_runs` and `quality_results`
+- safe bounded quality-result detail persistence
 
-Silver tables:
+Dataset checks:
 
-- `ieso_hourly_demand`
-- `weather_observations`
-- `weather_forecasts`
+- IESO hourly demand schema, nullability, uniqueness, range, timestamp, continuity, completeness, freshness, and DST alignment checks
+- weather observation schema, nullability, uniqueness, range, timestamp, fixture-supported continuity, and freshness checks
+- weather forecast schema, nullability, uniqueness, range, timestamp, fixture-supported valid-time completeness, and freshness checks
+- raw snapshot and ingestion run source metadata checks
 
-These implemented storage tables preserve raw snapshot references, ingestion run references, source-native fields, normalized UTC timestamps, row hashes, current-state flags, and superseded timestamps.
+Observability and controls:
 
-Quality tables:
-
-- `quality_runs`
-- `quality_results`
-
-Quality storage records run lifecycle state and individual quality result metadata for existing M02 datasets without storing raw payloads or secrets.
-
-## Implemented Quality Checks
-
-IESO hourly demand:
-
-- required-column schema checks
-- required-field nullability checks
-- duplicate current source-native key checks
-- conservative demand range checks
-- UTC timestamp ordering and one-hour duration checks
-- hourly UTC interval continuity checks
-- source-hour completeness checks
-- fixed-clock freshness checks
-- DST alignment checks using M01 time utilities where the M02 schema can represent the source-native hour
-
-Weather observations:
-
-- required-column schema checks
-- required-field nullability checks
-- duplicate current source key checks
-- conservative weather value range checks
-- UTC timestamp checks
-- fixture-supported hourly continuity checks
-- fixed-clock freshness checks
-
-Weather forecasts:
-
-- required-column schema checks
-- required-field nullability checks
-- duplicate current forecast key checks
-- broad provider-neutral value range checks
-- UTC issue/valid timestamp and lead-time checks
-- fixture-supported valid-time completeness checks
-- fixed-clock freshness checks
-
-Source metadata:
-
-- raw snapshot required metadata checks
-- ingestion run lifecycle, timestamp, count, and safe failure-detail checks
-
-Blocking and source health:
-
-- persisted quality-result blocking decisions for dataset and optional checked window use
-- latest-run source-health summaries for supported datasets
+- persisted blocking decisions over latest applicable quality runs and results
+- source-health summaries for supported datasets
 - `GET /quality/health` safe operational visibility endpoint
+- simple quality runner for supported datasets with optional checked-window and fixed-clock arguments
+- deterministic runner, persistence, blocking, source-health, and API tests
 
 ## Not Implemented Yet
 
-- M03 quality runner
 - live source fetching
 - IESO API clients
 - weather provider API clients
-- dbt
+- scheduled ingestion
 - Prefect
-- MLflow
+- dbt
+- gold feature tables
 - forecasting models
 - backtesting
-- gold feature tables
+- MLflow
 - alerts
 - scenarios
 - frontend or dashboards
@@ -150,8 +96,9 @@ Blocking and source health:
 
 ## Verification Evidence
 
-Final M02 verification is recorded in `docs/verification/M02_VERIFICATION.md`.
+- M02 verification: `docs/verification/M02_VERIFICATION.md`
+- M03 verification: `docs/verification/M03_VERIFICATION.md`
 
 ## Immediate Next Action
 
-Begin M03-C04 runner, documentation, verification, and handoff.
+Begin M04-C01 point-in-time feature contracts and trusted gold snapshot foundations.

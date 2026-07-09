@@ -13,11 +13,15 @@ The system is intended to:
 - support controlled planning scenarios
 - expose results through APIs and an operational dashboard
 
-M02 is now the implemented ingestion foundation. Forecasting, alerts, scenarios, dashboards, authentication, deployment, dbt, Prefect, and MLflow are intentionally not implemented yet.
+M03 is now the implemented data quality and observability milestone on top of the M02 ingestion foundation. Forecasting, alerts, scenarios, dashboards, authentication, deployment, dbt, Prefect, and MLflow are intentionally not implemented yet.
 
 ## Current Status
 
-The repository has completed M02 - Data Ingestion Foundation.
+The repository has completed:
+
+- M01 - Foundation and environment readiness
+- M02 - Data ingestion foundation
+- M03 - Data quality and observability
 
 Implemented foundation:
 
@@ -40,6 +44,12 @@ Implemented foundation:
 - fixture-backed weather observation ingestion
 - fixture-backed archived weather forecast ingestion
 - idempotent silver loaders with simple revision evidence
+- persisted quality contracts for all M02 datasets
+- deterministic dataset quality checks for IESO demand, weather observations, weather forecasts, raw snapshots, and ingestion runs
+- persisted quality runs and quality results
+- blocking decisions based on persisted quality results
+- `GET /quality/health` source-health visibility
+- simple quality runner through `python -m gridops.quality.runner`
 
 ## Local Development
 
@@ -98,6 +108,24 @@ uv run python -m gridops.ingestion.runner --source weather-forecasts --mode fixt
 Remove-Item Env:\GRIDOPS_DATABASE_URL
 ```
 
+Run persisted quality checks:
+
+```powershell
+$env:GRIDOPS_DATABASE_URL = "postgresql+psycopg://gridops:gridops@127.0.0.1:55432/gridops_test"
+uv run python -m gridops.quality.runner --dataset ieso_hourly_demand
+uv run python -m gridops.quality.runner --dataset weather_observations
+uv run python -m gridops.quality.runner --dataset weather_forecasts
+uv run python -m gridops.quality.runner --dataset raw_snapshots
+uv run python -m gridops.quality.runner --dataset ingestion_runs
+Remove-Item Env:\GRIDOPS_DATABASE_URL
+```
+
+Optional deterministic runner flags:
+
+- `--checked-window-start-utc 2026-01-15T05:00:00Z`
+- `--checked-window-end-utc 2026-01-15T08:00:00Z`
+- `--now-utc 2026-01-15T09:00:00Z`
+
 ## Configuration
 
 Application settings are defined in `gridops.config.Settings` using Pydantic Settings. Settings can be supplied through environment variables or a local `.env` file. Every supported environment variable uses the `GRIDOPS_` prefix.
@@ -132,6 +160,7 @@ Endpoints:
 
 - `GET /health` returns process health and does not touch the database.
 - `GET /ready` checks real PostgreSQL connectivity and returns a safe `503` response when the dependency is unavailable.
+- `GET /quality/health` summarizes latest persisted quality status, worst severity, blocking state, check counts, and safe failure summaries for supported datasets.
 
 ## Time Contract
 
@@ -157,7 +186,11 @@ Time utilities live in `gridops.time_utils`.
 | `KNOWN_LIMITATIONS.md` | Honest limitations and deferred work |
 | `docs/data/SOURCE_CONTRACTS.md` | M02 fixture source contracts and assumptions |
 | `docs/data/INGESTION_RUNBOOK.md` | M02 fixture ingestion commands and operations |
-| `milestones/M02.md` | Detailed M02 scope and completion requirements |
+| `docs/quality/QUALITY_CONTRACTS.md` | M03 dataset quality contracts, thresholds, and blocking rules |
+| `docs/quality/QUALITY_RUNBOOK.md` | M03 quality runner usage and troubleshooting |
+| `docs/verification/M03_VERIFICATION.md` | M03 verification evidence and exact command results |
+| `docs/handoffs/M03_HANDOFF.md` | M03 completion handoff for M04 |
+| `milestones/M03.md` | Detailed M03 scope and completion requirements |
 
 ## Scope Boundaries
 
