@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation, M02 ingestion foundation, M03-C01 quality schema and core contracts, M03-C02A IESO hourly demand quality checks, and M03-C02B weather and source metadata quality checks.
+The repository contains the completed M01 foundation, M02 ingestion foundation, M03-C01 quality schema and core contracts, M03-C02A IESO hourly demand quality checks, M03-C02B weather and source metadata quality checks, and M03-C03 blocking and source-health output.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -34,6 +34,12 @@ Implemented M03-C02B quality checks include deterministic:
 - weather forecast schema, nullability, uniqueness, range, timestamp, fixture-supported valid-time completeness, and freshness checks
 - raw snapshot and ingestion run source metadata checks
 
+Implemented M03-C03 quality services include:
+
+- persisted blocking decisions based on latest applicable quality runs and results
+- safe source-health summaries for supported datasets
+- `GET /quality/health` operational visibility endpoint
+
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
@@ -43,9 +49,6 @@ The following are intentionally not implemented yet:
 - scheduled ingestion
 - Prefect orchestration
 - dbt transformations
-- quality blocking logic
-- source-health scoring
-- source-health API or operational report
 - quality runner
 - gold feature tables
 - MLflow tracking

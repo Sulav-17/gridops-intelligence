@@ -6,7 +6,7 @@ GridOps Intelligence
 
 ## Current Phase
 
-M03-C02B weather and source metadata quality checks implemented
+M03-C03 blocking logic and source-health output implemented
 
 ## Active Milestone
 
@@ -31,7 +31,8 @@ The active milestone is M03 on branch `m03`.
 M03-C01 has implemented the quality schema and core contracts. M03-C02A has implemented
 generic in-memory quality check result utilities and deterministic IESO hourly demand checks.
 M03-C02B has implemented deterministic weather dataset and source metadata checks.
-Blocking logic, source-health output, and a quality runner have not been implemented yet.
+M03-C03 has implemented blocking decisions over persisted quality results and a quality
+health API endpoint. A quality runner has not been implemented yet.
 
 Implemented storage that already exists:
 
@@ -58,7 +59,7 @@ No future milestone features have been implemented.
 - database: PostgreSQL
 - local database port: `55432`
 - migrations: empty baseline plus M02 ingestion storage migration
-- API: FastAPI health and readiness only
+- API: FastAPI health, readiness, and quality health summary endpoint
 - ingestion: fixture mode only through `python -m gridops.ingestion.runner`
 - tests: unit and PostgreSQL integration coverage for M01 and M02 behavior
 
@@ -123,10 +124,14 @@ Source metadata:
 - raw snapshot required metadata checks
 - ingestion run lifecycle, timestamp, count, and safe failure-detail checks
 
+Blocking and source health:
+
+- persisted quality-result blocking decisions for dataset and optional checked window use
+- latest-run source-health summaries for supported datasets
+- `GET /quality/health` safe operational visibility endpoint
+
 ## Not Implemented Yet
 
-- M03 blocking logic
-- M03 source-health API or operational report
 - M03 quality runner
 - live source fetching
 - IESO API clients
@@ -149,4 +154,4 @@ Final M02 verification is recorded in `docs/verification/M02_VERIFICATION.md`.
 
 ## Immediate Next Action
 
-Begin M03-C03 blocking logic and source-health output.
+Begin M03-C04 runner, documentation, verification, and handoff.

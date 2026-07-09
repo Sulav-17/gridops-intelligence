@@ -6,7 +6,7 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01, M02, M03-C01, M03-C02A, and M03-C02B are implemented.
+M01, M02, M03-C01, M03-C02A, M03-C02B, and M03-C03 are implemented.
 
 ### Foundation
 
@@ -82,6 +82,16 @@ Quality check code:
 
 The weather and source metadata checks return result objects but do not persist automatically, make blocking decisions, expose source-health output, or run through a quality command.
 
+### M03-C03 Blocking And Source Health
+
+Quality service code:
+
+- persisted blocking decisions over quality runs and results
+- dataset source-health summaries built from latest persisted quality runs and results
+- FastAPI `GET /quality/health` endpoint for safe operational visibility
+
+The blocking and source-health layer does not auto-run checks or implement an alert lifecycle.
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -102,4 +112,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, blocking logic, source-health output, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, a quality runner, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.
