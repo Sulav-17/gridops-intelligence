@@ -337,3 +337,277 @@ class QualityResult(Base):
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     quality_run: Mapped[QualityRun] = relationship(back_populates="results")
+
+
+class ForecastIssue(Base):
+    """Persist one deterministic M04 forecast issue definition."""
+
+    __tablename__ = "forecast_issues"
+    __table_args__ = (
+        CheckConstraint("horizon_length_hours > 0", name="forecast_issues_horizon_positive"),
+        CheckConstraint(
+            "status IN ('defined', 'blocked', 'ready')",
+            name="forecast_issues_status_valid",
+        ),
+        UniqueConstraint(
+            "forecast_issue_time_utc",
+            "forecast_type",
+            "feature_version",
+            name="uq_forecast_issues_issue_type_feature_version",
+        ),
+        Index("ix_forecast_issues_issue_time", "forecast_issue_time_utc"),
+        Index("ix_forecast_issues_forecast_type", "forecast_type"),
+        Index("ix_forecast_issues_status", "status"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    forecast_issue_time_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    horizon_length_hours: Mapped[int] = mapped_column(Integer, nullable=False)
+    forecast_type: Mapped[str] = mapped_column(String(128), nullable=False)
+    feature_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    point_in_time_safety_rule: Mapped[str] = mapped_column(String(512), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    quality_blocking_behavior: Mapped[str | None] = mapped_column(String(256))
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class FeatureSnapshotRun(Base):
+    """Track an M04 feature snapshot generation attempt."""
+
+    __tablename__ = "feature_snapshot_runs"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('planned', 'running', 'succeeded', 'failed', 'blocked')",
+            name="feature_snapshot_runs_status_valid",
+        ),
+        Index("ix_feature_snapshot_runs_forecast_issue_id", "forecast_issue_id"),
+        Index("ix_feature_snapshot_runs_status", "status"),
+        Index("ix_feature_snapshot_runs_started_at_utc", "started_at_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    forecast_issue_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("forecast_issues.id"),
+        nullable=False,
+    )
+    feature_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    quality_status: Mapped[str] = mapped_column(String(64), nullable=False)
+    started_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    safe_error_detail: Mapped[str | None] = mapped_column(String(1000))
+
+
+class FeatureSnapshotRow(Base):
+    """Store one M04 feature-snapshot target row shell and lineage metadata."""
+
+    __tablename__ = "feature_snapshot_rows"
+    __table_args__ = (
+        CheckConstraint("lead_hour > 0", name="feature_snapshot_rows_lead_hour_positive"),
+        CheckConstraint(
+            "target_interval_start_utc < target_interval_end_utc",
+            name="feature_snapshot_rows_target_interval_order_valid",
+        ),
+        UniqueConstraint(
+            "feature_snapshot_run_id",
+            "target_interval_start_utc",
+            name="uq_feature_snapshot_rows_run_target_start",
+        ),
+        Index("ix_feature_snapshot_rows_run_id", "feature_snapshot_run_id"),
+        Index("ix_feature_snapshot_rows_target_start", "target_interval_start_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    feature_snapshot_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("feature_snapshot_runs.id"),
+        nullable=False,
+    )
+    forecast_issue_time_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    target_interval_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    target_interval_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    lead_hour: Mapped[int] = mapped_column(Integer, nullable=False)
+    feature_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    quality_status: Mapped[str] = mapped_column(String(64), nullable=False)
+    demand_source_row_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("ieso_hourly_demand.id"),
+    )
+    weather_observation_source_row_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("weather_observations.id"),
+    )
+    weather_forecast_source_row_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("weather_forecasts.id"),
+    )
+    related_quality_run_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("quality_runs.id"),
+    )
+    lineage_metadata: Mapped[str | None] = mapped_column(Text)
+
+
+class BaselineForecastRun(Base):
+    """Track one M04 baseline forecast run."""
+
+    __tablename__ = "baseline_forecast_runs"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('planned', 'running', 'succeeded', 'failed', 'blocked')",
+            name="baseline_forecast_runs_status_valid",
+        ),
+        CheckConstraint(
+            "training_window_start_utc IS NULL OR training_window_end_utc IS NULL "
+            "OR training_window_start_utc < training_window_end_utc",
+            name="baseline_forecast_runs_training_window_order_valid",
+        ),
+        CheckConstraint(
+            "evaluation_window_start_utc IS NULL OR evaluation_window_end_utc IS NULL "
+            "OR evaluation_window_start_utc < evaluation_window_end_utc",
+            name="baseline_forecast_runs_evaluation_window_order_valid",
+        ),
+        Index("ix_baseline_forecast_runs_baseline_name", "baseline_name"),
+        Index("ix_baseline_forecast_runs_status", "status"),
+        Index("ix_baseline_forecast_runs_started_at_utc", "started_at_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    baseline_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    feature_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    training_window_start_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    training_window_end_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    evaluation_window_start_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    evaluation_window_end_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    quality_blocking_behavior: Mapped[str | None] = mapped_column(String(256))
+    run_metadata: Mapped[str | None] = mapped_column(Text)
+    started_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    safe_error_detail: Mapped[str | None] = mapped_column(String(1000))
+
+
+class BaselineForecastPrediction(Base):
+    """Store one M04 baseline prediction row."""
+
+    __tablename__ = "baseline_forecast_predictions"
+    __table_args__ = (
+        CheckConstraint("lead_hour > 0", name="baseline_forecast_predictions_lead_hour_positive"),
+        CheckConstraint(
+            "target_interval_start_utc < target_interval_end_utc",
+            name="baseline_forecast_predictions_target_interval_order_valid",
+        ),
+        UniqueConstraint(
+            "baseline_forecast_run_id",
+            "forecast_issue_time_utc",
+            "target_interval_start_utc",
+            name="uq_baseline_predictions_run_issue_target",
+        ),
+        Index("ix_baseline_predictions_run_id", "baseline_forecast_run_id"),
+        Index("ix_baseline_predictions_issue_time", "forecast_issue_time_utc"),
+        Index("ix_baseline_predictions_target_start", "target_interval_start_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    baseline_forecast_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("baseline_forecast_runs.id"),
+        nullable=False,
+    )
+    feature_snapshot_row_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("feature_snapshot_rows.id"),
+    )
+    forecast_issue_time_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    target_interval_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    target_interval_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    lead_hour: Mapped[int] = mapped_column(Integer, nullable=False)
+    predicted_demand_mw: Mapped[Decimal | None] = mapped_column(Numeric(12, 3))
+    actual_demand_mw: Mapped[Decimal | None] = mapped_column(Numeric(12, 3))
+    prediction_status: Mapped[str] = mapped_column(String(32), nullable=False)
+    lineage_metadata: Mapped[str | None] = mapped_column(Text)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class BaselineMetricResult(Base):
+    """Store aggregate M04 baseline metric values."""
+
+    __tablename__ = "baseline_metric_results"
+    __table_args__ = (
+        UniqueConstraint(
+            "baseline_forecast_run_id",
+            "metric_name",
+            name="uq_baseline_metric_results_run_metric",
+        ),
+        Index("ix_baseline_metric_results_run_id", "baseline_forecast_run_id"),
+        Index("ix_baseline_metric_results_metric_name", "metric_name"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    baseline_forecast_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("baseline_forecast_runs.id"),
+        nullable=False,
+    )
+    metric_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    metric_value: Mapped[Decimal] = mapped_column(Numeric(18, 6), nullable=False)
+    metric_unit: Mapped[str | None] = mapped_column(String(64))
+    evaluation_window_start_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    evaluation_window_end_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    lineage_metadata: Mapped[str | None] = mapped_column(Text)
+
+
+class BaselineSliceMetricResult(Base):
+    """Store M04 baseline metric values for one evaluation slice."""
+
+    __tablename__ = "baseline_slice_metric_results"
+    __table_args__ = (
+        UniqueConstraint(
+            "baseline_forecast_run_id",
+            "slice_name",
+            "slice_value",
+            "metric_name",
+            name="uq_baseline_slice_metric_results_run_slice_metric",
+        ),
+        Index("ix_baseline_slice_metric_results_run_id", "baseline_forecast_run_id"),
+        Index("ix_baseline_slice_metric_results_slice", "slice_name", "slice_value"),
+        Index("ix_baseline_slice_metric_results_metric_name", "metric_name"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    baseline_forecast_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("baseline_forecast_runs.id"),
+        nullable=False,
+    )
+    slice_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    slice_value: Mapped[str] = mapped_column(String(128), nullable=False)
+    metric_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    metric_value: Mapped[Decimal] = mapped_column(Numeric(18, 6), nullable=False)
+    metric_unit: Mapped[str | None] = mapped_column(String(64))
+    row_count: Mapped[int | None] = mapped_column(BigInteger)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    lineage_metadata: Mapped[str | None] = mapped_column(Text)

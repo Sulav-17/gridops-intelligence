@@ -48,6 +48,8 @@ Desktop.ini
 *.log
 *.tmp
 *.swp
+.codex-tmp/
+UsersSulavDesktopprojectsgridops-intelligence.codex-tmppytest-cache/
 
 # Local raw ingestion payloads
 data/raw/
