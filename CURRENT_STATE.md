@@ -92,4 +92,4 @@ Final M02 verification is recorded in `docs/verification/M02_VERIFICATION.md`.
 
 ## Immediate Next Action
 
-Review and commit M02. The recommended next milestone is M03 - Data Quality and Observability.
+Begin M03 - Data Quality and Observability from the completed M02 ingestion foundation.
