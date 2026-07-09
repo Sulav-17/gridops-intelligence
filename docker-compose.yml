@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: gridops-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${GRIDOPS_POSTGRES_USER:-gridops}
+      POSTGRES_PASSWORD: ${GRIDOPS_POSTGRES_PASSWORD:-gridops}
+      POSTGRES_DB: ${GRIDOPS_POSTGRES_DB:-gridops}
+
+    ports:
+    - "${GRIDOPS_POSTGRES_PORT:-55432}:5432"
+
+    volumes:
+      - gridops-postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${GRIDOPS_POSTGRES_USER:-gridops} -d ${GRIDOPS_POSTGRES_DB:-gridops}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+
+volumes:
+  gridops-postgres-data:

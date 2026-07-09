@@ -6,15 +6,15 @@ GridOps Intelligence
 
 ## Current Phase
 
-Pre-implementation repository initialization
+M02 data ingestion foundation complete
 
 ## Active Milestone
 
-M01 — Domain Contract and Foundation
+M02 - Data Ingestion Foundation
 
 ## Milestone Owner
 
-Ethan Cole — Senior Platform Engineer
+Maya Chen - Senior Data Engineer
 
 ## Project Leader
 
@@ -22,56 +22,74 @@ Samantha
 
 ## Repository Status
 
-The repository has been created and is currently empty except for initial project-governance documentation.
+The repository has completed the M02 ingestion foundation on branch `m02`.
 
-No application code has been implemented.
+Implemented M02 work:
 
-## Verified Completed Work
+- ingestion run tracking
+- raw snapshot metadata persistence
+- local immutable raw payload storage by source and SHA-256 hash
+- source registry contract
+- IESO hourly demand fixture parser and loader
+- weather observation fixture parser and loader
+- archived weather forecast fixture parser and loader
+- normalized silver tables for the three M02 sources
+- idempotent loading
+- simple changed-record revision evidence
+- simple fixture ingestion runner
+- deterministic parser, loader, storage, runner, and migration tests
+- source contract, runbook, verification, and handoff documentation
 
-- Master project plan approved
-- Seven-milestone roadmap approved
-- Senior milestone owners assigned
-- One-thread-per-milestone workflow approved
-- Repository created
-- Initial governance-document structure defined
-
-## Active Work
-
-Create and commit the initial repository documents.
-
-Then begin M01 repository assessment and ticket planning.
+No future milestone features have been implemented.
 
 ## Technical State
 
-- Python project: not created
-- FastAPI application: not created
-- PostgreSQL environment: not created
-- SQLAlchemy: not configured
-- Alembic: not configured
-- Docker Compose: not configured
-- CI: not configured
-- Automated tests: not created
-- Time-domain implementation: not created
+- Python version: 3.12
+- package: `gridops`
+- database: PostgreSQL
+- local database port: `55432`
+- migrations: empty baseline plus M02 ingestion storage migration
+- API: FastAPI health and readiness only
+- ingestion: fixture mode only through `python -m gridops.ingestion.runner`
+- tests: unit and PostgreSQL integration coverage for M01 and M02 behavior
 
-## Important Decisions
+## Implemented Data Storage
 
-- Python 3.12 is the approved backend version.
-- PostgreSQL is the approved primary database.
-- Canonical operational timestamps will be stored in UTC.
-- Ontario local-time interpretation will use `America/Toronto`.
-- IESO hour-ending and daylight-saving behavior must be explicitly documented and tested.
-- Repository documents are the source of truth between milestone threads.
+Bronze tables:
 
-## Known Risks
+- `ingestion_runs`
+- `raw_snapshots`
 
-- IESO hour-ending behavior requires careful confirmation and testing.
-- Ontario daylight-saving transitions may produce 23-hour and 25-hour local days.
-- Premature database design could create unnecessary future schema commitments.
-- M01 must not expand into source ingestion.
+Silver tables:
+
+- `ieso_hourly_demand`
+- `weather_observations`
+- `weather_forecasts`
+
+Silver rows preserve raw snapshot references, ingestion run references, source-native fields, normalized UTC timestamps, row hashes, current-state flags, and superseded timestamps.
+
+## Not Implemented Yet
+
+- live source fetching
+- IESO API clients
+- weather provider API clients
+- formal M03 data-quality checks
+- dbt
+- Prefect
+- MLflow
+- forecasting models
+- backtesting
+- gold feature tables
+- alerts
+- scenarios
+- frontend or dashboards
+- authentication
+- production deployment
+
+## Verification Evidence
+
+Final M02 verification is recorded in `docs/verification/M02_VERIFICATION.md`.
 
 ## Immediate Next Action
 
-1. Commit the initial governance documents to `main`.
-2. Create branch `milestone/m01-foundation`.
-3. Start the M01 chat using Ethan Cole's starter prompt.
-4. Ask Ethan to inspect the repository and define the first implementation ticket.
+Review and commit M02. The recommended next milestone is M03 - Data Quality and Observability.

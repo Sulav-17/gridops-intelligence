@@ -7,9 +7,9 @@
 - Complete
 - Blocked
 
-## M01 — Domain Contract and Foundation
+## M01 - Domain Contract and Foundation
 
-**Status:** Active
+**Status:** Complete
 
 **Owner:** Ethan Cole, Senior Platform Engineer
 
@@ -26,11 +26,9 @@ Primary outcomes:
 - Ruff, MyPy, Pytest, and GitHub Actions
 - UTC, Toronto time, DST, and IESO hour-ending contracts
 
-Completion requires reproducible setup, passing quality checks, tested time rules, and a verified handoff.
+## M02 - Data Ingestion and Normalized Storage
 
-## M02 — Data Ingestion and Normalized Storage
-
-**Status:** Not started
+**Status:** Complete
 
 **Owner:** Maya Chen, Senior Data Engineer
 
@@ -40,14 +38,16 @@ Primary outcomes:
 
 - immutable raw snapshots
 - source metadata and hashes
-- historical and incremental IESO demand ingestion
-- weather observations
-- archived weather forecasts
+- fixture-backed IESO demand ingestion
+- fixture-backed weather observations
+- fixture-backed archived weather forecasts
 - source revision handling
-- ingestion observability
-- idempotent and recoverable workflows
+- ingestion observability through persisted ingestion runs
+- idempotent and recoverable fixture workflows
 
-## M03 — Data Quality and Observability
+M02 completion is fixture-backed. Live source clients, orchestration, and formal data quality remain deferred.
+
+## M03 - Data Quality and Observability
 
 **Status:** Not started
 
@@ -65,7 +65,7 @@ Primary outcomes:
 - source-health service or report
 - downstream blocking rules
 
-## M04 — Baselines and Backtesting
+## M04 - Baselines and Backtesting
 
 **Status:** Not started
 
@@ -85,7 +85,7 @@ Primary outcomes:
 - leakage tests
 - reproducible evaluation reports
 
-## M05 — Production Forecasting and MLOps
+## M05 - Production Forecasting and MLOps
 
 **Status:** Not started
 
@@ -106,7 +106,7 @@ Primary outcomes:
 - forecast API
 - drift and performance monitoring
 
-## M06 — Alerts, Scenarios, and Briefings
+## M06 - Alerts, Scenarios, and Briefings
 
 **Status:** Not started
 
@@ -126,7 +126,7 @@ Primary outcomes:
 - deterministic briefing facts
 - optional guarded narrative generation
 
-## M07 — Dashboard, Deployment, and Release
+## M07 - Dashboard, Deployment, and Release
 
 **Status:** Not started
 

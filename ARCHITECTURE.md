@@ -2,18 +2,51 @@
 
 ## Document Status
 
-This document distinguishes between:
-
-- approved target architecture
-- architecture actually implemented
-
-Do not describe planned components as complete.
+This document distinguishes between approved target architecture and architecture actually implemented. Planned components are not described as complete until they exist in the repository.
 
 ## Current Implemented Architecture
 
-No application architecture has been implemented yet.
+M01 and M02 are implemented.
 
-The repository currently contains only project-governance and milestone-planning documents.
+### Foundation
+
+- Python 3.12 project using a `src` layout
+- uv dependency management and lockfile
+- Ruff, MyPy, and Pytest
+- typed Pydantic Settings with `GRIDOPS_` prefix
+- structured JSON logging with UTC timestamps and secret redaction
+- synchronous SQLAlchemy engine and session helpers
+- PostgreSQL as the primary relational database
+- Alembic migrations
+- Docker Compose PostgreSQL on host port `55432`
+- FastAPI app factory with `/health` and `/ready`
+- explicit UTC, Toronto time, DST, and IESO hour-ending utilities
+
+### M02 Ingestion Foundation
+
+Bronze storage:
+
+- `ingestion_runs`
+- `raw_snapshots`
+- local raw payload files stored by source and SHA-256 hash
+
+Silver storage:
+
+- `ieso_hourly_demand`
+- `weather_observations`
+- `weather_forecasts`
+
+Ingestion code:
+
+- source registry contract
+- SHA-256 hashing utility
+- raw snapshot storage abstraction
+- fixture-backed IESO hourly demand parser and loader
+- fixture-backed weather observation parser and loader
+- fixture-backed archived weather forecast parser and loader
+- simple fixture runner through `python -m gridops.ingestion.runner`
+
+Silver rows retain raw snapshot IDs, ingestion run IDs, source-native fields, normalized UTC timestamps, row hashes, `is_current`, and `superseded_at_utc`.
 
 ## Approved Target Architecture
 
@@ -33,85 +66,6 @@ The planned system flow is:
 12. FastAPI backend
 13. Next.js operational dashboard
 
-## Planned Data Layers
+## Current Boundaries
 
-### Bronze
-
-Preserves source evidence:
-
-- original source files or payloads
-- source URL
-- publication time
-- retrieval time
-- file hash
-- parser version
-- ingestion-run identifier
-
-### Silver
-
-Normalizes source data while retaining source meaning:
-
-- UTC timestamp
-- Ontario local-time interpretation
-- source-native date and time fields
-- IESO hour-ending values
-- normalized units
-- revision metadata
-- quality flags
-
-### Gold
-
-Supports operational and analytical use:
-
-- hourly demand facts
-- weather features
-- model feature snapshots
-- forecasts
-- prediction intervals
-- evaluation metrics
-- alerts
-- scenario results
-- briefing facts
-
-## M01 Architectural Boundary
-
-M01 may establish:
-
-- Python package structure
-- FastAPI application structure
-- configuration
-- structured logging
-- PostgreSQL connectivity
-- SQLAlchemy foundation
-- Alembic
-- Docker Compose
-- health and readiness behavior
-- CI
-- time-domain utilities and contracts
-
-M01 must not implement:
-
-- real IESO ingestion
-- weather ingestion
-- Prefect flows
-- dbt models
-- training datasets
-- forecasting models
-- MLflow
-- alert logic
-- scenario logic
-- frontend features
-
-## Time Architecture
-
-Approved principles:
-
-- canonical operational storage uses timezone-aware UTC timestamps
-- Ontario local-time interpretation uses `America/Toronto`
-- naive datetimes must not be accepted silently
-- IESO hour-ending fields must be preserved
-- daylight-saving ambiguity must be handled explicitly
-- source publication and retrieval times must remain distinguishable
-- no implementation may assume that every Ontario local day contains 24 hours
-
-Detailed implementation will be established and tested during M01.
+M02 does not implement live source fetching, Prefect orchestration, dbt transformations, formal data-quality severity checks, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.
