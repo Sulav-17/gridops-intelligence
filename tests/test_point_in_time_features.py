@@ -227,15 +227,16 @@ def test_quality_blocked_data_marks_snapshot_unusable(clean_engine: Engine) -> N
     assert persisted_run is not None
 
 
-def test_no_baselines_backtesting_or_scikit_learn_scope_added() -> None:
-    """C02 does not add baseline/backtesting modules or an ML dependency."""
+def test_no_production_forecasting_scope_added() -> None:
+    """M04 feature work does not add M05 production forecasting scope."""
 
     project_root = Path(__file__).resolve().parents[1]
     pyproject = (project_root / "pyproject.toml").read_text(encoding="utf-8")
 
-    assert "scikit-learn" not in pyproject
-    assert not (project_root / "src" / "gridops" / "forecasting" / "baselines.py").exists()
-    assert not (project_root / "src" / "gridops" / "forecasting" / "backtesting.py").exists()
+    assert "mlflow" not in pyproject.lower()
+    assert "lightgbm" not in pyproject.lower()
+    assert "xgboost" not in pyproject.lower()
+    assert not (project_root / "src" / "gridops" / "forecasting" / "serving.py").exists()
 
 
 def _demand_row(row_id: int, interval_start_utc: datetime, demand_mw: Decimal) -> IesoHourlyDemand:
