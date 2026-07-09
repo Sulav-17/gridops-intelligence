@@ -6,15 +6,15 @@ GridOps Intelligence
 
 ## Current Phase
 
-M02 data ingestion foundation complete
+M03 readiness cleanup
 
 ## Active Milestone
 
-M02 - Data Ingestion Foundation
+M03 - Data Quality and Observability
 
 ## Milestone Owner
 
-Maya Chen - Senior Data Engineer
+Priya Shah - Senior Data Reliability Engineer
 
 ## Project Leader
 
@@ -22,9 +22,15 @@ Samantha
 
 ## Repository Status
 
-The repository has completed the M02 ingestion foundation on branch `m02`.
+M01 is complete.
 
-Implemented M02 work:
+M02 is complete and merged to `main`.
+
+The active milestone is M03 on branch `m03`.
+
+M03 implementation has not started yet.
+
+Implemented storage that already exists:
 
 - ingestion run tracking
 - raw snapshot metadata persistence
@@ -66,14 +72,14 @@ Silver tables:
 - `weather_observations`
 - `weather_forecasts`
 
-Silver rows preserve raw snapshot references, ingestion run references, source-native fields, normalized UTC timestamps, row hashes, current-state flags, and superseded timestamps.
+These implemented storage tables preserve raw snapshot references, ingestion run references, source-native fields, normalized UTC timestamps, row hashes, current-state flags, and superseded timestamps.
 
 ## Not Implemented Yet
 
+- M03 data-quality checks and observability
 - live source fetching
 - IESO API clients
 - weather provider API clients
-- formal M03 data-quality checks
 - dbt
 - Prefect
 - MLflow
@@ -92,4 +98,4 @@ Final M02 verification is recorded in `docs/verification/M02_VERIFICATION.md`.
 
 ## Immediate Next Action
 
-Begin M03 - Data Quality and Observability from the completed M02 ingestion foundation.
+Begin M03-C01 quality schema and core contracts.
