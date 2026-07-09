@@ -6,7 +6,7 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01, M02, M03-C01, and M03-C02A are implemented.
+M01, M02, M03-C01, M03-C02A, and M03-C02B are implemented.
 
 ### Foundation
 
@@ -72,6 +72,16 @@ Quality check code:
 
 The IESO checks return result objects but do not persist automatically, make blocking decisions, expose source-health output, or run through a quality command.
 
+### M03-C02B Weather And Metadata Quality Checks
+
+Quality check code:
+
+- deterministic weather observation schema, nullability, uniqueness, range, timestamp, fixture-supported continuity, and freshness checks
+- deterministic weather forecast schema, nullability, uniqueness, range, timestamp, fixture-supported valid-time completeness, and freshness checks
+- deterministic raw snapshot and ingestion run source metadata checks
+
+The weather and source metadata checks return result objects but do not persist automatically, make blocking decisions, expose source-health output, or run through a quality command.
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -92,4 +102,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, weather quality checks, raw snapshot/source metadata checks, blocking logic, source-health output, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, blocking logic, source-health output, gold feature tables, forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.

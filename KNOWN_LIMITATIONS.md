@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation, M02 ingestion foundation, M03-C01 quality schema and core contracts, and M03-C02A IESO hourly demand quality checks.
+The repository contains the completed M01 foundation, M02 ingestion foundation, M03-C01 quality schema and core contracts, M03-C02A IESO hourly demand quality checks, and M03-C02B weather and source metadata quality checks.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -28,6 +28,12 @@ Implemented M03-C02A quality checks include deterministic IESO hourly demand:
 - conservative demand range checks
 - timestamp, continuity, completeness, freshness, and DST alignment checks
 
+Implemented M03-C02B quality checks include deterministic:
+
+- weather observation schema, nullability, uniqueness, range, timestamp, fixture-supported continuity, and freshness checks
+- weather forecast schema, nullability, uniqueness, range, timestamp, fixture-supported valid-time completeness, and freshness checks
+- raw snapshot and ingestion run source metadata checks
+
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
@@ -37,8 +43,6 @@ The following are intentionally not implemented yet:
 - scheduled ingestion
 - Prefect orchestration
 - dbt transformations
-- weather data-quality checks
-- raw snapshot/source metadata checks
 - quality blocking logic
 - source-health scoring
 - source-health API or operational report
@@ -59,6 +63,8 @@ The following are intentionally not implemented yet:
 - The runner supports only `--mode fixture`.
 - Raw payload files are local development artifacts under `data/raw` by default.
 - Weather provider selection is deferred; weather fixtures use provider-neutral columns.
+- Weather continuity and completeness checks are limited to caller-provided fixture assumptions until live provider contracts are selected.
+- Weather forecast value range checks use broad provider-neutral bounds, not official provider-specific operational limits.
 - Weather timestamps must include timezone information.
 - Archived weather forecast lead time is derived only for whole-hour issue-to-valid differences.
 - Revision behavior is simple current/superseded state, not a full bitemporal model.

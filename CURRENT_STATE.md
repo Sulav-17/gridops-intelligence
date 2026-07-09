@@ -6,7 +6,7 @@ GridOps Intelligence
 
 ## Current Phase
 
-M03-C02A generic quality utilities and IESO hourly demand checks implemented
+M03-C02B weather and source metadata quality checks implemented
 
 ## Active Milestone
 
@@ -30,8 +30,8 @@ The active milestone is M03 on branch `m03`.
 
 M03-C01 has implemented the quality schema and core contracts. M03-C02A has implemented
 generic in-memory quality check result utilities and deterministic IESO hourly demand checks.
-Weather checks, raw snapshot/source metadata checks, blocking logic, source-health output, and
-a quality runner have not been implemented yet.
+M03-C02B has implemented deterministic weather dataset and source metadata checks.
+Blocking logic, source-health output, and a quality runner have not been implemented yet.
 
 Implemented storage that already exists:
 
@@ -98,10 +98,33 @@ IESO hourly demand:
 - fixed-clock freshness checks
 - DST alignment checks using M01 time utilities where the M02 schema can represent the source-native hour
 
+Weather observations:
+
+- required-column schema checks
+- required-field nullability checks
+- duplicate current source key checks
+- conservative weather value range checks
+- UTC timestamp checks
+- fixture-supported hourly continuity checks
+- fixed-clock freshness checks
+
+Weather forecasts:
+
+- required-column schema checks
+- required-field nullability checks
+- duplicate current forecast key checks
+- broad provider-neutral value range checks
+- UTC issue/valid timestamp and lead-time checks
+- fixture-supported valid-time completeness checks
+- fixed-clock freshness checks
+
+Source metadata:
+
+- raw snapshot required metadata checks
+- ingestion run lifecycle, timestamp, count, and safe failure-detail checks
+
 ## Not Implemented Yet
 
-- M03 weather dataset quality checks
-- M03 raw snapshot/source metadata quality checks
 - M03 blocking logic
 - M03 source-health API or operational report
 - M03 quality runner
@@ -126,4 +149,4 @@ Final M02 verification is recorded in `docs/verification/M02_VERIFICATION.md`.
 
 ## Immediate Next Action
 
-Begin M03-C02B weather dataset quality checks.
+Begin M03-C03 blocking logic and source-health output.
