@@ -7,8 +7,8 @@ M02 status: PASS
 ## Branch And Commit
 
 - Branch: `m02`
-- Commit at verification time: `081f0bf feat: add M02 weather ingestion`
-- Final M02 runner and documentation changes were verified in the working tree before commit.
+- Final M02 commit: `d7e3c21 feat: complete M02 ingestion foundation`
+- Full verification was completed before the final commit and is recorded below.
 
 ## Environment
 
