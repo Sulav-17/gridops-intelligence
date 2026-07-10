@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, and M04 forecasting evaluation foundation. M02, M03, and M04 are merged to `main`. M05 is active on branch `m05`, owned by Elena Rossi, Senior ML Platform Engineer. M05-C01 implemented production forecasting and MLOps schema plus typed contracts. M05-C02 implemented local artifact persistence and model-selection gate foundations.
+The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, and M04 forecasting evaluation foundation. M02, M03, and M04 are merged to `main`. M05 is active on branch `m05`, owned by Elena Rossi, Senior ML Platform Engineer. M05-C01 implemented production forecasting and MLOps schema plus typed contracts. M05-C02 implemented local artifact persistence and model-selection gate foundations. M05-C03 implemented deterministic sklearn candidate training from persisted M04 feature snapshots.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -71,6 +71,17 @@ Implemented M05-C02 artifact and selection foundations include:
 - model-selection gate checks for MAE, WAPE, lineage completeness, and slice sanity failures
 - persisted selected or rejected gate decisions with reasons
 
+Implemented M05-C03 candidate training includes:
+
+- deterministic sklearn gradient boosting candidate training
+- time-based training and evaluation windows only
+- M04 `feature_snapshot_rows` as the only feature source
+- IESO demand actuals used only as supervised labels
+- persisted model training run lifecycle
+- artifact save and metadata persistence
+- MAE, RMSE, WAPE, and bias calculation
+- comparison against persisted M04 baseline metrics through the model-selection gate
+
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
@@ -81,8 +92,7 @@ The following are intentionally not implemented yet:
 - Prefect orchestration
 - dbt transformations
 - MLflow tracking
-- production forecasting models
-- candidate model training
+- LightGBM or XGBoost production candidate
 - true quantile forecasts or prediction intervals
 - scheduled production inference
 - production forecast API
@@ -115,7 +125,7 @@ The following are intentionally not implemented yet:
 - The forecasting runner provides deterministic previews and feature-building persistence, but it is not an orchestrator or scheduled production inference service.
 - No production forecast API exists.
 - No MLflow registry exists.
-- No trained production candidate, prediction intervals, monitoring calculations, alerts, scenarios, dashboard, deployment, or production model serving exist.
+- No production forecast outputs, prediction intervals, monitoring calculations, alerts, scenarios, dashboard, deployment, or production model serving exist.
 
 ## Time-Domain Limitations
 

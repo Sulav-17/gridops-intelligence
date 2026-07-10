@@ -121,7 +121,7 @@ M04 is an evaluation foundation, not a production forecasting service.
 
 ### M05 Production Forecasting And MLOps Schema
 
-M05-C01 adds schema and typed contracts. M05-C02 adds local artifact persistence utilities and model-selection gate logic. The repository still does not train models, generate forecasts, register models in MLflow, schedule inference, or expose forecast APIs.
+M05-C01 adds schema and typed contracts. M05-C02 adds local artifact persistence utilities and model-selection gate logic. M05-C03 adds deterministic sklearn candidate training from persisted M04 feature snapshots. The repository still does not generate production forecasts, register models in MLflow, schedule inference, or expose forecast APIs.
 
 M05 storage:
 
@@ -140,6 +140,8 @@ Implemented contract surfaces include model training status, artifact status, se
 Artifact persistence writes local pickle artifacts under an ignored artifact directory, computes SHA-256 hashes from file bytes, loads local artifacts back, and persists model artifact metadata to `model_artifacts`.
 
 Model selection compares candidate metrics to a selected M04 baseline. The default gate requires candidate MAE to be no worse than baseline MAE, candidate WAPE to be no worse when both sides provide WAPE, complete lineage fields, and no slice sanity failures. Passing and failing decisions can be persisted to `model_selection_results`.
+
+Candidate training reads features only from `feature_snapshot_rows.lineage_metadata` and uses `ieso_hourly_demand` only as the supervised label source. It uses time-based training and evaluation windows, rejects random splits, persists `model_training_runs`, saves a local model artifact, persists `model_artifacts`, calculates MAE, RMSE, WAPE, and bias, and persists the model-selection result.
 
 ## Approved Target Architecture
 
@@ -161,4 +163,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, M05 candidate training, production forecast generation, MLflow, alerts, scenarios, dashboard work, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, production forecast generation, MLflow, alerts, scenarios, dashboard work, or deployment.

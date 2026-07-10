@@ -71,7 +71,8 @@ Implemented storage includes:
 - forecasting evaluation: forecast issue contracts, feature snapshots, baselines, backtest windows, metrics, slice reports, and simple runner previews
 - M05 artifact foundation: local artifact save/load, SHA-256 hashing, and model artifact metadata persistence
 - M05 selection foundation: deterministic model-selection gate and persisted selection results
-- tests: deterministic unit and PostgreSQL integration coverage for M01 through M05-C02
+- M05 candidate training: deterministic sklearn candidate training from M04 feature snapshots, persisted training runs, artifact persistence, metric calculation, and model-selection results
+- tests: deterministic unit and PostgreSQL integration coverage for M01 through M05-C03
 
 ## Implemented M04 Capabilities
 
@@ -103,9 +104,8 @@ Implemented storage includes:
 - scheduled ingestion
 - Prefect
 - dbt
-- production gradient boosting model
-- candidate model training
-- trained model artifact save or reload behavior
+- LightGBM or XGBoost production candidate
+- production forecast generation
 - true quantile forecasts or prediction intervals
 - MLflow tracking or registry
 - scheduled production inference
@@ -125,4 +125,4 @@ Implemented storage includes:
 
 ## Immediate Next Action
 
-Begin M05-C03 candidate training pipeline after the M05-C02 artifact persistence and model-selection gate foundation.
+Begin M05-C04 forecast generation foundation after the M05-C03 candidate training pipeline.

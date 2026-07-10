@@ -10,6 +10,13 @@ from gridops.forecasting.artifacts import (
     resolve_artifact_dir,
     save_artifact,
 )
+from gridops.forecasting.candidate_models import (
+    FEATURE_NAMES,
+    TARGET_LIKE_FEATURE_NAMES,
+    feature_vector_from_payload,
+    make_gradient_boosting_candidate,
+    payload_uses_no_target_actuals,
+)
 from gridops.forecasting.horizons import ForecastHorizonTarget, generate_hourly_horizon
 from gridops.forecasting.issue_contract import (
     DEFAULT_FORECAST_TYPE,
@@ -38,6 +45,15 @@ from gridops.forecasting.model_selection import (
     evaluate_model_selection_gate,
     persist_model_selection_result,
 )
+from gridops.forecasting.training import (
+    CandidateDatasetRow,
+    CandidateTrainingConfig,
+    CandidateTrainingResult,
+    calculate_candidate_metrics,
+    load_candidate_rows,
+    load_selected_baseline_metrics,
+    train_candidate_from_feature_snapshots,
+)
 
 __all__ = [
     "ARTIFACT_DIR_ENV_VAR",
@@ -45,6 +61,7 @@ __all__ = [
     "DEFAULT_FORECAST_TYPE",
     "DEFAULT_HORIZON_HOURS",
     "DEFAULT_ARTIFACT_DIR",
+    "FEATURE_NAMES",
     "POINT_IN_TIME_SAFETY_RULE",
     "DriftSummaryContract",
     "ForecastHorizonTarget",
@@ -63,12 +80,23 @@ __all__ = [
     "RampOutputContract",
     "SavedArtifact",
     "SelectionGateDecision",
+    "TARGET_LIKE_FEATURE_NAMES",
+    "CandidateDatasetRow",
+    "CandidateTrainingConfig",
+    "CandidateTrainingResult",
+    "calculate_candidate_metrics",
     "compute_artifact_hash",
     "evaluate_model_selection_gate",
+    "feature_vector_from_payload",
     "generate_hourly_horizon",
     "load_artifact",
+    "load_candidate_rows",
+    "load_selected_baseline_metrics",
+    "make_gradient_boosting_candidate",
+    "payload_uses_no_target_actuals",
     "persist_model_artifact_metadata",
     "persist_model_selection_result",
     "resolve_artifact_dir",
     "save_artifact",
+    "train_candidate_from_feature_snapshots",
 ]

@@ -44,13 +44,14 @@ Implemented foundation:
 - M05 production forecasting and MLOps schema contracts for model training runs, artifacts, model selection, production forecasts, peak/ramp outputs, and monitoring summaries
 - local model artifact save/load utilities with SHA-256 hashes and metadata persistence
 - model-selection gate logic comparing candidate MAE and WAPE against selected M04 baseline metrics
+- deterministic sklearn candidate training from persisted M04 feature snapshots, with artifact persistence and model-selection results
 
 Not implemented yet:
 
 - live source fetching
 - orchestration with Prefect
 - dbt transformations
-- production model training or forecast model serving
+- production forecast generation or model serving
 - true quantile models or prediction intervals
 - MLflow registry
 - scheduled inference
