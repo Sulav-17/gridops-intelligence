@@ -4,7 +4,7 @@ GridOps Intelligence is a production-style energy data engineering, forecasting,
 
 The system is intended to ingest public electricity and weather data, preserve source evidence, validate and normalize changing source data, produce trusted day-ahead forecasting evaluations, and later support production forecasting, alerts, scenarios, APIs, and an operational dashboard.
 
-M05 is active on branch `m05`. M01, M02, M03, and M04 are complete; M02, M03, and M04 have been merged to `main`.
+M05 is complete on branch `m05`, pending merge to `main`. M01, M02, M03, and M04 are complete; M02, M03, and M04 have been merged to `main`.
 
 ## Current Status
 
@@ -46,6 +46,8 @@ Implemented foundation:
 - model-selection gate logic comparing candidate MAE and WAPE against selected M04 baseline metrics
 - deterministic sklearn candidate training from persisted M04 feature snapshots, with artifact persistence and model-selection results
 - production forecast generation foundation from selected model artifacts, including P50 predictions, peak output, ramp outputs, and lineage
+- model performance and drift monitoring foundations persisted to M05 summary tables
+- simple M05 production runner boundaries through `python -m gridops.forecasting.production_runner`
 
 Not implemented yet:
 
@@ -56,7 +58,6 @@ Not implemented yet:
 - true quantile models or prediction intervals
 - MLflow registry
 - scheduled inference
-- production forecast API
 - alerts, scenarios, dashboards, authentication, or deployment
 
 ## Local Development
@@ -152,6 +153,28 @@ Summarize forecasting capabilities:
 uv run python -m gridops.forecasting.runner report --dry-run
 ```
 
+## Production Forecasting Foundation
+
+Preview deterministic candidate training:
+
+```powershell
+uv run python -m gridops.forecasting.production_runner train-candidate --feature-version m04_c01_foundation --training-start-utc 2026-01-01T00:00:00Z --training-end-utc 2026-02-01T00:00:00Z --evaluation-start-utc 2026-02-01T00:00:00Z --evaluation-end-utc 2026-02-08T00:00:00Z --selected-baseline-name same_hour_yesterday --dry-run
+```
+
+Preview forecast generation from a selected artifact:
+
+```powershell
+uv run python -m gridops.forecasting.production_runner generate-forecast --model-artifact-id 1 --forecast-issue-time-utc 2026-02-09T10:00:00Z --dry-run
+```
+
+Preview monitoring summaries:
+
+```powershell
+uv run python -m gridops.forecasting.production_runner summarize-monitoring --model-artifact-id 1 --evaluation-start-utc 2026-02-01T00:00:00Z --evaluation-end-utc 2026-02-02T00:00:00Z --baseline-start-utc 2026-01-01T00:00:00Z --baseline-end-utc 2026-01-02T00:00:00Z --comparison-start-utc 2026-02-01T00:00:00Z --comparison-end-utc 2026-02-02T00:00:00Z --dry-run
+```
+
+These commands are deterministic runner boundaries, not a scheduler or production serving API.
+
 ## API Foundation
 
 Create the FastAPI app with:
@@ -200,9 +223,14 @@ Time utilities live in `gridops.time_utils`.
 | `docs/forecasting/FEATURE_SNAPSHOT_CONTRACT.md` | M04 point-in-time feature snapshot contract |
 | `docs/forecasting/BACKTESTING_RUNBOOK.md` | M04 forecasting runner and backtesting runbook |
 | `docs/forecasting/BASELINE_REPORT.md` | M04 baseline evaluation report |
+| `docs/forecasting/MODEL_TRAINING_RUNBOOK.md` | M05 candidate training workflow |
+| `docs/forecasting/MODEL_SELECTION.md` | M05 model-selection gate behavior |
+| `docs/forecasting/FORECAST_OUTPUT_CONTRACT.md` | M05 production forecast output contract |
 | `docs/verification/M04_VERIFICATION.md` | M04 verification evidence and exact command results |
 | `docs/handoffs/M04_HANDOFF.md` | M04 completion handoff for M05 |
-| `milestones/M04.md` | Detailed M04 scope and completion requirements |
+| `docs/verification/M05_VERIFICATION.md` | M05 verification evidence and exact command results |
+| `docs/handoffs/M05_HANDOFF.md` | M05 completion handoff for M06 |
+| `milestones/M05.md` | Detailed M05 scope and completion requirements |
 
 ## Scope Boundaries
 

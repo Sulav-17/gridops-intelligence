@@ -6,7 +6,7 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01, M02, M03, and M04 are implemented and complete. M02, M03, and M04 have been merged to `main`. M05 is active on branch `m05`, owned by Elena Rossi, Senior ML Platform Engineer.
+M01, M02, M03, and M04 are implemented and complete. M02, M03, and M04 have been merged to `main`. M05 is complete on branch `m05`, pending merge to `main`, owned by Elena Rossi, Senior ML Platform Engineer.
 
 ### Foundation
 
@@ -121,7 +121,7 @@ M04 is an evaluation foundation, not a production forecasting service.
 
 ### M05 Production Forecasting And MLOps Schema
 
-M05-C01 adds schema and typed contracts. M05-C02 adds local artifact persistence utilities and model-selection gate logic. M05-C03 adds deterministic sklearn candidate training from persisted M04 feature snapshots. M05-C04 adds production forecast generation from selected local model artifacts. The repository still does not register models in MLflow, schedule inference, or expose forecast APIs.
+M05-C01 adds schema and typed contracts. M05-C02 adds local artifact persistence utilities and model-selection gate logic. M05-C03 adds deterministic sklearn candidate training from persisted M04 feature snapshots. M05-C04 adds production forecast generation from selected local model artifacts. M05-C05 adds minimal performance and drift monitoring summaries plus simple production runner command boundaries. The repository still does not register models in MLflow, schedule inference, or expose forecast APIs.
 
 M05 storage:
 
@@ -145,6 +145,14 @@ Candidate training reads features only from `feature_snapshot_rows.lineage_metad
 
 Forecast generation loads a selected available artifact, reuses or builds M04 feature snapshots for a supplied issue time, extracts the same approved feature vector, persists `production_forecast_runs`, stores P50-only prediction rows with nullable P10/P90 fields, and derives peak and ramp output rows. Forecast run and prediction lineage preserve artifact, training run, feature snapshot run, feature version, and issue-time references.
 
+Monitoring foundations calculate forecast-vs-actual MAE, RMSE, WAPE, and bias where actuals are available, and persist simple feature mean-difference drift summaries. No alerting, notifications, dashboard, model registry, or production scheduler is implemented.
+
+Runner:
+
+- simple standard-library runner through `python -m gridops.forecasting.production_runner`
+- deterministic dry-run previews for candidate training, forecast generation, and monitoring summaries
+- database-backed execution paths for already implemented training, forecast generation, and monitoring helpers
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -165,4 +173,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, forecast APIs, alerts, scenarios, dashboard work, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, forecast APIs, alerts, scenarios, briefing generation, dashboard work, authentication, or deployment.

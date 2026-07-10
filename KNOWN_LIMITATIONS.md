@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, and M04 forecasting evaluation foundation. M02, M03, and M04 are merged to `main`. M05 is active on branch `m05`, owned by Elena Rossi, Senior ML Platform Engineer. M05-C01 implemented production forecasting and MLOps schema plus typed contracts. M05-C02 implemented local artifact persistence and model-selection gate foundations. M05-C03 implemented deterministic sklearn candidate training from persisted M04 feature snapshots. M05-C04 implemented forecast generation from selected local model artifacts.
+The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, and M04 forecasting evaluation foundation. M02, M03, and M04 are merged to `main`. M05 is complete on branch `m05`, pending merge to `main`, owned by Elena Rossi, Senior ML Platform Engineer. M05-C01 implemented production forecasting and MLOps schema plus typed contracts. M05-C02 implemented local artifact persistence and model-selection gate foundations. M05-C03 implemented deterministic sklearn candidate training from persisted M04 feature snapshots. M05-C04 implemented forecast generation from selected local model artifacts. M05-C05 implemented monitoring foundations, production runner boundaries, final documentation, verification, and handoff artifacts.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -93,6 +93,15 @@ Implemented M05-C04 forecast generation includes:
 - artifact, training run, feature snapshot, feature version, and issue-time lineage
 - safe blocked-run behavior for unusable artifacts or feature snapshots
 
+Implemented M05-C05 monitoring and runner foundations include:
+
+- forecast-vs-actual MAE, RMSE, WAPE, and bias summaries where actuals are available
+- simple deterministic feature mean-difference drift summaries
+- explicit no-data drift summary behavior
+- persisted `model_performance_summaries` and `model_drift_summaries`
+- simple production runner command boundaries for training, forecast generation, and monitoring
+- final M05 runbooks, forecast output contract, verification report, and handoff report
+
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
@@ -107,7 +116,6 @@ The following are intentionally not implemented yet:
 - true quantile forecasts or prediction intervals
 - scheduled production inference
 - production forecast API
-- performance or drift monitoring calculations
 - operational alerts
 - scenario engine
 - briefing generation

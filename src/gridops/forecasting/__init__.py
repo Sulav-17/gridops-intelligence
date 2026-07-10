@@ -51,6 +51,14 @@ from gridops.forecasting.model_selection import (
     evaluate_model_selection_gate,
     persist_model_selection_result,
 )
+from gridops.forecasting.monitoring import (
+    DRIFT_METRIC_NAME,
+    NO_DATA_FEATURE_NAME,
+    DriftMonitoringConfig,
+    PerformanceMonitoringConfig,
+    summarize_feature_drift,
+    summarize_model_performance,
+)
 from gridops.forecasting.training import (
     CandidateDatasetRow,
     CandidateTrainingConfig,
@@ -67,9 +75,12 @@ __all__ = [
     "DEFAULT_FORECAST_TYPE",
     "DEFAULT_HORIZON_HOURS",
     "DEFAULT_ARTIFACT_DIR",
+    "DRIFT_METRIC_NAME",
     "FEATURE_NAMES",
+    "NO_DATA_FEATURE_NAME",
     "POINT_IN_TIME_SAFETY_RULE",
     "PREDICTION_TYPE_P50_ONLY",
+    "DriftMonitoringConfig",
     "DriftSummaryContract",
     "ForecastHorizonTarget",
     "ForecastIssueContract",
@@ -85,6 +96,7 @@ __all__ = [
     "ModelTrainingStatus",
     "PeakOutputContract",
     "PerformanceSummaryContract",
+    "PerformanceMonitoringConfig",
     "REQUIRED_LINEAGE_FIELDS",
     "RampOutputContract",
     "SavedArtifact",
@@ -108,5 +120,7 @@ __all__ = [
     "persist_model_selection_result",
     "resolve_artifact_dir",
     "save_artifact",
+    "summarize_feature_drift",
+    "summarize_model_performance",
     "train_candidate_from_feature_snapshots",
 ]

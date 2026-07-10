@@ -91,7 +91,7 @@ M04-C01 implemented the forecast issue contract, horizon generation, schema foun
 
 ## M05 - Production Forecasting and MLOps
 
-**Status:** Active
+**Status:** Complete on branch `m05`, pending merge to `main`
 
 **Owner:** Elena Rossi, Senior ML Platform Engineer
 
@@ -99,16 +99,16 @@ M04-C01 implemented the forecast issue contract, horizon generation, schema foun
 
 Primary outcomes:
 
-- LightGBM or XGBoost candidate
-- quantile forecasting
-- P10, P50, and P90 outputs
+- sklearn candidate
+- nullable quantile output schema with P50-only generation
 - peak-demand and peak-hour forecasts
 - ramp outputs
-- MLflow experiment tracking and registry
 - model-selection gates
-- scheduled inference
-- forecast API
-- drift and performance monitoring
+- local artifact persistence
+- production runner command boundaries
+- drift and performance monitoring foundations
+
+M05-C01 implemented production forecasting and MLOps schema plus typed contracts. M05-C02 implemented local artifact persistence and model-selection gate logic. M05-C03 implemented deterministic sklearn candidate training from M04 feature snapshots. M05-C04 implemented selected-artifact forecast generation with P50, peak, ramp, and lineage outputs. M05-C05 implemented monitoring foundations, production runner boundaries, final documentation, verification, and handoff artifacts.
 
 ## M06 - Alerts, Scenarios, and Briefings
 

@@ -6,7 +6,7 @@ GridOps Intelligence
 
 ## Current Phase
 
-M05 active on branch `m05`
+M05 complete on branch `m05`, pending merge to `main`
 
 ## Active Milestone
 
@@ -30,7 +30,7 @@ M03 is complete and merged to `main`.
 
 M04 is complete and merged to `main`.
 
-M05 is active on branch `m05`.
+M05 is complete on branch `m05`, pending merge to `main`.
 
 Implemented storage includes:
 
@@ -73,7 +73,9 @@ Implemented storage includes:
 - M05 selection foundation: deterministic model-selection gate and persisted selection results
 - M05 candidate training: deterministic sklearn candidate training from M04 feature snapshots, persisted training runs, artifact persistence, metric calculation, and model-selection results
 - M05 forecast generation: selected-artifact forecast output persistence with P50 predictions, nullable P10/P90, peak output, ramp outputs, and lineage
-- tests: deterministic unit and PostgreSQL integration coverage for M01 through M05-C04
+- M05 monitoring foundation: persisted forecast-vs-actual performance summaries and simple feature drift summaries
+- M05 runner: deterministic production runner command boundaries for candidate training, forecast generation, and monitoring summaries
+- tests: deterministic unit and PostgreSQL integration coverage for M01 through M05-C05
 
 ## Implemented M04 Capabilities
 
@@ -110,7 +112,6 @@ Implemented storage includes:
 - MLflow tracking or registry
 - scheduled production inference
 - production forecast API
-- performance or drift monitoring calculations
 - alerts
 - scenarios
 - frontend or dashboards
@@ -122,7 +123,8 @@ Implemented storage includes:
 - M02 verification: `docs/verification/M02_VERIFICATION.md`
 - M03 verification: `docs/verification/M03_VERIFICATION.md`
 - M04 verification: `docs/verification/M04_VERIFICATION.md`
+- M05 verification: `docs/verification/M05_VERIFICATION.md`
 
 ## Immediate Next Action
 
-Begin M05-C05 monitoring foundations, runner, documentation, verification, and handoff.
+Merge M05 to `main` after review, then begin M06 alert, scenario, and briefing contracts.
