@@ -2,9 +2,9 @@
 
 GridOps Intelligence is a production-style energy data engineering, forecasting, and MLOps platform focused on Ontario electricity demand.
 
-The system is intended to ingest public electricity and weather data, preserve source evidence, validate and normalize changing source data, produce trusted day-ahead forecasting evaluations, and later support production forecasting, alerts, scenarios, APIs, and an operational dashboard.
+The system is intended to ingest public electricity and weather data, preserve source evidence, validate and normalize changing source data, produce trusted day-ahead forecasting evaluations, and support production forecasting, alerts, scenarios, APIs, and an operational dashboard.
 
-M05 is complete on branch `m05`, pending merge to `main`. M01, M02, M03, and M04 are complete; M02, M03, and M04 have been merged to `main`.
+M06 is active on branch `m06`. M01 through M05 are complete.
 
 ## Current Status
 
@@ -17,7 +17,7 @@ Completed milestones:
 
 Active milestone:
 
-- M05 - Production forecasting and MLOps, owned by Elena Rossi, Senior ML Platform Engineer
+- M06 - Alerts, Scenarios, and Briefings, owned by Marcus Lee, Senior Decision Systems Engineer
 
 Implemented foundation:
 
@@ -48,6 +48,7 @@ Implemented foundation:
 - production forecast generation foundation from selected model artifacts, including P50 predictions, peak output, ramp outputs, and lineage
 - model performance and drift monitoring foundations persisted to M05 summary tables
 - simple M05 production runner boundaries through `python -m gridops.forecasting.production_runner`
+- M06 alert foundation with deterministic alert contracts, fixed-threshold high-demand/ramp/deviation rules, M03 source-health context alerts, combined context alerts, duplicate-active alert prevention, immutable evidence, and lifecycle history
 
 Not implemented yet:
 
@@ -58,7 +59,7 @@ Not implemented yet:
 - true quantile models or prediction intervals
 - MLflow registry
 - scheduled inference
-- alerts, scenarios, dashboards, authentication, or deployment
+- scenarios, briefings, dashboards, authentication, or deployment
 
 ## Local Development
 
@@ -226,6 +227,7 @@ Time utilities live in `gridops.time_utils`.
 | `docs/forecasting/MODEL_TRAINING_RUNBOOK.md` | M05 candidate training workflow |
 | `docs/forecasting/MODEL_SELECTION.md` | M05 model-selection gate behavior |
 | `docs/forecasting/FORECAST_OUTPUT_CONTRACT.md` | M05 production forecast output contract |
+| `docs/decision/ALERT_RULES.md` | M06 alert rule contracts, thresholds, lifecycle, evidence, and limitations |
 | `docs/verification/M04_VERIFICATION.md` | M04 verification evidence and exact command results |
 | `docs/handoffs/M04_HANDOFF.md` | M04 completion handoff for M05 |
 | `docs/verification/M05_VERIFICATION.md` | M05 verification evidence and exact command results |

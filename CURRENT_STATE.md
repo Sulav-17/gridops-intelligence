@@ -6,15 +6,15 @@ GridOps Intelligence
 
 ## Current Phase
 
-M05 complete on branch `m05`, pending merge to `main`
+M06 active on branch `m06`
 
 ## Active Milestone
 
-M05 - Production Forecasting and MLOps
+M06 - Alerts, Scenarios, and Briefings
 
 ## Milestone Owner
 
-Elena Rossi - Senior ML Platform Engineer
+Marcus Lee - Senior Decision Systems Engineer
 
 ## Project Leader
 
@@ -30,7 +30,9 @@ M03 is complete and merged to `main`.
 
 M04 is complete and merged to `main`.
 
-M05 is complete on branch `m05`, pending merge to `main`.
+M05 is complete.
+
+M06 fast-track chunk 1 has started on branch `m06`.
 
 Implemented storage includes:
 
@@ -57,6 +59,10 @@ Implemented storage includes:
 - `forecast_ramp_outputs`
 - `model_performance_summaries`
 - `model_drift_summaries`
+- `alert_evaluation_runs`
+- `alerts`
+- `alert_evidence`
+- `alert_lifecycle_history`
 
 ## Technical State
 
@@ -64,7 +70,7 @@ Implemented storage includes:
 - package: `gridops`
 - database: PostgreSQL
 - local database port: `55432`
-- migrations: empty baseline, M02 ingestion storage, M03 quality storage, M04 forecasting foundation, and M05 production forecasting schema
+- migrations: empty baseline, M02 ingestion storage, M03 quality storage, M04 forecasting foundation, M05 production forecasting schema, and M06 alert foundation
 - API: FastAPI health, readiness, and `GET /quality/health`
 - ingestion: fixture mode only through `python -m gridops.ingestion.runner`
 - quality: persisted dataset checks through `python -m gridops.quality.runner`
@@ -75,6 +81,7 @@ Implemented storage includes:
 - M05 forecast generation: selected-artifact forecast output persistence with P50 predictions, nullable P10/P90, peak output, ramp outputs, and lineage
 - M05 monitoring foundation: persisted forecast-vs-actual performance summaries and simple feature drift summaries
 - M05 runner: deterministic production runner command boundaries for candidate training, forecast generation, and monitoring summaries
+- M06 alert foundation: deterministic alert contracts, high-demand/ramp/previous-forecast-deviation/source-health/combined-context rules, duplicate-active alert prevention, immutable alert evidence, and lifecycle history
 - tests: deterministic unit and PostgreSQL integration coverage for M01 through M05-C05
 
 ## Implemented M04 Capabilities
@@ -112,8 +119,8 @@ Implemented storage includes:
 - MLflow tracking or registry
 - scheduled production inference
 - production forecast API
-- alerts
 - scenarios
+- briefing generation
 - frontend or dashboards
 - authentication
 - production deployment
@@ -127,4 +134,4 @@ Implemented storage includes:
 
 ## Immediate Next Action
 
-Merge M05 to `main` after review, then begin M06 alert, scenario, and briefing contracts.
+Continue M06 after fast-track chunk 1 by adding the remaining decision-support surfaces: scenario behavior, briefing facts, API or report outputs, runner commands, and final M06 verification/handoff artifacts.

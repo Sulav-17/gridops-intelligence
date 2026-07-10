@@ -1075,3 +1075,145 @@ class ModelDriftSummary(Base):
     summary_json: Mapped[dict[str, object] | None] = mapped_column(JSON)
     lineage_metadata: Mapped[dict[str, object] | None] = mapped_column(JSON)
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class AlertEvaluationRun(Base):
+    """Track one deterministic M06 alert evaluation attempt."""
+
+    __tablename__ = "alert_evaluation_runs"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('running', 'succeeded', 'failed')",
+            name="alert_evaluation_runs_status_valid",
+        ),
+        Index("ix_alert_evaluation_runs_forecast_run_id", "production_forecast_run_id"),
+        Index("ix_alert_evaluation_runs_status", "status"),
+        Index("ix_alert_evaluation_runs_started_at_utc", "started_at_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    production_forecast_run_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("production_forecast_runs.id"),
+    )
+    policy_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    started_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    metadata_json: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    safe_error_detail: Mapped[str | None] = mapped_column(String(1000))
+
+
+class Alert(Base):
+    """Persist one reproducible operational attention signal."""
+
+    __tablename__ = "alerts"
+    __table_args__ = (
+        CheckConstraint(
+            "alert_type IN ("
+            "'high_demand', 'ramp', 'forecast_deviation', 'source_health', "
+            "'combined_context'"
+            ")",
+            name="alerts_alert_type_valid",
+        ),
+        CheckConstraint(
+            "severity IN ('info', 'watch', 'warning', 'critical')",
+            name="alerts_severity_valid",
+        ),
+        CheckConstraint(
+            "state IN ('open', 'acknowledged', 'resolved', 'suppressed', 'expired')",
+            name="alerts_state_valid",
+        ),
+        CheckConstraint(
+            "target_interval_start_utc IS NULL OR target_interval_end_utc IS NULL "
+            "OR target_interval_start_utc < target_interval_end_utc",
+            name="alerts_target_interval_order_valid",
+        ),
+        Index("ix_alerts_alert_type", "alert_type"),
+        Index("ix_alerts_severity", "severity"),
+        Index("ix_alerts_state", "state"),
+        Index("ix_alerts_fingerprint", "fingerprint"),
+        Index("ix_alerts_forecast_run_id", "production_forecast_run_id"),
+        Index("ix_alerts_target_start", "target_interval_start_utc"),
+        Index(
+            "uq_alerts_active_fingerprint",
+            "fingerprint",
+            unique=True,
+            postgresql_where=text("state IN ('open', 'acknowledged')"),
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    alert_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    severity: Mapped[str] = mapped_column(String(32), nullable=False)
+    state: Mapped[str] = mapped_column(String(32), nullable=False)
+    fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    rule_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    rule_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)
+    explanation: Mapped[str] = mapped_column(String(1000), nullable=False)
+    production_forecast_run_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("production_forecast_runs.id"),
+    )
+    forecast_issue_time_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    target_interval_start_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    target_interval_end_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    opened_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    resolved_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    suppressed_until_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    current_evidence_json: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+
+    evidence_records: Mapped[list["AlertEvidence"]] = relationship(back_populates="alert")
+    lifecycle_history: Mapped[list["AlertLifecycleHistory"]] = relationship(back_populates="alert")
+
+
+class AlertEvidence(Base):
+    """Immutable structured evidence for one alert evaluation result."""
+
+    __tablename__ = "alert_evidence"
+    __table_args__ = (
+        Index("ix_alert_evidence_alert_id", "alert_id"),
+        Index("ix_alert_evidence_evaluation_run_id", "alert_evaluation_run_id"),
+        Index("ix_alert_evidence_generated_at_utc", "generated_at_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    alert_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("alerts.id"), nullable=False)
+    alert_evaluation_run_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("alert_evaluation_runs.id"),
+    )
+    evidence_json: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    generated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    alert: Mapped[Alert] = relationship(back_populates="evidence_records")
+
+
+class AlertLifecycleHistory(Base):
+    """Immutable lifecycle transition history for alerts."""
+
+    __tablename__ = "alert_lifecycle_history"
+    __table_args__ = (
+        CheckConstraint(
+            "from_state IS NULL OR from_state IN "
+            "('open', 'acknowledged', 'resolved', 'suppressed', 'expired')",
+            name="alert_lifecycle_history_from_state_valid",
+        ),
+        CheckConstraint(
+            "to_state IN ('open', 'acknowledged', 'resolved', 'suppressed', 'expired')",
+            name="alert_lifecycle_history_to_state_valid",
+        ),
+        Index("ix_alert_lifecycle_history_alert_id", "alert_id"),
+        Index("ix_alert_lifecycle_history_changed_at_utc", "changed_at_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    alert_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("alerts.id"), nullable=False)
+    from_state: Mapped[str | None] = mapped_column(String(32))
+    to_state: Mapped[str] = mapped_column(String(32), nullable=False)
+    transition_reason: Mapped[str | None] = mapped_column(String(1000))
+    changed_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    alert: Mapped[Alert] = relationship(back_populates="lifecycle_history")

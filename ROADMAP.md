@@ -91,7 +91,7 @@ M04-C01 implemented the forecast issue contract, horizon generation, schema foun
 
 ## M05 - Production Forecasting and MLOps
 
-**Status:** Complete on branch `m05`, pending merge to `main`
+**Status:** Complete
 
 **Owner:** Elena Rossi, Senior ML Platform Engineer
 
@@ -112,7 +112,7 @@ M05-C01 implemented production forecasting and MLOps schema plus typed contracts
 
 ## M06 - Alerts, Scenarios, and Briefings
 
-**Status:** Not started
+**Status:** Active
 
 **Owner:** Marcus Lee, Senior Decision Systems Engineer
 
@@ -129,6 +129,8 @@ Primary outcomes:
 - controlled scenario engine
 - deterministic briefing facts
 - optional guarded narrative generation
+
+M06 fast-track chunk 1 implemented deterministic alert contracts, fixed-threshold high-demand and ramp rules, previous-forecast deviation alerts, M03 source-health context alerts, combined context alerts, alert evidence persistence, duplicate-active alert prevention, and lifecycle history. Scenario and briefing work remains future M06 scope.
 
 ## M07 - Dashboard, Deployment, and Release
 

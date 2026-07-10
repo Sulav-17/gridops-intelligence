@@ -6,7 +6,7 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01, M02, M03, and M04 are implemented and complete. M02, M03, and M04 have been merged to `main`. M05 is complete on branch `m05`, pending merge to `main`, owned by Elena Rossi, Senior ML Platform Engineer.
+M01 through M05 are implemented and complete. M06 is active on branch `m06`, owned by Marcus Lee, Senior Decision Systems Engineer.
 
 ### Foundation
 
@@ -153,6 +153,31 @@ Runner:
 - deterministic dry-run previews for candidate training, forecast generation, and monitoring summaries
 - database-backed execution paths for already implemented training, forecast generation, and monitoring helpers
 
+### M06 Alert Foundation
+
+M06 fast-track chunk 1 adds deterministic alert contracts, rule evaluation, evidence persistence, duplicate-active alert prevention, and lifecycle history. Scenario analysis, deterministic briefings, alert APIs, runners, and M07 dashboard presentation remain deferred.
+
+M06 alert storage:
+
+- `alert_evaluation_runs`
+- `alerts`
+- `alert_evidence`
+- `alert_lifecycle_history`
+
+Implemented alert behavior:
+
+- fixed-threshold high-demand alerts from M05 production forecast predictions
+- large-ramp alerts using M05 `forecast_ramp_outputs` when present, with deterministic adjacent-prediction fallback
+- forecast deviation alerts compared against the previous succeeded production forecast run for the same target interval
+- source-health context alerts from persisted M03 quality/source-health summaries
+- combined-context alerts from deterministic forecast attention plus source-health component signals
+- deterministic SHA-256 business fingerprints excluding database IDs, random values, and processing timestamps
+- partial unique database protection against duplicate active alerts for the same fingerprint
+- lifecycle transitions from open to acknowledged, resolved, suppressed, or expired, and from acknowledged to resolved, suppressed, or expired
+- immutable evidence and lifecycle history rows
+
+True uncertainty/confidence alerting remains deferred because M05 stores nullable P10/P90 columns but does not generate true prediction intervals or confidence indicators.
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -173,4 +198,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, forecast APIs, alerts, scenarios, briefing generation, dashboard work, authentication, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, forecast APIs, scenarios, briefing generation, dashboard work, authentication, or deployment. Alert APIs, runner commands, notifications, and ticketing are not implemented.

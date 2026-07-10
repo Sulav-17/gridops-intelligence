@@ -46,8 +46,7 @@ M05_TABLE_NAMES = {
     "model_drift_summaries",
 }
 
-FUTURE_M06_M07_TABLE_NAMES = {
-    "alerts",
+FUTURE_NON_ALERT_TABLE_NAMES = {
     "alert_events",
     "alert_lifecycle",
     "scenarios",
@@ -88,7 +87,7 @@ def clean_session_factory(
 
 
 def test_m05_models_import_cleanly_and_do_not_include_future_product_tables() -> None:
-    """M05 ORM exports point to the requested tables and avoid M06/M07 scope."""
+    """M05 ORM exports point to the requested tables and avoid future non-alert scope."""
 
     assert ModelTrainingRun.__tablename__ == "model_training_runs"
     assert ModelArtifact.__tablename__ == "model_artifacts"
@@ -99,7 +98,7 @@ def test_m05_models_import_cleanly_and_do_not_include_future_product_tables() ->
     assert ForecastRampOutput.__tablename__ == "forecast_ramp_outputs"
     assert ModelPerformanceSummary.__tablename__ == "model_performance_summaries"
     assert ModelDriftSummary.__tablename__ == "model_drift_summaries"
-    assert FUTURE_M06_M07_TABLE_NAMES.isdisjoint(Base.metadata.tables)
+    assert FUTURE_NON_ALERT_TABLE_NAMES.isdisjoint(Base.metadata.tables)
 
 
 @pytest.mark.integration
@@ -126,7 +125,7 @@ def test_m05_migration_creates_expected_tables(
     }
 
     assert M05_TABLE_NAMES.issubset(table_names)
-    assert FUTURE_M06_M07_TABLE_NAMES.isdisjoint(table_names)
+    assert FUTURE_NON_ALERT_TABLE_NAMES.isdisjoint(table_names)
     assert {
         "forecast_issue_time_utc",
         "target_interval_start_utc",
