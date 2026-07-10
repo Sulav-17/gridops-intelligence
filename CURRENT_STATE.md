@@ -6,15 +6,15 @@ GridOps Intelligence
 
 ## Current Phase
 
-M04 complete on branch `m04`, pending milestone approval and merge
+M05 active on branch `m05`
 
 ## Active Milestone
 
-M04 - Baselines and Backtesting
+M05 - Production Forecasting and MLOps
 
 ## Milestone Owner
 
-Daniel Brooks - Senior Forecasting Scientist
+Elena Rossi - Senior ML Platform Engineer
 
 ## Project Leader
 
@@ -28,7 +28,9 @@ M02 is complete and merged to `main`.
 
 M03 is complete and merged to `main`.
 
-M04 implementation is complete on branch `m04` and has not been merged yet.
+M04 is complete and merged to `main`.
+
+M05 is active on branch `m05`.
 
 Implemented storage includes:
 
@@ -110,4 +112,4 @@ Implemented storage includes:
 
 ## Immediate Next Action
 
-Begin M05 production forecasting and MLOps after M04 approval and merge.
+Begin M05-C01 production forecasting and MLOps contracts after this M05-C00 documentation synchronization.

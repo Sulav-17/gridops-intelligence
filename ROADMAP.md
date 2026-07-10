@@ -69,7 +69,7 @@ M03-C01 implemented the quality schema, core contracts, and persistence helpers.
 
 ## M04 - Baselines and Backtesting
 
-**Status:** Complete on branch `m04`, pending approval and merge
+**Status:** Complete and merged to `main`
 
 **Owner:** Daniel Brooks, Senior Forecasting Scientist
 
@@ -91,7 +91,7 @@ M04-C01 implemented the forecast issue contract, horizon generation, schema foun
 
 ## M05 - Production Forecasting and MLOps
 
-**Status:** Not started
+**Status:** Active
 
 **Owner:** Elena Rossi, Senior ML Platform Engineer
 

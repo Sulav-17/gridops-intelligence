@@ -6,7 +6,7 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01, M02, M03, and M04 are implemented. M04 is complete on branch `m04`, pending approval and merge.
+M01, M02, M03, and M04 are implemented and complete. M02, M03, and M04 have been merged to `main`. M05 is active on branch `m05`, owned by Elena Rossi, Senior ML Platform Engineer.
 
 ### Foundation
 
@@ -139,4 +139,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, production forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, M05 production forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.

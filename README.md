@@ -4,7 +4,7 @@ GridOps Intelligence is a production-style energy data engineering, forecasting,
 
 The system is intended to ingest public electricity and weather data, preserve source evidence, validate and normalize changing source data, produce trusted day-ahead forecasting evaluations, and later support production forecasting, alerts, scenarios, APIs, and an operational dashboard.
 
-M04 is complete on branch `m04`, pending approval and merge. M04 is an evaluation foundation, not a production forecast-serving milestone.
+M05 is active on branch `m05`. M01, M02, M03, and M04 are complete; M02, M03, and M04 have been merged to `main`.
 
 ## Current Status
 
@@ -14,6 +14,10 @@ Completed milestones:
 - M02 - Data ingestion foundation
 - M03 - Data quality and observability
 - M04 - Baselines and backtesting
+
+Active milestone:
+
+- M05 - Production forecasting and MLOps, owned by Elena Rossi, Senior ML Platform Engineer
 
 Implemented foundation:
 
