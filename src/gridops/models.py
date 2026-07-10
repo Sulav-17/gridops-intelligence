@@ -4,6 +4,7 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from sqlalchemy import (
+    JSON,
     BigInteger,
     Boolean,
     CheckConstraint,
@@ -611,3 +612,466 @@ class BaselineSliceMetricResult(Base):
     row_count: Mapped[int | None] = mapped_column(BigInteger)
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     lineage_metadata: Mapped[str | None] = mapped_column(Text)
+
+
+class ModelTrainingRun(Base):
+    """Track one M05 production-candidate training attempt."""
+
+    __tablename__ = "model_training_runs"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('planned', 'running', 'succeeded', 'failed', 'blocked')",
+            name="model_training_runs_status_valid",
+        ),
+        CheckConstraint(
+            "training_window_start_utc < training_window_end_utc",
+            name="model_training_runs_training_window_order_valid",
+        ),
+        CheckConstraint(
+            "evaluation_window_start_utc < evaluation_window_end_utc",
+            name="model_training_runs_evaluation_window_order_valid",
+        ),
+        Index("ix_model_training_runs_model_name", "model_name"),
+        Index("ix_model_training_runs_model_version", "model_version"),
+        Index("ix_model_training_runs_status", "status"),
+        Index("ix_model_training_runs_started_at_utc", "started_at_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    model_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_type: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    feature_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    training_window_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    training_window_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    evaluation_window_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    evaluation_window_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    parameters_json: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    metrics_summary_json: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    lineage_metadata: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    started_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    safe_error_detail: Mapped[str | None] = mapped_column(String(1000))
+
+
+class ModelArtifact(Base):
+    """Record metadata for a persisted M05 candidate model artifact."""
+
+    __tablename__ = "model_artifacts"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('pending', 'available', 'failed', 'deprecated')",
+            name="model_artifacts_status_valid",
+        ),
+        CheckConstraint(
+            "training_window_start_utc < training_window_end_utc",
+            name="model_artifacts_training_window_order_valid",
+        ),
+        CheckConstraint(
+            "evaluation_window_start_utc < evaluation_window_end_utc",
+            name="model_artifacts_evaluation_window_order_valid",
+        ),
+        UniqueConstraint("artifact_hash", name="uq_model_artifacts_artifact_hash"),
+        Index("ix_model_artifacts_training_run_id", "model_training_run_id"),
+        Index("ix_model_artifacts_model_name", "model_name"),
+        Index("ix_model_artifacts_model_version", "model_version"),
+        Index("ix_model_artifacts_status", "status"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    model_training_run_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("model_training_runs.id"),
+    )
+    model_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_type: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    feature_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    artifact_uri: Mapped[str] = mapped_column(String(1024), nullable=False)
+    artifact_hash: Mapped[str] = mapped_column(String(128), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    training_window_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    training_window_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    evaluation_window_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    evaluation_window_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    parameters_json: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    metrics_summary_json: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    lineage_metadata: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ModelSelectionResult(Base):
+    """Persist one explicit model-selection gate result."""
+
+    __tablename__ = "model_selection_results"
+    __table_args__ = (
+        CheckConstraint(
+            "selection_status IN ('evaluated', 'selected', 'rejected', 'failed')",
+            name="model_selection_results_status_valid",
+        ),
+        CheckConstraint(
+            "training_window_start_utc < training_window_end_utc",
+            name="model_selection_results_training_window_order_valid",
+        ),
+        CheckConstraint(
+            "evaluation_window_start_utc < evaluation_window_end_utc",
+            name="model_selection_results_evaluation_window_order_valid",
+        ),
+        Index("ix_model_selection_results_training_run_id", "model_training_run_id"),
+        Index("ix_model_selection_results_artifact_id", "model_artifact_id"),
+        Index("ix_model_selection_results_status", "selection_status"),
+        Index("ix_model_selection_results_created_at_utc", "created_at_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    model_training_run_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("model_training_runs.id"),
+    )
+    model_artifact_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("model_artifacts.id"),
+    )
+    model_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_type: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    feature_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    selection_status: Mapped[str] = mapped_column(String(32), nullable=False)
+    selection_reason: Mapped[str] = mapped_column(String(1000), nullable=False)
+    training_window_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    training_window_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    evaluation_window_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    evaluation_window_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    candidate_metrics_json: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    baseline_metrics_json: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    lineage_metadata: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ProductionForecastRun(Base):
+    """Track one M05 production forecast generation attempt."""
+
+    __tablename__ = "production_forecast_runs"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('planned', 'running', 'succeeded', 'failed', 'blocked')",
+            name="production_forecast_runs_status_valid",
+        ),
+        Index("ix_production_forecast_runs_artifact_id", "model_artifact_id"),
+        Index("ix_production_forecast_runs_feature_snapshot_run_id", "feature_snapshot_run_id"),
+        Index("ix_production_forecast_runs_issue_time", "forecast_issue_time_utc"),
+        Index("ix_production_forecast_runs_status", "status"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    model_artifact_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("model_artifacts.id"),
+    )
+    feature_snapshot_run_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("feature_snapshot_runs.id"),
+    )
+    model_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_type: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    feature_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    forecast_issue_time_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    quality_status: Mapped[str | None] = mapped_column(String(64))
+    lineage_metadata: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    started_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    safe_error_detail: Mapped[str | None] = mapped_column(String(1000))
+
+
+class ProductionForecastPrediction(Base):
+    """Store one M05 production forecast prediction row."""
+
+    __tablename__ = "production_forecast_predictions"
+    __table_args__ = (
+        CheckConstraint(
+            "target_interval_start_utc < target_interval_end_utc",
+            name="production_forecast_predictions_target_interval_order_valid",
+        ),
+        CheckConstraint(
+            "lead_hour > 0",
+            name="production_forecast_predictions_lead_hour_positive",
+        ),
+        CheckConstraint(
+            "p50_demand_mw IS NOT NULL OR point_forecast_demand_mw IS NOT NULL",
+            name="production_forecast_predictions_point_or_p50_required",
+        ),
+        CheckConstraint(
+            "p10_demand_mw IS NULL OR p50_demand_mw IS NULL OR p10_demand_mw <= p50_demand_mw",
+            name="production_forecast_predictions_p10_not_above_p50",
+        ),
+        CheckConstraint(
+            "p90_demand_mw IS NULL OR p50_demand_mw IS NULL OR p90_demand_mw >= p50_demand_mw",
+            name="production_forecast_predictions_p90_not_below_p50",
+        ),
+        UniqueConstraint(
+            "production_forecast_run_id",
+            "forecast_issue_time_utc",
+            "target_interval_start_utc",
+            name="uq_production_forecast_predictions_run_issue_target",
+        ),
+        Index("ix_production_forecast_predictions_run_id", "production_forecast_run_id"),
+        Index("ix_production_forecast_predictions_issue_time", "forecast_issue_time_utc"),
+        Index("ix_production_forecast_predictions_target_start", "target_interval_start_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    production_forecast_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("production_forecast_runs.id"),
+        nullable=False,
+    )
+    feature_snapshot_row_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("feature_snapshot_rows.id"),
+    )
+    forecast_issue_time_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    target_interval_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    target_interval_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    lead_hour: Mapped[int] = mapped_column(Integer, nullable=False)
+    p10_demand_mw: Mapped[Decimal | None] = mapped_column(Numeric(12, 3))
+    p50_demand_mw: Mapped[Decimal | None] = mapped_column(Numeric(12, 3))
+    p90_demand_mw: Mapped[Decimal | None] = mapped_column(Numeric(12, 3))
+    point_forecast_demand_mw: Mapped[Decimal | None] = mapped_column(Numeric(12, 3))
+    prediction_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    lineage_metadata: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ForecastPeakOutput(Base):
+    """Store peak-demand summary output for one production forecast run."""
+
+    __tablename__ = "forecast_peak_outputs"
+    __table_args__ = (
+        CheckConstraint(
+            "peak_target_interval_start_utc < peak_target_interval_end_utc",
+            name="forecast_peak_outputs_peak_interval_order_valid",
+        ),
+        CheckConstraint("peak_lead_hour > 0", name="forecast_peak_outputs_lead_hour_positive"),
+        CheckConstraint(
+            "peak_demand_mw >= 0",
+            name="forecast_peak_outputs_peak_demand_nonnegative",
+        ),
+        UniqueConstraint("production_forecast_run_id", name="uq_forecast_peak_outputs_run_id"),
+        Index("ix_forecast_peak_outputs_run_id", "production_forecast_run_id"),
+        Index("ix_forecast_peak_outputs_peak_start", "peak_target_interval_start_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    production_forecast_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("production_forecast_runs.id"),
+        nullable=False,
+    )
+    peak_target_interval_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    peak_target_interval_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    peak_demand_mw: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
+    peak_lead_hour: Mapped[int] = mapped_column(Integer, nullable=False)
+    lineage_metadata: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ForecastRampOutput(Base):
+    """Store ramp summary output for one forecast target interval."""
+
+    __tablename__ = "forecast_ramp_outputs"
+    __table_args__ = (
+        CheckConstraint(
+            "previous_target_interval_start_utc < target_interval_start_utc",
+            name="forecast_ramp_outputs_previous_before_target",
+        ),
+        CheckConstraint(
+            "absolute_ramp_mw >= 0",
+            name="forecast_ramp_outputs_absolute_ramp_nonnegative",
+        ),
+        UniqueConstraint(
+            "production_forecast_run_id",
+            "target_interval_start_utc",
+            name="uq_forecast_ramp_outputs_run_target",
+        ),
+        Index("ix_forecast_ramp_outputs_run_id", "production_forecast_run_id"),
+        Index("ix_forecast_ramp_outputs_target_start", "target_interval_start_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    production_forecast_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("production_forecast_runs.id"),
+        nullable=False,
+    )
+    target_interval_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    previous_target_interval_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    forecast_ramp_mw: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
+    absolute_ramp_mw: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
+    lineage_metadata: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ModelPerformanceSummary(Base):
+    """Store deterministic actual-vs-forecast performance summaries."""
+
+    __tablename__ = "model_performance_summaries"
+    __table_args__ = (
+        CheckConstraint(
+            "evaluation_window_start_utc < evaluation_window_end_utc",
+            name="model_performance_summaries_evaluation_window_order_valid",
+        ),
+        CheckConstraint("row_count >= 0", name="model_performance_summaries_row_count_nonnegative"),
+        UniqueConstraint(
+            "model_artifact_id",
+            "metric_name",
+            "evaluation_window_start_utc",
+            "evaluation_window_end_utc",
+            name="uq_model_performance_summaries_artifact_metric_window",
+        ),
+        Index("ix_model_performance_summaries_artifact_id", "model_artifact_id"),
+        Index("ix_model_performance_summaries_metric_name", "metric_name"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    model_artifact_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("model_artifacts.id"),
+    )
+    model_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_type: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    feature_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    metric_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    metric_value: Mapped[Decimal] = mapped_column(Numeric(18, 6), nullable=False)
+    metric_unit: Mapped[str | None] = mapped_column(String(64))
+    row_count: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    evaluation_window_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    evaluation_window_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    lineage_metadata: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ModelDriftSummary(Base):
+    """Store deterministic feature or prediction drift summaries."""
+
+    __tablename__ = "model_drift_summaries"
+    __table_args__ = (
+        CheckConstraint(
+            "baseline_window_start_utc < baseline_window_end_utc",
+            name="model_drift_summaries_baseline_window_order_valid",
+        ),
+        CheckConstraint(
+            "comparison_window_start_utc < comparison_window_end_utc",
+            name="model_drift_summaries_comparison_window_order_valid",
+        ),
+        CheckConstraint(
+            "drift_score IS NULL OR drift_score >= 0",
+            name="model_drift_summaries_drift_score_nonnegative",
+        ),
+        Index("ix_model_drift_summaries_artifact_id", "model_artifact_id"),
+        Index("ix_model_drift_summaries_feature_name", "feature_name"),
+        Index("ix_model_drift_summaries_created_at_utc", "created_at_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    model_artifact_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("model_artifacts.id"),
+    )
+    model_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_type: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    feature_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    feature_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    drift_metric_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    drift_score: Mapped[Decimal | None] = mapped_column(Numeric(18, 6))
+    baseline_window_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    baseline_window_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    comparison_window_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    comparison_window_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    summary_json: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    lineage_metadata: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

@@ -41,14 +41,15 @@ Implemented foundation:
 - MAE, RMSE, WAPE, bias, and slice metric calculations
 - persisted baseline run, prediction, aggregate metric, and slice metric rows
 - simple forecasting runner previews through `python -m gridops.forecasting.runner`
+- M05 production forecasting and MLOps schema contracts for model training runs, artifacts, model selection, production forecasts, peak/ramp outputs, and monitoring summaries
 
 Not implemented yet:
 
 - live source fetching
 - orchestration with Prefect
 - dbt transformations
-- production forecast model serving
-- quantile forecasts or prediction intervals
+- production model training or forecast model serving
+- true quantile models or prediction intervals
 - MLflow registry
 - scheduled inference
 - production forecast API

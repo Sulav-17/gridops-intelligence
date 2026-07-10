@@ -48,6 +48,15 @@ Implemented storage includes:
 - `baseline_forecast_predictions`
 - `baseline_metric_results`
 - `baseline_slice_metric_results`
+- `model_training_runs`
+- `model_artifacts`
+- `model_selection_results`
+- `production_forecast_runs`
+- `production_forecast_predictions`
+- `forecast_peak_outputs`
+- `forecast_ramp_outputs`
+- `model_performance_summaries`
+- `model_drift_summaries`
 
 ## Technical State
 
@@ -55,12 +64,12 @@ Implemented storage includes:
 - package: `gridops`
 - database: PostgreSQL
 - local database port: `55432`
-- migrations: empty baseline, M02 ingestion storage, M03 quality storage, and M04 forecasting foundation
+- migrations: empty baseline, M02 ingestion storage, M03 quality storage, M04 forecasting foundation, and M05 production forecasting schema
 - API: FastAPI health, readiness, and `GET /quality/health`
 - ingestion: fixture mode only through `python -m gridops.ingestion.runner`
 - quality: persisted dataset checks through `python -m gridops.quality.runner`
 - forecasting evaluation: forecast issue contracts, feature snapshots, baselines, backtest windows, metrics, slice reports, and simple runner previews
-- tests: deterministic unit and PostgreSQL integration coverage for M01 through M04
+- tests: deterministic unit and PostgreSQL integration coverage for M01 through M05-C01
 
 ## Implemented M04 Capabilities
 
@@ -93,11 +102,13 @@ Implemented storage includes:
 - Prefect
 - dbt
 - production gradient boosting model
-- quantile forecasts or prediction intervals
+- candidate model training
+- model artifact save or reload behavior
+- true quantile forecasts or prediction intervals
 - MLflow tracking or registry
 - scheduled production inference
 - production forecast API
-- drift monitoring
+- performance or drift monitoring calculations
 - alerts
 - scenarios
 - frontend or dashboards
@@ -112,4 +123,4 @@ Implemented storage includes:
 
 ## Immediate Next Action
 
-Begin M05-C01 production forecasting and MLOps contracts after this M05-C00 documentation synchronization.
+Begin M05-C02 candidate training pipeline after the M05-C01 production forecasting schema and typed contracts.

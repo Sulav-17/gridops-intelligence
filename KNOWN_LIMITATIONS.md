@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, and M04 forecasting evaluation foundation. M02, M03, and M04 are merged to `main`. M05 is active on branch `m05`, owned by Elena Rossi, Senior ML Platform Engineer, but no M05 production forecasting functionality has been implemented yet.
+The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, and M04 forecasting evaluation foundation. M02, M03, and M04 are merged to `main`. M05 is active on branch `m05`, owned by Elena Rossi, Senior ML Platform Engineer. M05-C01 has implemented production forecasting and MLOps schema plus typed contracts only.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -52,6 +52,17 @@ Implemented M04 forecasting evaluation includes:
 - MAE, RMSE, WAPE, bias, and slice metrics
 - simple forecasting runner previews through `python -m gridops.forecasting.runner`
 
+Implemented M05-C01 schema and contracts include:
+
+- model training run metadata tables and typed status contracts
+- model artifact metadata tables and typed status contracts
+- model-selection result storage with candidate and baseline metrics JSON
+- production forecast run and prediction tables
+- nullable P10/P90 prediction fields with required P50 or point forecast support
+- peak-demand and peak-hour output tables
+- ramp output tables
+- model performance and drift summary tables
+
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
@@ -63,10 +74,11 @@ The following are intentionally not implemented yet:
 - dbt transformations
 - MLflow tracking
 - production forecasting models
-- quantile forecasts or prediction intervals
+- candidate model training
+- true quantile forecasts or prediction intervals
 - scheduled production inference
 - production forecast API
-- drift monitoring
+- performance or drift monitoring calculations
 - operational alerts
 - scenario engine
 - briefing generation
@@ -95,7 +107,7 @@ The following are intentionally not implemented yet:
 - The forecasting runner provides deterministic previews and feature-building persistence, but it is not an orchestrator or scheduled production inference service.
 - No production forecast API exists.
 - No MLflow registry exists.
-- No prediction intervals, drift monitoring, alerts, scenarios, dashboard, deployment, or production model serving exist.
+- No trained production candidate, artifact save/reload behavior, prediction intervals, monitoring calculations, alerts, scenarios, dashboard, deployment, or production model serving exist.
 
 ## Time-Domain Limitations
 

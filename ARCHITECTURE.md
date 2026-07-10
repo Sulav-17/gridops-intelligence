@@ -119,6 +119,24 @@ Runner:
 
 M04 is an evaluation foundation, not a production forecasting service.
 
+### M05 Production Forecasting And MLOps Schema
+
+M05-C01 adds schema and typed contracts only. It does not train models, generate forecasts, register models in MLflow, schedule inference, or expose forecast APIs.
+
+M05 storage:
+
+- `model_training_runs`
+- `model_artifacts`
+- `model_selection_results`
+- `production_forecast_runs`
+- `production_forecast_predictions`
+- `forecast_peak_outputs`
+- `forecast_ramp_outputs`
+- `model_performance_summaries`
+- `model_drift_summaries`
+
+Implemented contract surfaces include model training status, artifact status, selection status, forecast run status, forecast prediction rows with nullable P10/P90 and required P50 or point forecast, peak output rows, ramp output rows, performance summaries, and drift summaries.
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -139,4 +157,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, M05 production forecasting, MLflow, alerts, scenarios, dashboard work, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, M05 candidate training, production forecast generation, MLflow, alerts, scenarios, dashboard work, or deployment.
