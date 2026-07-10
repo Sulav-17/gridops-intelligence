@@ -145,6 +145,31 @@ def test_m05_migration_creates_expected_tables(
 
 
 @pytest.mark.integration
+def test_base_metadata_drop_all_handles_m05_feature_snapshot_dependencies(
+    live_postgres_engine: Engine,
+) -> None:
+    """Registered M05 metadata lets normal drop_all order handle forecast-output FKs."""
+
+    Base.metadata.drop_all(live_postgres_engine)
+    Base.metadata.create_all(live_postgres_engine)
+
+    inspector = inspect(live_postgres_engine)
+    prediction_fks = inspector.get_foreign_keys("production_forecast_predictions")
+
+    assert any(
+        fk["referred_table"] == "feature_snapshot_rows"
+        and fk["constrained_columns"] == ["feature_snapshot_row_id"]
+        for fk in prediction_fks
+    )
+
+    Base.metadata.drop_all(live_postgres_engine)
+
+    remaining_tables = set(inspect(live_postgres_engine).get_table_names())
+    assert M05_TABLE_NAMES.isdisjoint(remaining_tables)
+    assert "feature_snapshot_rows" not in remaining_tables
+
+
+@pytest.mark.integration
 def test_m05_orm_insert_read_representative_rows(
     clean_session_factory: sessionmaker[Session],
 ) -> None:
