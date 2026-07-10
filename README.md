@@ -45,13 +45,14 @@ Implemented foundation:
 - local model artifact save/load utilities with SHA-256 hashes and metadata persistence
 - model-selection gate logic comparing candidate MAE and WAPE against selected M04 baseline metrics
 - deterministic sklearn candidate training from persisted M04 feature snapshots, with artifact persistence and model-selection results
+- production forecast generation foundation from selected model artifacts, including P50 predictions, peak output, ramp outputs, and lineage
 
 Not implemented yet:
 
 - live source fetching
 - orchestration with Prefect
 - dbt transformations
-- production forecast generation or model serving
+- production forecast API or model serving
 - true quantile models or prediction intervals
 - MLflow registry
 - scheduled inference

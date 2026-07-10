@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, and M04 forecasting evaluation foundation. M02, M03, and M04 are merged to `main`. M05 is active on branch `m05`, owned by Elena Rossi, Senior ML Platform Engineer. M05-C01 implemented production forecasting and MLOps schema plus typed contracts. M05-C02 implemented local artifact persistence and model-selection gate foundations. M05-C03 implemented deterministic sklearn candidate training from persisted M04 feature snapshots.
+The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, and M04 forecasting evaluation foundation. M02, M03, and M04 are merged to `main`. M05 is active on branch `m05`, owned by Elena Rossi, Senior ML Platform Engineer. M05-C01 implemented production forecasting and MLOps schema plus typed contracts. M05-C02 implemented local artifact persistence and model-selection gate foundations. M05-C03 implemented deterministic sklearn candidate training from persisted M04 feature snapshots. M05-C04 implemented forecast generation from selected local model artifacts.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -82,6 +82,17 @@ Implemented M05-C03 candidate training includes:
 - MAE, RMSE, WAPE, and bias calculation
 - comparison against persisted M04 baseline metrics through the model-selection gate
 
+Implemented M05-C04 forecast generation includes:
+
+- selected available artifact validation
+- M04 feature snapshot reuse or build behavior for a supplied issue time
+- P50-only prediction persistence with nullable P10/P90 fields
+- production forecast run persistence
+- peak-demand and peak-hour output persistence
+- ramp output persistence
+- artifact, training run, feature snapshot, feature version, and issue-time lineage
+- safe blocked-run behavior for unusable artifacts or feature snapshots
+
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
@@ -125,7 +136,7 @@ The following are intentionally not implemented yet:
 - The forecasting runner provides deterministic previews and feature-building persistence, but it is not an orchestrator or scheduled production inference service.
 - No production forecast API exists.
 - No MLflow registry exists.
-- No production forecast outputs, prediction intervals, monitoring calculations, alerts, scenarios, dashboard, deployment, or production model serving exist.
+- No prediction intervals, monitoring calculations, alerts, scenarios, dashboard, deployment, or production model serving exist.
 
 ## Time-Domain Limitations
 

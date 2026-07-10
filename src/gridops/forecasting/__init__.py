@@ -17,6 +17,12 @@ from gridops.forecasting.candidate_models import (
     make_gradient_boosting_candidate,
     payload_uses_no_target_actuals,
 )
+from gridops.forecasting.forecast_outputs import (
+    PREDICTION_TYPE_P50_ONLY,
+    ForecastGenerationConfig,
+    ForecastGenerationResult,
+    generate_forecast_from_selected_artifact,
+)
 from gridops.forecasting.horizons import ForecastHorizonTarget, generate_hourly_horizon
 from gridops.forecasting.issue_contract import (
     DEFAULT_FORECAST_TYPE,
@@ -63,9 +69,12 @@ __all__ = [
     "DEFAULT_ARTIFACT_DIR",
     "FEATURE_NAMES",
     "POINT_IN_TIME_SAFETY_RULE",
+    "PREDICTION_TYPE_P50_ONLY",
     "DriftSummaryContract",
     "ForecastHorizonTarget",
     "ForecastIssueContract",
+    "ForecastGenerationConfig",
+    "ForecastGenerationResult",
     "ForecastPredictionContract",
     "ForecastRunStatus",
     "ModelArtifactContract",
@@ -89,6 +98,7 @@ __all__ = [
     "evaluate_model_selection_gate",
     "feature_vector_from_payload",
     "generate_hourly_horizon",
+    "generate_forecast_from_selected_artifact",
     "load_artifact",
     "load_candidate_rows",
     "load_selected_baseline_metrics",

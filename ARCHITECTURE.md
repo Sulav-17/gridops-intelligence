@@ -121,7 +121,7 @@ M04 is an evaluation foundation, not a production forecasting service.
 
 ### M05 Production Forecasting And MLOps Schema
 
-M05-C01 adds schema and typed contracts. M05-C02 adds local artifact persistence utilities and model-selection gate logic. M05-C03 adds deterministic sklearn candidate training from persisted M04 feature snapshots. The repository still does not generate production forecasts, register models in MLflow, schedule inference, or expose forecast APIs.
+M05-C01 adds schema and typed contracts. M05-C02 adds local artifact persistence utilities and model-selection gate logic. M05-C03 adds deterministic sklearn candidate training from persisted M04 feature snapshots. M05-C04 adds production forecast generation from selected local model artifacts. The repository still does not register models in MLflow, schedule inference, or expose forecast APIs.
 
 M05 storage:
 
@@ -143,6 +143,8 @@ Model selection compares candidate metrics to a selected M04 baseline. The defau
 
 Candidate training reads features only from `feature_snapshot_rows.lineage_metadata` and uses `ieso_hourly_demand` only as the supervised label source. It uses time-based training and evaluation windows, rejects random splits, persists `model_training_runs`, saves a local model artifact, persists `model_artifacts`, calculates MAE, RMSE, WAPE, and bias, and persists the model-selection result.
 
+Forecast generation loads a selected available artifact, reuses or builds M04 feature snapshots for a supplied issue time, extracts the same approved feature vector, persists `production_forecast_runs`, stores P50-only prediction rows with nullable P10/P90 fields, and derives peak and ramp output rows. Forecast run and prediction lineage preserve artifact, training run, feature snapshot run, feature version, and issue-time references.
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -163,4 +165,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, production forecast generation, MLflow, alerts, scenarios, dashboard work, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, forecast APIs, alerts, scenarios, dashboard work, or deployment.
