@@ -32,7 +32,7 @@ M04 is complete and merged to `main`.
 
 M05 is complete.
 
-M06 fast-track chunk 1 has started on branch `m06`.
+M06 fast-track chunks 1 and 2 have been implemented on branch `m06`.
 
 Implemented storage includes:
 
@@ -63,6 +63,11 @@ Implemented storage includes:
 - `alerts`
 - `alert_evidence`
 - `alert_lifecycle_history`
+- `scenario_runs`
+- `scenario_assumptions`
+- `scenario_result_rows`
+- `briefing_runs`
+- `briefing_facts`
 
 ## Technical State
 
@@ -70,8 +75,8 @@ Implemented storage includes:
 - package: `gridops`
 - database: PostgreSQL
 - local database port: `55432`
-- migrations: empty baseline, M02 ingestion storage, M03 quality storage, M04 forecasting foundation, M05 production forecasting schema, and M06 alert foundation
-- API: FastAPI health, readiness, and `GET /quality/health`
+- migrations: empty baseline, M02 ingestion storage, M03 quality storage, M04 forecasting foundation, M05 production forecasting schema, M06 alert foundation, and M06 scenario/briefing schema
+- API: FastAPI health, readiness, `GET /quality/health`, `POST /scenarios`, `GET /scenarios/{scenario_id}`, `POST /briefings/generate`, and `GET /briefings/latest`
 - ingestion: fixture mode only through `python -m gridops.ingestion.runner`
 - quality: persisted dataset checks through `python -m gridops.quality.runner`
 - forecasting evaluation: forecast issue contracts, feature snapshots, baselines, backtest windows, metrics, slice reports, and simple runner previews
@@ -82,7 +87,9 @@ Implemented storage includes:
 - M05 monitoring foundation: persisted forecast-vs-actual performance summaries and simple feature drift summaries
 - M05 runner: deterministic production runner command boundaries for candidate training, forecast generation, and monitoring summaries
 - M06 alert foundation: deterministic alert contracts, high-demand/ramp/previous-forecast-deviation/source-health/combined-context rules, duplicate-active alert prevention, immutable alert evidence, and lifecycle history
-- tests: deterministic unit and PostgreSQL integration coverage for M01 through M05-C05
+- M06 scenario foundation: deterministic demand-growth, approximate weather-adjustment, and combined weather/load scenarios with persisted assumptions, limitations, and result rows
+- M06 briefing foundation: deterministic structured briefing facts with evidence references and backend API output
+- tests: deterministic unit and PostgreSQL integration coverage for M01 through M06 fast-track chunk 2
 
 ## Implemented M04 Capabilities
 
@@ -119,8 +126,7 @@ Implemented storage includes:
 - MLflow tracking or registry
 - scheduled production inference
 - production forecast API
-- scenarios
-- briefing generation
+- runner commands for M06 decision outputs
 - frontend or dashboards
 - authentication
 - production deployment
@@ -134,4 +140,4 @@ Implemented storage includes:
 
 ## Immediate Next Action
 
-Continue M06 after fast-track chunk 1 by adding the remaining decision-support surfaces: scenario behavior, briefing facts, API or report outputs, runner commands, and final M06 verification/handoff artifacts.
+Continue M06 by adding any remaining decision runner commands, completing documentation cleanup, and producing final M06 verification and handoff artifacts when the milestone gate is ready.

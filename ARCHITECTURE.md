@@ -155,7 +155,7 @@ Runner:
 
 ### M06 Alert Foundation
 
-M06 fast-track chunk 1 adds deterministic alert contracts, rule evaluation, evidence persistence, duplicate-active alert prevention, and lifecycle history. Scenario analysis, deterministic briefings, alert APIs, runners, and M07 dashboard presentation remain deferred.
+M06 fast-track chunk 1 adds deterministic alert contracts, rule evaluation, evidence persistence, duplicate-active alert prevention, and lifecycle history. Chunk 2 adds scenario analysis, deterministic briefing facts, and backend API outputs. Runner commands and M07 dashboard presentation remain deferred.
 
 M06 alert storage:
 
@@ -178,6 +178,38 @@ Implemented alert behavior:
 
 True uncertainty/confidence alerting remains deferred because M05 stores nullable P10/P90 columns but does not generate true prediction intervals or confidence indicators.
 
+### M06 Scenario And Briefing Foundation
+
+M06 fast-track chunk 2 adds controlled scenario analysis and deterministic briefing facts. Scenario outputs are persisted simulations, not forecasts. Briefing facts are structured records with evidence references, not generated narrative.
+
+M06 scenario and briefing storage:
+
+- `scenario_runs`
+- `scenario_assumptions`
+- `scenario_result_rows`
+- `briefing_runs`
+- `briefing_facts`
+
+Implemented scenario behavior:
+
+- demand-growth scenarios apply percent growth and added MW assumptions to M05 base forecast values
+- weather-adjustment scenarios apply a documented deterministic approximation of `75.000 MW` per degree C because M05 cannot safely recompute forecasts from changed weather features
+- combined weather/load scenarios add the deterministic demand and weather deltas
+- scenario assumptions, limitations, interval results, and peak summaries are persisted
+
+Implemented briefing behavior:
+
+- deterministic fact generation from production forecast runs, predictions, peak outputs, ramp outputs, alerts, source-health summaries, scenarios, and known limitations
+- facts include forecast issue/horizon, expected peak, largest ramp, open alert summary, highest attention hours, source-health summary, quality limitations, confidence limitations, scenario highlights, and unsupported claims
+- no LLM or free-form narrative generation
+
+API outputs:
+
+- `POST /scenarios`
+- `GET /scenarios/{scenario_id}`
+- `POST /briefings/generate`
+- `GET /briefings/latest`
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -198,4 +230,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, forecast APIs, scenarios, briefing generation, dashboard work, authentication, or deployment. Alert APIs, runner commands, notifications, and ticketing are not implemented.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, forecast APIs, dashboard work, authentication, or deployment. Alert APIs, runner commands, notifications, and ticketing are not implemented.

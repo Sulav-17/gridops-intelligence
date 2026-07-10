@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, M04 forecasting evaluation foundation, and M05 production forecasting and MLOps milestone. M06 is active on branch `m06`. M06 fast-track chunk 1 implements the deterministic alert foundation: alert contracts, fixed-threshold alert rules, source-health context alerts, combined context alerts, alert evidence persistence, duplicate-active alert prevention, and lifecycle history.
+The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, M04 forecasting evaluation foundation, and M05 production forecasting and MLOps milestone. M06 is active on branch `m06`. M06 fast-track chunk 1 implements the deterministic alert foundation. M06 fast-track chunk 2 implements scenario persistence, deterministic scenario calculations, deterministic briefing facts, and backend scenario/briefing API outputs.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -114,6 +114,17 @@ Implemented M06 alert foundation includes:
 - persisted alert evaluation runs, alert records, immutable evidence rows, and lifecycle history
 - alert rules documentation in `docs/decision/ALERT_RULES.md`
 
+Implemented M06 scenario and briefing foundation includes:
+
+- demand-growth scenarios with percent and added-MW assumptions
+- weather-adjustment scenarios with a documented deterministic approximate temperature delta
+- combined weather/load scenarios
+- persisted scenario runs, assumptions, limitations, result rows, and summaries
+- deterministic briefing facts from forecasts, peaks, ramps, alerts, source health, scenarios, and known limitations
+- persisted briefing runs and briefing facts with evidence references
+- backend endpoints for scenario generation, scenario lookup, briefing generation, and latest briefing lookup
+- scenario and briefing runbooks in `docs/decision/`
+
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
@@ -131,8 +142,7 @@ The following are intentionally not implemented yet:
 - uncertainty or confidence alerts
 - alert API endpoints or runner commands
 - alert notifications or ticketing
-- scenario engine
-- briefing generation
+- M06 decision runner commands
 - frontend or dashboards
 - authentication or authorization
 - production deployment
@@ -158,7 +168,20 @@ The following are intentionally not implemented yet:
 - The forecasting runner provides deterministic previews and feature-building persistence, but it is not an orchestrator or scheduled production inference service.
 - No production forecast API exists.
 - No MLflow registry exists.
-- No prediction intervals, alert API endpoints, scenario engine, dashboard, deployment, or production model serving exist.
+- No prediction intervals, alert API endpoints, dashboard, deployment, or production model serving exist.
+
+## Scenario Limitations
+
+- Scenario outputs are simulations, not predictions.
+- Weather adjustment uses a fixed approximation because M05 cannot safely recompute forecasts from changed weather features.
+- Humidity assumptions are preserved but do not affect scenario values in this chunk.
+- Scenarios do not retrain models or replace M05 forecast rows.
+
+## Briefing Limitations
+
+- Briefings are structured deterministic facts only.
+- No LLM narrative generation is implemented.
+- Briefings do not send notifications or create tickets.
 
 ## Time-Domain Limitations
 

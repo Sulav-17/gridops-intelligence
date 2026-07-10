@@ -130,7 +130,7 @@ Primary outcomes:
 - deterministic briefing facts
 - optional guarded narrative generation
 
-M06 fast-track chunk 1 implemented deterministic alert contracts, fixed-threshold high-demand and ramp rules, previous-forecast deviation alerts, M03 source-health context alerts, combined context alerts, alert evidence persistence, duplicate-active alert prevention, and lifecycle history. Scenario and briefing work remains future M06 scope.
+M06 fast-track chunk 1 implemented deterministic alert contracts, fixed-threshold high-demand and ramp rules, previous-forecast deviation alerts, M03 source-health context alerts, combined context alerts, alert evidence persistence, duplicate-active alert prevention, and lifecycle history. M06 fast-track chunk 2 implemented deterministic demand-growth, weather-adjustment, and combined scenarios; scenario persistence; deterministic briefing facts; and backend scenario/briefing API outputs.
 
 ## M07 - Dashboard, Deployment, and Release
 

@@ -49,9 +49,6 @@ M05_TABLE_NAMES = {
 FUTURE_NON_ALERT_TABLE_NAMES = {
     "alert_events",
     "alert_lifecycle",
-    "scenarios",
-    "scenario_runs",
-    "briefings",
     "dashboard_views",
     "deployments",
     "deployment_state",

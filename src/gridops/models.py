@@ -1217,3 +1217,153 @@ class AlertLifecycleHistory(Base):
     changed_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     alert: Mapped[Alert] = relationship(back_populates="lifecycle_history")
+
+
+class ScenarioRun(Base):
+    """Persist one deterministic M06 scenario run."""
+
+    __tablename__ = "scenario_runs"
+    __table_args__ = (
+        CheckConstraint(
+            "scenario_type IN ('weather_adjustment', 'demand_growth', 'combined_weather_load')",
+            name="scenario_runs_scenario_type_valid",
+        ),
+        CheckConstraint(
+            "status IN ('succeeded', 'failed')",
+            name="scenario_runs_status_valid",
+        ),
+        Index("ix_scenario_runs_forecast_run_id", "production_forecast_run_id"),
+        Index("ix_scenario_runs_scenario_type", "scenario_type"),
+        Index("ix_scenario_runs_generated_at_utc", "generated_at_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    scenario_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    production_forecast_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("production_forecast_runs.id"),
+        nullable=False,
+    )
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    scenario_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    generated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    assumptions_json: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    limitations_json: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    summary_json: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    safe_error_detail: Mapped[str | None] = mapped_column(String(1000))
+
+    assumptions: Mapped[list["ScenarioAssumption"]] = relationship(back_populates="scenario_run")
+    result_rows: Mapped[list["ScenarioResultRow"]] = relationship(back_populates="scenario_run")
+
+
+class ScenarioAssumption(Base):
+    """Persist one explicit scenario assumption."""
+
+    __tablename__ = "scenario_assumptions"
+    __table_args__ = (
+        Index("ix_scenario_assumptions_scenario_run_id", "scenario_run_id"),
+        Index("ix_scenario_assumptions_name", "assumption_name"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    scenario_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("scenario_runs.id"),
+        nullable=False,
+    )
+    assumption_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    assumption_value: Mapped[str] = mapped_column(String(256), nullable=False)
+    assumption_unit: Mapped[str | None] = mapped_column(String(64))
+    assumption_json: Mapped[dict[str, object] | None] = mapped_column(JSON)
+
+    scenario_run: Mapped[ScenarioRun] = relationship(back_populates="assumptions")
+
+
+class ScenarioResultRow(Base):
+    """Persist one scenario result row for a forecast interval."""
+
+    __tablename__ = "scenario_result_rows"
+    __table_args__ = (
+        CheckConstraint(
+            "target_interval_start_utc < target_interval_end_utc",
+            name="scenario_result_rows_target_interval_order_valid",
+        ),
+        Index("ix_scenario_result_rows_scenario_run_id", "scenario_run_id"),
+        Index("ix_scenario_result_rows_target_start", "target_interval_start_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    scenario_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("scenario_runs.id"),
+        nullable=False,
+    )
+    production_forecast_prediction_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("production_forecast_predictions.id"),
+    )
+    target_interval_start_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    target_interval_end_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    base_value_mw: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
+    scenario_value_mw: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
+    delta_mw: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
+    row_metadata_json: Mapped[dict[str, object] | None] = mapped_column(JSON)
+
+    scenario_run: Mapped[ScenarioRun] = relationship(back_populates="result_rows")
+
+
+class BriefingRun(Base):
+    """Persist one deterministic briefing generation run."""
+
+    __tablename__ = "briefing_runs"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('succeeded', 'failed')",
+            name="briefing_runs_status_valid",
+        ),
+        Index("ix_briefing_runs_forecast_run_id", "production_forecast_run_id"),
+        Index("ix_briefing_runs_generated_at_utc", "generated_at_utc"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    production_forecast_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("production_forecast_runs.id"),
+        nullable=False,
+    )
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    briefing_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    generated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    summary_json: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    safe_error_detail: Mapped[str | None] = mapped_column(String(1000))
+
+    facts: Mapped[list["BriefingFact"]] = relationship(back_populates="briefing_run")
+
+
+class BriefingFact(Base):
+    """Persist one deterministic briefing fact and its evidence references."""
+
+    __tablename__ = "briefing_facts"
+    __table_args__ = (
+        Index("ix_briefing_facts_briefing_run_id", "briefing_run_id"),
+        Index("ix_briefing_facts_fact_type", "fact_type"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    briefing_run_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("briefing_runs.id"),
+        nullable=False,
+    )
+    fact_type: Mapped[str] = mapped_column(String(128), nullable=False)
+    fact_value_json: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    evidence_json: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    briefing_run: Mapped[BriefingRun] = relationship(back_populates="facts")

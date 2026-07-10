@@ -49,6 +49,7 @@ Implemented foundation:
 - model performance and drift monitoring foundations persisted to M05 summary tables
 - simple M05 production runner boundaries through `python -m gridops.forecasting.production_runner`
 - M06 alert foundation with deterministic alert contracts, fixed-threshold high-demand/ramp/deviation rules, M03 source-health context alerts, combined context alerts, duplicate-active alert prevention, immutable evidence, and lifecycle history
+- M06 scenario and briefing foundation with deterministic scenario calculations, persisted assumptions/results, deterministic briefing facts, and backend scenario/briefing endpoints
 
 Not implemented yet:
 
@@ -59,7 +60,7 @@ Not implemented yet:
 - true quantile models or prediction intervals
 - MLflow registry
 - scheduled inference
-- scenarios, briefings, dashboards, authentication, or deployment
+- dashboards, authentication, or deployment
 
 ## Local Development
 
@@ -228,6 +229,8 @@ Time utilities live in `gridops.time_utils`.
 | `docs/forecasting/MODEL_SELECTION.md` | M05 model-selection gate behavior |
 | `docs/forecasting/FORECAST_OUTPUT_CONTRACT.md` | M05 production forecast output contract |
 | `docs/decision/ALERT_RULES.md` | M06 alert rule contracts, thresholds, lifecycle, evidence, and limitations |
+| `docs/decision/SCENARIO_RUNBOOK.md` | M06 scenario assumptions, calculations, persistence, API usage, and limitations |
+| `docs/decision/BRIEFING_RUNBOOK.md` | M06 deterministic briefing fact sources, API usage, unsupported claims, and limitations |
 | `docs/verification/M04_VERIFICATION.md` | M04 verification evidence and exact command results |
 | `docs/handoffs/M04_HANDOFF.md` | M04 completion handoff for M05 |
 | `docs/verification/M05_VERIFICATION.md` | M05 verification evidence and exact command results |
