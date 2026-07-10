@@ -69,7 +69,9 @@ Implemented storage includes:
 - ingestion: fixture mode only through `python -m gridops.ingestion.runner`
 - quality: persisted dataset checks through `python -m gridops.quality.runner`
 - forecasting evaluation: forecast issue contracts, feature snapshots, baselines, backtest windows, metrics, slice reports, and simple runner previews
-- tests: deterministic unit and PostgreSQL integration coverage for M01 through M05-C01
+- M05 artifact foundation: local artifact save/load, SHA-256 hashing, and model artifact metadata persistence
+- M05 selection foundation: deterministic model-selection gate and persisted selection results
+- tests: deterministic unit and PostgreSQL integration coverage for M01 through M05-C02
 
 ## Implemented M04 Capabilities
 
@@ -103,7 +105,7 @@ Implemented storage includes:
 - dbt
 - production gradient boosting model
 - candidate model training
-- model artifact save or reload behavior
+- trained model artifact save or reload behavior
 - true quantile forecasts or prediction intervals
 - MLflow tracking or registry
 - scheduled production inference
@@ -123,4 +125,4 @@ Implemented storage includes:
 
 ## Immediate Next Action
 
-Begin M05-C02 candidate training pipeline after the M05-C01 production forecasting schema and typed contracts.
+Begin M05-C03 candidate training pipeline after the M05-C02 artifact persistence and model-selection gate foundation.

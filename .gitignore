@@ -53,3 +53,6 @@ UsersSulavDesktopprojectsgridops-intelligence.codex-tmppytest-cache/
 
 # Local raw ingestion payloads
 data/raw/
+
+# Local model artifacts
+artifacts/

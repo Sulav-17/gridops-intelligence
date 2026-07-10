@@ -42,6 +42,8 @@ Implemented foundation:
 - persisted baseline run, prediction, aggregate metric, and slice metric rows
 - simple forecasting runner previews through `python -m gridops.forecasting.runner`
 - M05 production forecasting and MLOps schema contracts for model training runs, artifacts, model selection, production forecasts, peak/ramp outputs, and monitoring summaries
+- local model artifact save/load utilities with SHA-256 hashes and metadata persistence
+- model-selection gate logic comparing candidate MAE and WAPE against selected M04 baseline metrics
 
 Not implemented yet:
 

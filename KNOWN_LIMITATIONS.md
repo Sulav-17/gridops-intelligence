@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, and M04 forecasting evaluation foundation. M02, M03, and M04 are merged to `main`. M05 is active on branch `m05`, owned by Elena Rossi, Senior ML Platform Engineer. M05-C01 has implemented production forecasting and MLOps schema plus typed contracts only.
+The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, and M04 forecasting evaluation foundation. M02, M03, and M04 are merged to `main`. M05 is active on branch `m05`, owned by Elena Rossi, Senior ML Platform Engineer. M05-C01 implemented production forecasting and MLOps schema plus typed contracts. M05-C02 implemented local artifact persistence and model-selection gate foundations.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -63,6 +63,14 @@ Implemented M05-C01 schema and contracts include:
 - ramp output tables
 - model performance and drift summary tables
 
+Implemented M05-C02 artifact and selection foundations include:
+
+- local artifact save/load utilities under ignored artifact paths
+- deterministic SHA-256 artifact hashing from file bytes
+- model artifact metadata persistence
+- model-selection gate checks for MAE, WAPE, lineage completeness, and slice sanity failures
+- persisted selected or rejected gate decisions with reasons
+
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
@@ -107,7 +115,7 @@ The following are intentionally not implemented yet:
 - The forecasting runner provides deterministic previews and feature-building persistence, but it is not an orchestrator or scheduled production inference service.
 - No production forecast API exists.
 - No MLflow registry exists.
-- No trained production candidate, artifact save/reload behavior, prediction intervals, monitoring calculations, alerts, scenarios, dashboard, deployment, or production model serving exist.
+- No trained production candidate, prediction intervals, monitoring calculations, alerts, scenarios, dashboard, deployment, or production model serving exist.
 
 ## Time-Domain Limitations
 
