@@ -2,9 +2,9 @@
 
 GridOps Intelligence is a production-style energy data engineering, forecasting, and MLOps platform focused on Ontario electricity demand.
 
-The system is intended to ingest public electricity and weather data, preserve source evidence, validate and normalize changing source data, produce trusted day-ahead forecasting evaluations, and later support production forecasting, alerts, scenarios, APIs, and an operational dashboard.
+The system is intended to ingest public electricity and weather data, preserve source evidence, validate and normalize changing source data, produce trusted day-ahead forecasting evaluations, and support production forecasting, alerts, scenarios, APIs, and an operational dashboard.
 
-M05 is complete on branch `m05`, pending merge to `main`. M01, M02, M03, and M04 are complete; M02, M03, and M04 have been merged to `main`.
+M06 is complete on branch `m06`. M01 through M05 are complete.
 
 ## Current Status
 
@@ -14,10 +14,8 @@ Completed milestones:
 - M02 - Data ingestion foundation
 - M03 - Data quality and observability
 - M04 - Baselines and backtesting
-
-Active milestone:
-
-- M05 - Production forecasting and MLOps, owned by Elena Rossi, Senior ML Platform Engineer
+- M05 - Production Forecasting and MLOps
+- M06 - Alerts, Scenarios, and Briefings
 
 Implemented foundation:
 
@@ -48,6 +46,9 @@ Implemented foundation:
 - production forecast generation foundation from selected model artifacts, including P50 predictions, peak output, ramp outputs, and lineage
 - model performance and drift monitoring foundations persisted to M05 summary tables
 - simple M05 production runner boundaries through `python -m gridops.forecasting.production_runner`
+- M06 alert foundation with deterministic alert contracts, fixed-threshold high-demand/ramp/deviation rules, M03 source-health context alerts, combined context alerts, duplicate-active alert prevention, immutable evidence, and lifecycle history
+- M06 scenario and briefing foundation with deterministic scenario calculations, persisted assumptions/results, deterministic briefing facts, and backend scenario/briefing endpoints
+- M06 alert API endpoints and simple decision runner commands
 
 Not implemented yet:
 
@@ -58,7 +59,7 @@ Not implemented yet:
 - true quantile models or prediction intervals
 - MLflow registry
 - scheduled inference
-- alerts, scenarios, dashboards, authentication, or deployment
+- dashboards, authentication, or deployment
 
 ## Local Development
 
@@ -190,8 +191,36 @@ Endpoints:
 - `GET /health` returns process health and does not touch the database.
 - `GET /ready` checks real PostgreSQL connectivity and returns a safe `503` response when the dependency is unavailable.
 - `GET /quality/health` summarizes latest persisted quality status, worst severity, blocking state, check counts, and safe failure summaries for supported datasets.
+- `GET /alerts` lists persisted alerts and current evidence.
+- `GET /alerts/{alert_id}` returns alert evidence and lifecycle history.
+- `POST /alerts/evaluate` evaluates deterministic alert rules for a production forecast run.
+- `PATCH /alerts/{alert_id}/state` applies a validated lifecycle transition.
+- `POST /scenarios` runs a deterministic decision-support scenario.
+- `GET /scenarios/{scenario_id}` returns persisted scenario assumptions and result rows.
+- `POST /briefings/generate` creates deterministic briefing facts.
+- `GET /briefings/latest` returns the latest persisted briefing.
 
 No production forecast API exists yet.
+
+## Decision Support Runner
+
+Evaluate alerts:
+
+```powershell
+uv run python -m gridops.decision.runner evaluate-alerts --forecast-run-id 1
+```
+
+Run a demand-growth scenario:
+
+```powershell
+uv run python -m gridops.decision.runner run-scenario --forecast-run-id 1 --load-growth-percent 2
+```
+
+Generate briefing facts:
+
+```powershell
+uv run python -m gridops.decision.runner generate-briefing --forecast-run-id 1
+```
 
 ## Time Contract
 
@@ -226,11 +255,16 @@ Time utilities live in `gridops.time_utils`.
 | `docs/forecasting/MODEL_TRAINING_RUNBOOK.md` | M05 candidate training workflow |
 | `docs/forecasting/MODEL_SELECTION.md` | M05 model-selection gate behavior |
 | `docs/forecasting/FORECAST_OUTPUT_CONTRACT.md` | M05 production forecast output contract |
+| `docs/decision/ALERT_RULES.md` | M06 alert rule contracts, thresholds, lifecycle, evidence, and limitations |
+| `docs/decision/SCENARIO_RUNBOOK.md` | M06 scenario assumptions, calculations, persistence, API usage, and limitations |
+| `docs/decision/BRIEFING_RUNBOOK.md` | M06 deterministic briefing fact sources, API usage, unsupported claims, and limitations |
 | `docs/verification/M04_VERIFICATION.md` | M04 verification evidence and exact command results |
 | `docs/handoffs/M04_HANDOFF.md` | M04 completion handoff for M05 |
 | `docs/verification/M05_VERIFICATION.md` | M05 verification evidence and exact command results |
 | `docs/handoffs/M05_HANDOFF.md` | M05 completion handoff for M06 |
-| `milestones/M05.md` | Detailed M05 scope and completion requirements |
+| `docs/verification/M06_VERIFICATION.md` | M06 verification evidence and exact command results |
+| `docs/handoffs/M06_HANDOFF.md` | M06 completion handoff for M07 |
+| `milestones/M06.md` | Detailed M06 scope and completion requirements |
 
 ## Scope Boundaries
 

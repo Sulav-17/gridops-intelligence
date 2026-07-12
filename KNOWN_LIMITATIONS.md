@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, and M04 forecasting evaluation foundation. M02, M03, and M04 are merged to `main`. M05 is complete on branch `m05`, pending merge to `main`, owned by Elena Rossi, Senior ML Platform Engineer. M05-C01 implemented production forecasting and MLOps schema plus typed contracts. M05-C02 implemented local artifact persistence and model-selection gate foundations. M05-C03 implemented deterministic sklearn candidate training from persisted M04 feature snapshots. M05-C04 implemented forecast generation from selected local model artifacts. M05-C05 implemented monitoring foundations, production runner boundaries, final documentation, verification, and handoff artifacts.
+The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, M04 forecasting evaluation foundation, M05 production forecasting and MLOps milestone, and M06 alert, scenario, and briefing milestone.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -102,6 +102,31 @@ Implemented M05-C05 monitoring and runner foundations include:
 - simple production runner command boundaries for training, forecast generation, and monitoring
 - final M05 runbooks, forecast output contract, verification report, and handoff report
 
+Implemented M06 alert foundation includes:
+
+- alert type, severity, lifecycle, and evaluation status contracts
+- high-demand alerts from M05 production forecast predictions
+- ramp alerts using M05 ramp outputs where available, with deterministic adjacent-prediction fallback
+- forecast deviation alerts against the previous succeeded production forecast run
+- source-health context alerts from M03 persisted quality/source-health summaries
+- combined-context alerts from deterministic component signals
+- deterministic business fingerprints and duplicate-active alert prevention
+- persisted alert evaluation runs, alert records, immutable evidence rows, and lifecycle history
+- backend endpoints for alert listing, detail, evaluation, and lifecycle transitions
+- alert rules documentation in `docs/decision/ALERT_RULES.md`
+
+Implemented M06 scenario and briefing foundation includes:
+
+- demand-growth scenarios with percent and added-MW assumptions
+- weather-adjustment scenarios with a documented deterministic approximate temperature delta
+- combined weather/load scenarios
+- persisted scenario runs, assumptions, limitations, result rows, and summaries
+- deterministic briefing facts from forecasts, peaks, ramps, alerts, source health, scenarios, and known limitations
+- persisted briefing runs and briefing facts with evidence references
+- backend endpoints for scenario generation, scenario lookup, briefing generation, and latest briefing lookup
+- standard-library decision runner commands for alert evaluation, scenario runs, and briefing generation
+- scenario and briefing runbooks in `docs/decision/`
+
 ## Missing Capabilities
 
 The following are intentionally not implemented yet:
@@ -116,9 +141,8 @@ The following are intentionally not implemented yet:
 - true quantile forecasts or prediction intervals
 - scheduled production inference
 - production forecast API
-- operational alerts
-- scenario engine
-- briefing generation
+- uncertainty or confidence alerts
+- alert notifications or ticketing
 - frontend or dashboards
 - authentication or authorization
 - production deployment
@@ -144,7 +168,20 @@ The following are intentionally not implemented yet:
 - The forecasting runner provides deterministic previews and feature-building persistence, but it is not an orchestrator or scheduled production inference service.
 - No production forecast API exists.
 - No MLflow registry exists.
-- No prediction intervals, monitoring calculations, alerts, scenarios, dashboard, deployment, or production model serving exist.
+- No prediction intervals, dashboard, deployment, or production model serving exist.
+
+## Scenario Limitations
+
+- Scenario outputs are simulations, not predictions.
+- Weather adjustment uses a fixed approximation because M05 cannot safely recompute forecasts from changed weather features.
+- Humidity assumptions are preserved but do not affect scenario values in this chunk.
+- Scenarios do not retrain models or replace M05 forecast rows.
+
+## Briefing Limitations
+
+- Briefings are structured deterministic facts only.
+- No LLM narrative generation is implemented.
+- Briefings do not send notifications or create tickets.
 
 ## Time-Domain Limitations
 

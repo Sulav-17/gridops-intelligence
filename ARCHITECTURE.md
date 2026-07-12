@@ -6,7 +6,7 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01, M02, M03, and M04 are implemented and complete. M02, M03, and M04 have been merged to `main`. M05 is complete on branch `m05`, pending merge to `main`, owned by Elena Rossi, Senior ML Platform Engineer.
+M01 through M06 are implemented and complete. M06 is complete on branch `m06`, owned by Marcus Lee, Senior Decision Systems Engineer.
 
 ### Foundation
 
@@ -153,6 +153,74 @@ Runner:
 - deterministic dry-run previews for candidate training, forecast generation, and monitoring summaries
 - database-backed execution paths for already implemented training, forecast generation, and monitoring helpers
 
+### M06 Alert Foundation
+
+M06 adds deterministic alert contracts, rule evaluation, evidence persistence, duplicate-active alert prevention, lifecycle history, scenario analysis, deterministic briefing facts, backend API outputs, and simple runner commands. M07 dashboard presentation remains deferred.
+
+M06 alert storage:
+
+- `alert_evaluation_runs`
+- `alerts`
+- `alert_evidence`
+- `alert_lifecycle_history`
+
+Implemented alert behavior:
+
+- fixed-threshold high-demand alerts from M05 production forecast predictions
+- large-ramp alerts using M05 `forecast_ramp_outputs` when present, with deterministic adjacent-prediction fallback
+- forecast deviation alerts compared against the previous succeeded production forecast run for the same target interval
+- source-health context alerts from persisted M03 quality/source-health summaries
+- combined-context alerts from deterministic forecast attention plus source-health component signals
+- deterministic SHA-256 business fingerprints excluding database IDs, random values, and processing timestamps
+- partial unique database protection against duplicate active alerts for the same fingerprint
+- lifecycle transitions from open to acknowledged, resolved, suppressed, or expired, and from acknowledged to resolved, suppressed, or expired
+- immutable evidence and lifecycle history rows
+- backend endpoints for listing alerts, fetching alert evidence, evaluating alerts, and updating lifecycle state
+
+True uncertainty/confidence alerting remains deferred because M05 stores nullable P10/P90 columns but does not generate true prediction intervals or confidence indicators.
+
+### M06 Scenario And Briefing Foundation
+
+M06 fast-track chunk 2 adds controlled scenario analysis and deterministic briefing facts. Scenario outputs are persisted simulations, not forecasts. Briefing facts are structured records with evidence references, not generated narrative.
+
+M06 scenario and briefing storage:
+
+- `scenario_runs`
+- `scenario_assumptions`
+- `scenario_result_rows`
+- `briefing_runs`
+- `briefing_facts`
+
+Implemented scenario behavior:
+
+- demand-growth scenarios apply percent growth and added MW assumptions to M05 base forecast values
+- weather-adjustment scenarios apply a documented deterministic approximation of `75.000 MW` per degree C because M05 cannot safely recompute forecasts from changed weather features
+- combined weather/load scenarios add the deterministic demand and weather deltas
+- scenario assumptions, limitations, interval results, and peak summaries are persisted
+
+Implemented briefing behavior:
+
+- deterministic fact generation from production forecast runs, predictions, peak outputs, ramp outputs, alerts, source-health summaries, scenarios, and known limitations
+- facts include forecast issue/horizon, expected peak, largest ramp, open alert summary, highest attention hours, source-health summary, quality limitations, confidence limitations, scenario highlights, and unsupported claims
+- no LLM or free-form narrative generation
+
+API outputs:
+
+- `GET /alerts`
+- `GET /alerts/{alert_id}`
+- `POST /alerts/evaluate`
+- `PATCH /alerts/{alert_id}/state`
+- `POST /scenarios`
+- `GET /scenarios/{scenario_id}`
+- `POST /briefings/generate`
+- `GET /briefings/latest`
+
+Runner:
+
+- `python -m gridops.decision.runner evaluate-alerts`
+- `python -m gridops.decision.runner run-scenario`
+- `python -m gridops.decision.runner generate-briefing`
+
 ## Approved Target Architecture
 
 The planned system flow is:
@@ -173,4 +241,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, forecast APIs, alerts, scenarios, briefing generation, dashboard work, authentication, or deployment.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, forecast APIs, dashboard work, authentication, or deployment. Notifications and ticketing are not implemented.
