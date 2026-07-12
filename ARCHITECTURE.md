@@ -239,6 +239,14 @@ The planned system flow is:
 12. FastAPI backend
 13. Next.js operational dashboard
 
+### M07 Dashboard Foundation
+
+M07-C01 adds a compact read-only dashboard API surface over persisted M03-M06 records. It includes overview, latest/detail production forecast, latest model-performance, and safe system-status outputs. Existing quality, alert, scenario, and briefing services remain authoritative; dashboard adapters do not duplicate their business logic.
+
+M07-C02 adds a Next.js App Router application in `frontend/`. The frontend uses a single typed API client with a configurable public API base URL, timeout/error handling, and an explicit fixture-backed fallback adapter. The fallback is controlled by `NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA`; it is synthetic demonstration data and uses the same TypeScript response contracts as the backend.
+
+Implemented C02 routes are Overview, Forecasts, Data Quality, Model Performance, System Status, and limitations documentation. The forecast chart displays persisted P50 and actual demand where present, and displays P10/P90 only when both are persisted. Alerts, scenario, and briefing UI routes remain deferred.
+
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, forecast APIs, dashboard work, authentication, or deployment. Notifications and ticketing are not implemented.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, authentication, or deployment. Notifications and ticketing are not implemented. Alert, scenario, and briefing dashboard screens remain deferred.

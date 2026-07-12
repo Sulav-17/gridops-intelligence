@@ -136,7 +136,7 @@ M06 fast-track chunk 3 implemented alert API endpoints, decision runner commands
 
 ## M07 - Dashboard, Deployment, and Release
 
-**Status:** Not started
+**Status:** Active
 
 **Owner:** Olivia Grant, Senior Product and Deployment Engineer
 
@@ -156,3 +156,7 @@ Primary outcomes:
 - case study
 - demo video
 - verified `v1.0.0` release
+
+M07-C01 implemented the dashboard integration matrix, read-only overview/forecast/model-performance/system-status backend contracts, demo-mode restrictions, and server-side demo scenario bounds.
+
+M07-C02 implemented the `frontend/` Next.js App Router foundation, a typed C01 API client, explicit fixture-backed demo fallback, and responsive Overview, Forecasts, Data Quality, Model Performance, System Status, and limitations documentation screens. Alerts, Scenarios, and Briefing remain deferred to M07-C03.

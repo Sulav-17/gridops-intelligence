@@ -4,7 +4,7 @@ GridOps Intelligence is a production-style energy data engineering, forecasting,
 
 The system is intended to ingest public electricity and weather data, preserve source evidence, validate and normalize changing source data, produce trusted day-ahead forecasting evaluations, and support production forecasting, alerts, scenarios, APIs, and an operational dashboard.
 
-M06 is complete on branch `m06`. M01 through M05 are complete.
+M06 is complete. M07 is active on branch `m07`.
 
 ## Current Status
 
@@ -16,6 +16,11 @@ Completed milestones:
 - M04 - Baselines and backtesting
 - M05 - Production Forecasting and MLOps
 - M06 - Alerts, Scenarios, and Briefings
+
+M07 work in progress:
+
+- C01 - dashboard integration APIs and demo-mode protections
+- C02 - Next.js dashboard foundation for overview, forecasts, data quality, model performance, and system status
 
 Implemented foundation:
 
@@ -59,7 +64,8 @@ Not implemented yet:
 - true quantile models or prediction intervals
 - MLflow registry
 - scheduled inference
-- dashboards, authentication, or deployment
+- alert, scenario, and briefing dashboard screens
+- authentication or deployment
 
 ## Local Development
 
@@ -200,7 +206,39 @@ Endpoints:
 - `POST /briefings/generate` creates deterministic briefing facts.
 - `GET /briefings/latest` returns the latest persisted briefing.
 
-No production forecast API exists yet.
+Dashboard integration endpoints:
+
+- `GET /dashboard/overview` returns the compact persisted operational summary.
+- `GET /forecasts/latest` and `GET /forecasts/{forecast_run_id}` return persisted production forecast outputs.
+- `GET /model-performance/latest` returns persisted baseline, performance, and drift evidence.
+- `GET /system/status` returns safe readiness and latest-run timestamps.
+
+Demo mode blocks alert mutation and briefing generation, while bounded scenario execution remains available. See `docs/dashboard/API_INTEGRATION_MATRIX.md` for the public integration contract.
+
+## Frontend Dashboard
+
+The M07-C02 dashboard lives in `frontend/`. It uses the Next.js App Router, TypeScript, Recharts, ESLint, and Vitest. Node.js 20.9 or later is required; the frontend package uses npm.
+
+Install and start it locally:
+
+```powershell
+Set-Location frontend
+npm.cmd install
+npm.cmd run dev
+```
+
+Validate the frontend:
+
+```powershell
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd run test
+npm.cmd run build
+```
+
+Copy `frontend/.env.example` to a local `.env.local` and set `NEXT_PUBLIC_GRIDOPS_API_BASE_URL` to the backend's public base URL. `NEXT_PUBLIC_GRIDOPS_DEMO_MODE=true` labels the UI as a public demo. `NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA=true` allows an explicit fixture-backed fallback only when the backend cannot be reached; this data is synthetic demonstration data, not live IESO data.
+
+Implemented frontend screens are Overview, Forecasts, Data Quality, Model Performance, System Status, and the limitations documentation page. Alerts, Scenarios, and Briefing remain planned for M07-C03.
 
 ## Decision Support Runner
 

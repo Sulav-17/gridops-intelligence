@@ -33,6 +33,12 @@ Default absolute scenario limits are configurable through `GRIDOPS_DEMO_SCENARIO
 
 All scenario decimal inputs must be finite in every mode. Demo mode additionally rejects values outside the configured inclusive bounds. Frontend validation is supplementary and must use the same published limits.
 
+## M07-C02 Frontend Consumers
+
+The Next.js frontend in `frontend/` consumes the matrix through a single typed API client. It implements Overview, Forecasts, Data Quality, Model Performance, and System Status routes. The client reads `NEXT_PUBLIC_GRIDOPS_API_BASE_URL`, applies an eight-second request timeout, distinguishes missing data from backend unavailability, and optionally selects the fixture-backed data adapter only when `NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA=true`.
+
+The Forecasts route renders P10/P90 only when both values are persisted for every displayed interval. It never derives interval bands from P50. Times arrive through UTC API fields and are labeled in `America/Toronto` for dashboard display. Alerts, Scenarios, and Briefing navigation are intentionally disabled placeholders for M07-C03.
+
 ## Seeded Demo Strategy
 
 The demo dataset must be labeled fixture-backed demonstration data. M07 should compose the existing fixture ingestion runners, quality services, forecasting persistence/services, alert engine, scenario engine, and briefing generator. It must not introduce parallel fake response files or bypass the persisted contracts above.

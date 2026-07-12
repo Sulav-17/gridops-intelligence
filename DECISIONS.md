@@ -344,3 +344,33 @@ Fixture-backed ingestion allows repeatable tests, clear time handling, raw evide
 ### Consequences
 
 M02 supports only local fixture ingestion through a simple module runner. Live source clients, scheduling, Prefect, dbt, and formal data-quality checks remain deferred to later milestones.
+
+---
+
+## DEC-012 - M07 Typed Dashboard Client and Explicit Demo Fallback
+
+**Status:** Accepted
+
+**Date:** July 2026
+
+### Decision
+
+M07-C02 places the Next.js App Router application in `frontend/` and uses one typed client contract for both backend responses and fixture-backed demonstration data. Fixture fallback is disabled unless `NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA=true` is explicitly configured.
+
+### Context
+
+The public dashboard needs to remain readable when a local or demo backend is unavailable, without confusing synthetic values for live IESO or production data.
+
+### Alternatives
+
+- scatter mock objects within individual screens
+- require a reachable backend for every frontend view
+- use one typed adapter with explicit fixture fallback
+
+### Rationale
+
+A single adapter keeps UI screens aligned to the verified C01 response contracts, makes fallback behavior visible and testable, and prevents demo records from silently becoming the ordinary data source.
+
+### Consequences
+
+The dashboard labels fixture-backed data, does not hardcode a production-local backend URL, and renders P10/P90 only when persisted. Browser views do not calculate forecasting or performance metrics.

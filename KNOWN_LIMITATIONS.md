@@ -143,7 +143,7 @@ The following are intentionally not implemented yet:
 - production forecast API
 - uncertainty or confidence alerts
 - alert notifications or ticketing
-- frontend or dashboards
+- alert, scenario, and briefing dashboard screens
 - authentication or authorization
 - production deployment
 
@@ -166,9 +166,9 @@ The following are intentionally not implemented yet:
 - Ridge is a simple transparent baseline only, with no tuning, registry, or production artifact management.
 - Baseline metrics are implemented as evaluation capabilities, not production performance claims.
 - The forecasting runner provides deterministic previews and feature-building persistence, but it is not an orchestrator or scheduled production inference service.
-- No production forecast API exists.
+- Dashboard forecast APIs expose persisted records only; they do not provide model serving or scheduled inference.
 - No MLflow registry exists.
-- No prediction intervals, dashboard, deployment, or production model serving exist.
+- P10/P90 may be null and are not treated as guaranteed prediction intervals. The dashboard does not infer missing bands from P50.
 
 ## Scenario Limitations
 
@@ -192,6 +192,10 @@ The following are intentionally not implemented yet:
 - Real DST transition source behavior must be handled explicitly in future source-specific work.
 
 ## Product Limitations
+
+- The M07-C02 fixture fallback is explicitly synthetic or fixture-backed demonstration data and must not be described as live IESO ingestion.
+- M07-C02 implements only Overview, Forecasts, Data Quality, Model Performance, System Status, and limitations documentation. Alert, scenario, and briefing screens remain deferred.
+- The frontend has no authentication or deployment configuration in this chunk.
 
 GridOps Intelligence is not intended to:
 
