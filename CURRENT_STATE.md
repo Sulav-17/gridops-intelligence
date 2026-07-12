@@ -6,15 +6,15 @@ GridOps Intelligence
 
 ## Current Phase
 
-M06 complete on branch `m06`
+M07 active on branch `m07`
 
 ## Active Milestone
 
-M06 - Alerts, Scenarios, and Briefings
+M07 - Dashboard, Deployment, and Release
 
 ## Milestone Owner
 
-Marcus Lee - Senior Decision Systems Engineer
+Olivia Grant - Senior Product and Deployment Engineer
 
 ## Project Leader
 
@@ -33,6 +33,8 @@ M04 is complete and merged to `main`.
 M05 is complete.
 
 M06 is complete on branch `m06`.
+
+M07-C01 backend integration contracts are implemented on branch `m07`; M07 is not complete.
 
 Implemented storage includes:
 
@@ -76,7 +78,8 @@ Implemented storage includes:
 - database: PostgreSQL
 - local database port: `55432`
 - migrations: empty baseline, M02 ingestion storage, M03 quality storage, M04 forecasting foundation, M05 production forecasting schema, M06 alert foundation, and M06 scenario/briefing schema
-- API: FastAPI health, readiness, `GET /quality/health`, alert endpoints, scenario endpoints, and briefing endpoints
+- API: FastAPI health, readiness, quality, alert, scenario, briefing, dashboard overview, production forecast read, model-performance read, and safe system-status endpoints
+- M07 demo mode: typed configuration disables public alert evaluation, alert lifecycle mutation, and briefing generation while allowing only bounded scenario execution
 - ingestion: fixture mode only through `python -m gridops.ingestion.runner`
 - quality: persisted dataset checks through `python -m gridops.quality.runner`
 - forecasting evaluation: forecast issue contracts, feature snapshots, baselines, backtest windows, metrics, slice reports, and simple runner previews
@@ -126,7 +129,6 @@ Implemented storage includes:
 - true quantile forecasts or prediction intervals
 - MLflow tracking or registry
 - scheduled production inference
-- production forecast API
 - frontend or dashboards
 - authentication
 - production deployment
@@ -141,4 +143,4 @@ Implemented storage includes:
 
 ## Immediate Next Action
 
-Begin M07 dashboard, deployment, and release work from the verified M06 decision-support backend.
+Begin M07-C02 frontend foundation against the verified M07-C01 dashboard API contracts.

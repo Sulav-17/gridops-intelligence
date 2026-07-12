@@ -1,10 +1,10 @@
 """FastAPI application foundation for GridOps Intelligence."""
 
 import logging
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
@@ -14,6 +14,13 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
 from gridops.config import Settings
+from gridops.dashboard import (
+    forecast_response,
+    latest_forecast_run,
+    model_performance_response,
+    overview_response,
+    system_status_response,
+)
 from gridops.database import (
     check_database_connection,
     make_engine,
@@ -34,6 +41,7 @@ from gridops.models import (
     AlertLifecycleHistory,
     BriefingFact,
     BriefingRun,
+    ProductionForecastRun,
     ScenarioAssumption,
     ScenarioResultRow,
 )
@@ -187,6 +195,67 @@ def create_app(
             ]
         )
 
+    @app.get("/dashboard/overview", response_model=None)
+    def dashboard_overview() -> dict[str, object] | JSONResponse:
+        """Return the smallest coherent dashboard summary from persisted records."""
+
+        return _database_read_response(app, logger, overview_response, "Dashboard overview")
+
+    @app.get("/forecasts/latest", response_model=None)
+    def latest_forecast() -> dict[str, object] | JSONResponse:
+        """Return the latest successful persisted production forecast."""
+
+        try:
+            with session_scope(app.state.session_factory) as session:
+                run = latest_forecast_run(session)
+                if run is None:
+                    return JSONResponse(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        content={"detail": "forecast not found"},
+                    )
+                body = _json_dict(forecast_response(session, run))
+        except Exception as exc:
+            return _safe_database_failure(logger, "Latest forecast query", exc)
+        return body
+
+    @app.get("/forecasts/{forecast_run_id}", response_model=None)
+    def forecast_detail(forecast_run_id: int) -> dict[str, object] | JSONResponse:
+        """Return one persisted production forecast and its verifiable outputs."""
+
+        try:
+            with session_scope(app.state.session_factory) as session:
+                run = session.get(ProductionForecastRun, forecast_run_id)
+                if run is None or run.status != "succeeded":
+                    return JSONResponse(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        content={"detail": "forecast not found"},
+                    )
+                body = _json_dict(forecast_response(session, run))
+        except Exception as exc:
+            return _safe_database_failure(logger, "Forecast detail query", exc)
+        return body
+
+    @app.get("/model-performance/latest", response_model=None)
+    def latest_model_performance() -> dict[str, object] | JSONResponse:
+        """Return latest persisted baseline, performance, and drift evidence."""
+
+        return _database_read_response(
+            app, logger, model_performance_response, "Model performance query"
+        )
+
+    @app.get("/system/status", response_model=None)
+    def system_status() -> dict[str, object] | JSONResponse:
+        """Return safe dependency state and latest operational timestamps."""
+
+        try:
+            with session_scope(app.state.session_factory) as session:
+                body = _json_dict(
+                    system_status_response(session, demo_mode=resolved_settings.demo_mode)
+                )
+        except Exception as exc:
+            return _safe_database_failure(logger, "System status query", exc)
+        return body
+
     @app.get("/alerts", response_model=None)
     def alerts() -> dict[str, object] | JSONResponse:
         """Return persisted alerts with current evidence."""
@@ -236,6 +305,9 @@ def create_app(
     def evaluate_alerts(payload: AlertEvaluateRequest) -> dict[str, object] | JSONResponse:
         """Evaluate deterministic alert rules and persist evidence."""
 
+        if resolved_settings.demo_mode:
+            return _demo_mode_forbidden()
+
         try:
             with session_scope(app.state.session_factory) as session:
                 result = evaluate_and_persist_alerts(
@@ -274,6 +346,9 @@ def create_app(
         payload: AlertStateUpdateRequest,
     ) -> dict[str, object] | JSONResponse:
         """Apply a validated alert lifecycle transition."""
+
+        if resolved_settings.demo_mode:
+            return _demo_mode_forbidden()
 
         try:
             with session_scope(app.state.session_factory) as session:
@@ -322,6 +397,8 @@ def create_app(
                 temperature_delta_c=_parse_api_decimal(payload.temperature_delta_c),
                 humidity_delta_percent=_parse_api_decimal(payload.humidity_delta_percent),
             )
+            if resolved_settings.demo_mode:
+                _validate_demo_scenario(request, resolved_settings)
             with session_scope(app.state.session_factory) as session:
                 result = run_scenario(session, request=request)
                 body = _scenario_response(session, result.scenario_run.id)
@@ -371,6 +448,9 @@ def create_app(
         payload: BriefingGenerateRequest,
     ) -> dict[str, object] | JSONResponse:
         """Generate and persist deterministic briefing facts."""
+
+        if resolved_settings.demo_mode:
+            return _demo_mode_forbidden()
 
         try:
             with session_scope(app.state.session_factory) as session:
@@ -457,7 +537,82 @@ def _parse_api_decimal(value: str | None) -> Decimal | None:
 
     if value is None:
         return None
-    return Decimal(value)
+    try:
+        parsed = Decimal(value)
+    except InvalidOperation as exc:
+        raise ValueError("scenario values must be valid decimals") from exc
+    if not parsed.is_finite():
+        raise ValueError("scenario values must be finite")
+    return parsed
+
+
+def _validate_demo_scenario(request: ScenarioRequest, settings: Settings) -> None:
+    """Apply configurable public-demo bounds without changing scenario formulas."""
+
+    bounds = (
+        (
+            "demand_growth_percent",
+            request.demand_growth_percent,
+            Decimal(str(settings.demo_scenario_load_growth_percent_limit)),
+        ),
+        (
+            "added_load_mw",
+            request.added_load_mw,
+            Decimal(str(settings.demo_scenario_added_load_mw_limit)),
+        ),
+        (
+            "temperature_delta_c",
+            request.temperature_delta_c,
+            Decimal(str(settings.demo_scenario_temperature_delta_c_limit)),
+        ),
+        (
+            "humidity_delta_percent",
+            request.humidity_delta_percent,
+            Decimal(str(settings.demo_scenario_humidity_delta_percent_limit)),
+        ),
+    )
+    for field_name, value, limit in bounds:
+        if value is not None and abs(value) > limit:
+            raise ValueError(f"{field_name} must be between {-limit} and {limit} in demo mode")
+
+
+def _demo_mode_forbidden() -> JSONResponse:
+    """Return the stable public-demo mutation restriction response."""
+
+    return JSONResponse(
+        status_code=status.HTTP_403_FORBIDDEN,
+        content={"detail": "operation unavailable in demo mode"},
+    )
+
+
+def _database_read_response(
+    app: FastAPI,
+    logger: logging.Logger,
+    adapter: Callable[[Session], dict[str, object]],
+    operation: str,
+) -> dict[str, object] | JSONResponse:
+    """Execute a dashboard read adapter with the standard safe database failure shape."""
+
+    try:
+        with session_scope(app.state.session_factory) as session:
+            body = _json_dict(adapter(session))
+    except Exception as exc:
+        return _safe_database_failure(logger, operation, exc)
+    return body
+
+
+def _safe_database_failure(
+    logger: logging.Logger,
+    operation: str,
+    exc: Exception,
+) -> JSONResponse:
+    """Log only an exception type and return no infrastructure detail."""
+
+    logger.warning(operation, extra={"error_type": type(exc).__name__})
+    return JSONResponse(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        content={"status": "not_ready", "dependency": "postgresql"},
+    )
 
 
 def _alert_summary(alert: Alert) -> dict[str, object]:

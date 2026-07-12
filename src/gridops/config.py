@@ -46,6 +46,11 @@ class Settings(BaseSettings):
         "postgresql+psycopg://gridops:gridops@localhost:55432/gridops"
     )
     readiness_timeout_seconds: float = Field(default=2.0, gt=0, le=30)
+    demo_mode: bool = False
+    demo_scenario_load_growth_percent_limit: float = Field(default=10.0, gt=0, le=100)
+    demo_scenario_added_load_mw_limit: float = Field(default=2000.0, gt=0)
+    demo_scenario_temperature_delta_c_limit: float = Field(default=10.0, gt=0, le=50)
+    demo_scenario_humidity_delta_percent_limit: float = Field(default=30.0, gt=0, le=100)
 
     @field_validator("database_url")
     @classmethod

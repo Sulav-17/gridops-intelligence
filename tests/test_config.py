@@ -15,6 +15,11 @@ GRIDOPS_ENVIRONMENT_VARIABLES = (
     "GRIDOPS_API_PORT",
     "GRIDOPS_DATABASE_URL",
     "GRIDOPS_READINESS_TIMEOUT_SECONDS",
+    "GRIDOPS_DEMO_MODE",
+    "GRIDOPS_DEMO_SCENARIO_LOAD_GROWTH_PERCENT_LIMIT",
+    "GRIDOPS_DEMO_SCENARIO_ADDED_LOAD_MW_LIMIT",
+    "GRIDOPS_DEMO_SCENARIO_TEMPERATURE_DELTA_C_LIMIT",
+    "GRIDOPS_DEMO_SCENARIO_HUMIDITY_DELTA_PERCENT_LIMIT",
 )
 
 
@@ -42,6 +47,11 @@ def test_settings_defaults() -> None:
     assert settings.api_host == "127.0.0.1"
     assert settings.api_port == 8000
     assert settings.readiness_timeout_seconds == 2.0
+    assert settings.demo_mode is False
+    assert settings.demo_scenario_load_growth_percent_limit == 10.0
+    assert settings.demo_scenario_added_load_mw_limit == 2000.0
+    assert settings.demo_scenario_temperature_delta_c_limit == 10.0
+    assert settings.demo_scenario_humidity_delta_percent_limit == 30.0
     assert (
         settings.database_url.get_secret_value()
         == "postgresql+psycopg://gridops:gridops@localhost:55432/gridops"
@@ -63,6 +73,7 @@ def test_environment_variables_override_defaults(
         "postgresql+psycopg://test-user:test-password@localhost:55432/test-gridops",
     )
     monkeypatch.setenv("GRIDOPS_READINESS_TIMEOUT_SECONDS", "5.5")
+    monkeypatch.setenv("GRIDOPS_DEMO_MODE", "true")
 
     settings = Settings()
 
@@ -72,6 +83,7 @@ def test_environment_variables_override_defaults(
     assert settings.api_host == "0.0.0.0"
     assert settings.api_port == 9000
     assert settings.readiness_timeout_seconds == 5.5
+    assert settings.demo_mode is True
     assert (
         settings.database_url.get_secret_value()
         == "postgresql+psycopg://test-user:test-password@localhost:55432/test-gridops"
