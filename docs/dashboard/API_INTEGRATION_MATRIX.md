@@ -35,9 +35,11 @@ All scenario decimal inputs must be finite in every mode. Demo mode additionally
 
 ## M07-C02 Frontend Consumers
 
-The Next.js frontend in `frontend/` consumes the matrix through a single typed API client. It implements Overview, Forecasts, Data Quality, Model Performance, and System Status routes. The client reads `NEXT_PUBLIC_GRIDOPS_API_BASE_URL`, applies an eight-second request timeout, distinguishes missing data from backend unavailability, and optionally selects the fixture-backed data adapter only when `NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA=true`.
+The Next.js frontend in `frontend/` consumes the matrix through a single typed API client. It implements Overview, Forecasts, Data Quality, Model Performance, System Status, Alerts, Scenarios, and Briefing routes. The client reads `NEXT_PUBLIC_GRIDOPS_API_BASE_URL`, applies an eight-second request timeout, distinguishes missing data from backend unavailability, and optionally selects the fixture-backed data adapter only when `NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA=true`. The fallback is visibly labeled as fixture-backed demonstration data, never as live IESO activity.
 
-The Forecasts route renders P10/P90 only when both values are persisted for every displayed interval. It never derives interval bands from P50. Times arrive through UTC API fields and are labeled in `America/Toronto` for dashboard display. Alerts, Scenarios, and Briefing navigation are intentionally disabled placeholders for M07-C03.
+The Forecasts route renders P10/P90 only when both values are persisted for every displayed interval. It never derives interval bands from P50. Times arrive through UTC API fields and are labeled in `America/Toronto` for dashboard display. M07-C03 enables Alerts, Scenarios, and Briefing navigation: alerts display persisted evidence and lifecycle history, scenarios submit bounded typed simulations, and briefing displays persisted deterministic facts only. The public UI exposes no alert evaluation, alert lifecycle mutation, or briefing generation controls.
+
+The C03 frontend test suite verifies alerts and empty alerts, evidence and lifecycle history, valid scenario submission, every public scenario bound, non-finite input rejection, pending-submit prevention, safe 400/403 handling, simulation limitations, briefing and empty briefing states, fixture labeling, and absence of public evaluation, lifecycle mutation, briefing generation, ingestion, training, inference, and model-promotion controls.
 
 ## Seeded Demo Strategy
 

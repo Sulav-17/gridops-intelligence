@@ -6,6 +6,11 @@ import type {
   OverviewResponse,
   QualityHealthResponse,
   SystemStatusResponse,
+  AlertDetail,
+  AlertSummary,
+  BriefingResponse,
+  ScenarioCreatePayload,
+  ScenarioResponse,
 } from "@/lib/contracts";
 
 const DEFAULT_TIMEOUT_MS = 8_000;
@@ -62,13 +67,37 @@ export class GridOpsApiClient {
     return this.request("/system/status", isSystemStatusResponse);
   }
 
-  private async request<T>(path: string, isResponse: (value: unknown) => value is T): Promise<T> {
+  getAlerts(): Promise<AlertSummary[]> {
+    return this.request("/alerts", (value): value is { alerts: AlertSummary[] } => isRecord(value) && Array.isArray(value.alerts)).then((value) => value.alerts);
+  }
+
+  getAlert(alertId: number): Promise<AlertDetail> {
+    return this.request(`/alerts/${alertId}`, isAlertDetail);
+  }
+
+  createScenario(payload: ScenarioCreatePayload): Promise<ScenarioResponse> {
+    return this.request("/scenarios", isScenarioResponse, { method: "POST", body: JSON.stringify(payload) });
+  }
+
+  getScenario(scenarioId: number): Promise<ScenarioResponse> {
+    return this.request(`/scenarios/${scenarioId}`, isScenarioResponse);
+  }
+
+  getLatestBriefing(): Promise<BriefingResponse | null> {
+    return this.request("/briefings/latest", isBriefingResponse).catch((error: unknown) => {
+      if (error instanceof ApiClientError && error.status === 404) return null;
+      throw error;
+    });
+  }
+
+  private async request<T>(path: string, isResponse: (value: unknown) => value is T, init?: RequestInit): Promise<T> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     let response: Response;
     try {
       response = await this.fetchImpl(`${this.baseUrl}${path}`, {
-        headers: { Accept: "application/json" },
+        ...init,
+        headers: { Accept: "application/json", ...(init?.body ? { "Content-Type": "application/json" } : {}) },
         signal: controller.signal,
       });
     } catch (error) {
@@ -147,3 +176,7 @@ function isModelPerformanceResponse(value: unknown): value is ModelPerformanceRe
 function isSystemStatusResponse(value: unknown): value is SystemStatusResponse {
   return isRecord(value) && typeof value.status === "string" && typeof value.database === "string" && isRecord(value.latest_runs);
 }
+
+function isAlertDetail(value: unknown): value is AlertDetail { return isRecord(value) && typeof value.alert_id === "number" && Array.isArray(value.evidence_records) && Array.isArray(value.lifecycle_history); }
+function isScenarioResponse(value: unknown): value is ScenarioResponse { return isRecord(value) && typeof value.scenario_id === "number" && Array.isArray(value.result_rows) && Array.isArray(value.assumptions) && isRecord(value.limitations) && isRecord(value.summary); }
+function isBriefingResponse(value: unknown): value is BriefingResponse { return isRecord(value) && typeof value.briefing_id === "number" && Array.isArray(value.facts) && isRecord(value.summary); }

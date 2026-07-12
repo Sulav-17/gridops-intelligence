@@ -238,7 +238,9 @@ npm.cmd run build
 
 Copy `frontend/.env.example` to a local `.env.local` and set `NEXT_PUBLIC_GRIDOPS_API_BASE_URL` to the backend's public base URL. `NEXT_PUBLIC_GRIDOPS_DEMO_MODE=true` labels the UI as a public demo. `NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA=true` allows an explicit fixture-backed fallback only when the backend cannot be reached; this data is synthetic demonstration data, not live IESO data.
 
-Implemented frontend screens are Overview, Forecasts, Data Quality, Model Performance, System Status, and the limitations documentation page. Alerts, Scenarios, and Briefing remain planned for M07-C03.
+Implemented frontend screens are Overview, Forecasts, Alerts (including persisted evidence and lifecycle detail), Data Quality, Scenarios, Briefing, Model Performance, System Status, and the limitations documentation page. Alerts and Briefing are read-only in the public UI. Scenarios are bounded simulations, not forecasts; public demo bounds are load growth -10 to +10 percent, added load -2,000 to +2,000 MW, temperature -10 to +10 C, and humidity -30 to +30 percent. Weather adjustment is a deterministic approximation, and stored humidity assumptions do not change simulated values. Fixture fallback is explicitly labeled and never represents live IESO ingestion. The C03 frontend tests cover alert evidence/history, scenario validation and server failures, briefing states, fixture labels, and the absence of public mutation, ingestion, training, inference, or model-promotion controls.
+
+`npm.cmd audit --omit=dev` could not reach the npm audit endpoint from the local verification environment on July 12, 2026; this is a known verification-environment limitation, not a claim that dependencies have no advisories. M07-C04 remains responsible for deployment, release artifacts, and final milestone verification; M07 is not complete.
 
 ## Decision Support Runner
 

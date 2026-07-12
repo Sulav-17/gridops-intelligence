@@ -1,4 +1,4 @@
-import type { DashboardData } from "@/lib/contracts";
+import type { AlertDetail, AlertSummary, BriefingResponse, DashboardData, ScenarioResponse } from "@/lib/contracts";
 
 const ISSUE_TIME = "2026-07-12T10:00:00Z";
 
@@ -88,3 +88,11 @@ export const fixtureDemoData: DashboardData = {
 };
 
 fixtureDemoData.overview.forecast = fixtureDemoData.forecast;
+
+export const fixtureAlerts: AlertSummary[] = [
+  { alert_id: 301, alert_type: "high_demand", severity: "warning", state: "open", rule_name: "high_demand_fixed_threshold", title: "High forecast demand", explanation: "Persisted fixed-threshold alert evidence.", production_forecast_run_id: 701, forecast_issue_time_utc: ISSUE_TIME, target_interval_start_utc: "2026-07-12T19:00:00Z", target_interval_end_utc: "2026-07-12T20:00:00Z", opened_at_utc: "2026-07-12T10:10:00Z", updated_at_utc: "2026-07-12T10:10:00Z", current_evidence: { threshold_mw: "19000.000", observed_forecast_mw: "19550.000" } },
+  { alert_id: 302, alert_type: "forecast_ramp", severity: "watch", state: "acknowledged", rule_name: "large_adjacent_forecast_ramp", title: "Large adjacent forecast ramp", explanation: "Persisted ramp rule evidence.", production_forecast_run_id: 701, forecast_issue_time_utc: ISSUE_TIME, target_interval_start_utc: "2026-07-12T16:00:00Z", target_interval_end_utc: "2026-07-12T17:00:00Z", opened_at_utc: "2026-07-12T10:10:00Z", updated_at_utc: "2026-07-12T10:12:00Z", current_evidence: { threshold_mw: "400.000", absolute_ramp_mw: "460.000" } },
+];
+export const fixtureAlertDetail: AlertDetail = { ...fixtureAlerts[0], evidence_records: [{ alert_evidence_id: 501, alert_evaluation_run_id: 81, generated_at_utc: "2026-07-12T10:10:00Z", evidence: fixtureAlerts[0].current_evidence }], lifecycle_history: [{ lifecycle_history_id: 601, from_state: null, to_state: "open", transition_reason: "Alert created from persisted rule evaluation.", changed_at_utc: "2026-07-12T10:10:00Z" }] };
+export const fixtureScenario: ScenarioResponse = { scenario_id: 901, scenario_type: "combined_weather_load", production_forecast_run_id: 701, status: "succeeded", scenario_version: "m06_c02_scenario_v1", generated_at_utc: "2026-07-12T10:20:00Z", assumptions: [{ assumption_name: "temperature_delta_c", assumption_value: "2.000", assumption_unit: "C", assumption_json: null }, { assumption_name: "demand_growth_percent", assumption_value: "1.000", assumption_unit: "percent", assumption_json: null }], limitations: { scenario_outputs_are_predictions: false, weather_scenarios_use_deterministic_approximation: true, humidity_delta_percent_does_not_change_values: true }, summary: { peak_change_mw: "345.500", largest_ramp_change_mw: "4.600" }, result_rows: [{ target_interval_start_utc: "2026-07-12T19:00:00Z", target_interval_end_utc: "2026-07-12T20:00:00Z", base_value_mw: "19550.000", scenario_value_mw: "19895.500", delta_mw: "345.500", row_metadata: {} }] };
+export const fixtureBriefing: BriefingResponse = { briefing_id: 91, production_forecast_run_id: 701, status: "succeeded", briefing_version: "m06_c02_briefing_v1", generated_at_utc: "2026-07-12T10:15:00Z", summary: { narrative_generated: false }, facts: [{ fact_type: "expected_peak", fact_value: { peak_demand_mw: "19550.000", peak_hour: "2026-07-12T19:00:00Z" }, evidence: { source: "forecast_peak_output" } }, { fact_type: "confidence_limitations", fact_value: { limitation: "True prediction intervals are unavailable." }, evidence: { source: "forecast_limitations" } }] };

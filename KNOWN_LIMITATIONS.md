@@ -143,7 +143,6 @@ The following are intentionally not implemented yet:
 - production forecast API
 - uncertainty or confidence alerts
 - alert notifications or ticketing
-- alert, scenario, and briefing dashboard screens
 - authentication or authorization
 - production deployment
 
@@ -193,8 +192,11 @@ The following are intentionally not implemented yet:
 
 ## Product Limitations
 
-- The M07-C02 fixture fallback is explicitly synthetic or fixture-backed demonstration data and must not be described as live IESO ingestion.
-- M07-C02 implements only Overview, Forecasts, Data Quality, Model Performance, System Status, and limitations documentation. Alert, scenario, and briefing screens remain deferred.
+- The M07 fixture fallback is explicitly synthetic or fixture-backed demonstration data and must not be described as live IESO ingestion. It is used only after an explicit fallback setting when the backend cannot be reached.
+- M07-C03 implements alerts, immutable alert evidence and lifecycle history, bounded scenario simulations, and persisted briefing facts. It does not provide alert mutation, briefing generation, ingestion, training, inference, or model promotion in the public UI.
+- Scenario controls are supplementary to server validation. They use current public bounds of -10 to +10 percent load growth, -2,000 to +2,000 MW added load, -10 to +10 C temperature, and -30 to +30 percent humidity. Values must be finite.
+- Scenario outputs are simulations rather than official forecasts; weather uses a deterministic approximation, and humidity may be stored without changing result values.
+- The July 12, 2026 local `npm.cmd audit --omit=dev` attempt could not reach the npm audit endpoint, so dependency-advisory status is not verified by that run.
 - The frontend has no authentication or deployment configuration in this chunk.
 
 GridOps Intelligence is not intended to:

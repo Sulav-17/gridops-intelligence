@@ -22,7 +22,7 @@ import type {
   SystemStatusResponse,
 } from "@/lib/contracts";
 
-export type Screen = "overview" | "forecasts" | "quality" | "performance" | "status";
+export type Screen = "overview" | "forecasts" | "quality" | "performance" | "status" | "alerts" | "scenarios" | "briefing";
 
 const screenMetadata: Record<Screen, { title: string; context: string }> = {
   overview: { title: "Operational overview", context: "Persisted forecast and source-health evidence" },
@@ -30,6 +30,9 @@ const screenMetadata: Record<Screen, { title: string; context: string }> = {
   quality: { title: "Data quality", context: "Latest persisted source-health results" },
   performance: { title: "Model performance", context: "Persisted baseline, monitoring, and drift evidence" },
   status: { title: "System status", context: "Safe service readiness and operational timestamps" },
+  alerts: { title: "Alerts", context: "Persisted deterministic attention signals" },
+  scenarios: { title: "Scenarios", context: "Bounded deterministic simulations" },
+  briefing: { title: "Briefing", context: "Persisted deterministic briefing facts" },
 };
 
 export function DashboardPage({ screen }: { screen: Screen }) {
@@ -108,10 +111,10 @@ function Navigation({ current, compact = false }: { current: Screen; compact?: b
   const items: Array<{ label: string; href?: string; screen?: Screen; pending?: boolean }> = [
     { label: "Overview", href: "/", screen: "overview" },
     { label: "Forecasts", href: "/forecasts", screen: "forecasts" },
-    { label: "Alerts", pending: true },
+    { label: "Alerts", href: "/alerts", screen: "alerts" },
     { label: "Data Quality", href: "/data-quality", screen: "quality" },
-    { label: "Scenarios", pending: true },
-    { label: "Briefing", pending: true },
+    { label: "Scenarios", href: "/scenarios", screen: "scenarios" },
+    { label: "Briefing", href: "/briefing", screen: "briefing" },
     { label: "Model Performance", href: "/model-performance", screen: "performance" },
     { label: "System Status", href: "/system-status", screen: "status" },
     { label: "Documentation", href: "/documentation" },

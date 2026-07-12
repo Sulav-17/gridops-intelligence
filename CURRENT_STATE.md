@@ -34,7 +34,7 @@ M05 is complete.
 
 M06 is complete on branch `m06`.
 
-M07-C01 backend integration contracts and M07-C02 frontend foundation are implemented on branch `m07`; M07 is not complete.
+M07-C01 backend integration contracts, M07-C02 frontend foundation, and M07-C03 alert/scenario/briefing decision-support screens are implemented on branch `m07`; M07 is not complete.
 
 Implemented storage includes:
 
@@ -80,7 +80,7 @@ Implemented storage includes:
 - migrations: empty baseline, M02 ingestion storage, M03 quality storage, M04 forecasting foundation, M05 production forecasting schema, M06 alert foundation, and M06 scenario/briefing schema
 - API: FastAPI health, readiness, quality, alert, scenario, briefing, dashboard overview, production forecast read, model-performance read, and safe system-status endpoints
 - M07 demo mode: typed configuration disables public alert evaluation, alert lifecycle mutation, and briefing generation while allowing only bounded scenario execution
-- M07 frontend: Next.js App Router dashboard shell, typed API client, explicit fixture-backed demo fallback, responsive overview, forecast, data quality, model-performance, and safe system-status screens
+- M07 frontend: Next.js App Router dashboard shell, typed API client, explicit fixture-backed demo fallback, responsive overview, forecast, alerts and immutable evidence/lifecycle detail, bounded scenario simulations, deterministic briefing facts, data quality, model-performance, and safe system-status screens
 - ingestion: fixture mode only through `python -m gridops.ingestion.runner`
 - quality: persisted dataset checks through `python -m gridops.quality.runner`
 - forecasting evaluation: forecast issue contracts, feature snapshots, baselines, backtest windows, metrics, slice reports, and simple runner previews
@@ -130,7 +130,6 @@ Implemented storage includes:
 - true quantile forecasts or prediction intervals
 - MLflow tracking or registry
 - scheduled production inference
-- alert, scenario, and briefing dashboard screens
 - authentication
 - production deployment
 
@@ -144,4 +143,4 @@ Implemented storage includes:
 
 ## Immediate Next Action
 
-Begin M07-C03 alert, scenario, and briefing dashboard screens against the verified M07-C01 API contracts and M07-C02 frontend foundation.
+Continue M07 with C04 deployment, release artifacts, and final verification. C03 validation covers client-side bounds, finite values, safe server errors, duplicate-submit prevention, fixture labeling, and the absence of public mutation, ingestion, training, inference, or model-promotion controls. The previous backend pytest invocation timed out at 99%; final C03 verification must replace that result with a completed suite outcome.

@@ -245,8 +245,10 @@ M07-C01 adds a compact read-only dashboard API surface over persisted M03-M06 re
 
 M07-C02 adds a Next.js App Router application in `frontend/`. The frontend uses a single typed API client with a configurable public API base URL, timeout/error handling, and an explicit fixture-backed fallback adapter. The fallback is controlled by `NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA`; it is synthetic demonstration data and uses the same TypeScript response contracts as the backend.
 
-Implemented C02 routes are Overview, Forecasts, Data Quality, Model Performance, System Status, and limitations documentation. The forecast chart displays persisted P50 and actual demand where present, and displays P10/P90 only when both are persisted. Alerts, scenario, and briefing UI routes remain deferred.
+Implemented C02 routes are Overview, Forecasts, Data Quality, Model Performance, System Status, and limitations documentation. The forecast chart displays persisted P50 and actual demand where present, and displays P10/P90 only when both are persisted.
+
+M07-C03 extends the same typed client with the existing M06 read and scenario contracts. Alerts use `GET /alerts` and `GET /alerts/{alert_id}` to render persisted deterministic evidence and immutable lifecycle history. The scenario route uses `POST /scenarios` and displays the persisted simulation response; it performs supplementary finite-value and public-bound validation, while the server remains authoritative. Briefing uses only `GET /briefings/latest` and renders structured persisted facts. Public UI deliberately omits mutation, briefing-generation, ingestion, training, inference, and model-promotion controls. Fixture-backed fallback data shares these interfaces and is labeled as demonstration data.
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, authentication, or deployment. Notifications and ticketing are not implemented. Alert, scenario, and briefing dashboard screens remain deferred.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, authentication, or deployment. Notifications and ticketing are not implemented. Deployment and release work remain deferred to C04.

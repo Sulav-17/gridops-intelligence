@@ -159,4 +159,6 @@ Primary outcomes:
 
 M07-C01 implemented the dashboard integration matrix, read-only overview/forecast/model-performance/system-status backend contracts, demo-mode restrictions, and server-side demo scenario bounds.
 
-M07-C02 implemented the `frontend/` Next.js App Router foundation, a typed C01 API client, explicit fixture-backed demo fallback, and responsive Overview, Forecasts, Data Quality, Model Performance, System Status, and limitations documentation screens. Alerts, Scenarios, and Briefing remain deferred to M07-C03.
+M07-C02 implemented the `frontend/` Next.js App Router foundation, a typed C01 API client, explicit fixture-backed demo fallback, and responsive Overview, Forecasts, Data Quality, Model Performance, System Status, and limitations documentation screens.
+
+M07-C03 implements Alerts (including evidence and lifecycle detail), bounded Scenario simulations, and read-only persisted Briefing facts. The public UI has no alert evaluation, lifecycle mutation, briefing generation, ingestion, training, inference, or model-promotion controls. Scenarios use the configured public bounds of -10 to +10 percent load growth, -2,000 to +2,000 MW added load, -10 to +10 C temperature, and -30 to +30 percent humidity; they remain simulations, weather adjustment remains deterministic, and humidity may not affect values. C03 frontend interaction tests cover these constraints and safe server errors. C04 deployment and release work remains deferred.

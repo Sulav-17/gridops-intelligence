@@ -144,3 +144,57 @@ export interface DashboardData {
   system: SystemStatusResponse;
   data_source: "backend" | "fixture_demo";
 }
+
+export interface AlertSummary {
+  alert_id: number;
+  alert_type: string;
+  severity: string;
+  state: string;
+  rule_name: string;
+  title: string;
+  explanation: string;
+  production_forecast_run_id: number | null;
+  forecast_issue_time_utc: IsoTimestamp | null;
+  target_interval_start_utc: IsoTimestamp | null;
+  target_interval_end_utc: IsoTimestamp | null;
+  opened_at_utc: IsoTimestamp;
+  updated_at_utc: IsoTimestamp;
+  current_evidence: Record<string, unknown>;
+}
+
+export interface AlertDetail extends AlertSummary {
+  evidence_records: Array<{ alert_evidence_id: number; alert_evaluation_run_id: number; generated_at_utc: IsoTimestamp; evidence: Record<string, unknown> }>;
+  lifecycle_history: Array<{ lifecycle_history_id: number; from_state: string | null; to_state: string; transition_reason: string | null; changed_at_utc: IsoTimestamp }>;
+}
+
+export interface ScenarioResponse {
+  scenario_id: number;
+  scenario_type: string;
+  production_forecast_run_id: number;
+  status: string;
+  scenario_version: string;
+  generated_at_utc: IsoTimestamp;
+  assumptions: Array<{ assumption_name: string; assumption_value: string | null; assumption_unit: string | null; assumption_json: Record<string, unknown> | null }>;
+  limitations: Record<string, unknown>;
+  summary: Record<string, unknown>;
+  result_rows: Array<{ target_interval_start_utc: IsoTimestamp; target_interval_end_utc: IsoTimestamp; base_value_mw: string; scenario_value_mw: string; delta_mw: string; row_metadata: Record<string, unknown> }>;
+}
+
+export interface BriefingResponse {
+  briefing_id: number;
+  production_forecast_run_id: number;
+  status: string;
+  briefing_version: string;
+  generated_at_utc: IsoTimestamp;
+  summary: Record<string, unknown>;
+  facts: Array<{ fact_type: string; fact_value: Record<string, unknown>; evidence: Record<string, unknown> }>;
+}
+
+export interface ScenarioCreatePayload {
+  production_forecast_run_id: number;
+  scenario_type: "weather_adjustment" | "demand_growth" | "combined_weather_load";
+  demand_growth_percent?: string;
+  added_load_mw?: string;
+  temperature_delta_c?: string;
+  humidity_delta_percent?: string;
+}

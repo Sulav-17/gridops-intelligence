@@ -12,12 +12,16 @@ import {
 import { fixtureDemoData } from "@/lib/demo-data";
 
 describe("dashboard screens", () => {
-  it("renders navigation with C03 placeholders", () => {
+  it("enables decision-support navigation without mutation controls", () => {
     render(<AppShell screen="overview" demoMode={true}><div>content</div></AppShell>);
 
     expect(screen.getAllByRole("link", { name: "Forecasts" }).length).toBeGreaterThan(0);
     expect(screen.getAllByText("Alerts").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("C03").length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: "Alerts" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: "Scenarios" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: "Briefing" }).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/evaluate alerts/i)).toBeNull();
+    expect(screen.queryByText(/generate briefing/i)).toBeNull();
     expect(screen.getByText(/Public demonstration mode/)).toBeTruthy();
   });
 
