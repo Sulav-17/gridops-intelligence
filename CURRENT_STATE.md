@@ -6,7 +6,7 @@ GridOps Intelligence
 
 ## Current Phase
 
-M06 active on branch `m06`
+M06 complete on branch `m06`
 
 ## Active Milestone
 
@@ -32,7 +32,7 @@ M04 is complete and merged to `main`.
 
 M05 is complete.
 
-M06 fast-track chunks 1 and 2 have been implemented on branch `m06`.
+M06 is complete on branch `m06`.
 
 Implemented storage includes:
 
@@ -76,7 +76,7 @@ Implemented storage includes:
 - database: PostgreSQL
 - local database port: `55432`
 - migrations: empty baseline, M02 ingestion storage, M03 quality storage, M04 forecasting foundation, M05 production forecasting schema, M06 alert foundation, and M06 scenario/briefing schema
-- API: FastAPI health, readiness, `GET /quality/health`, `POST /scenarios`, `GET /scenarios/{scenario_id}`, `POST /briefings/generate`, and `GET /briefings/latest`
+- API: FastAPI health, readiness, `GET /quality/health`, alert endpoints, scenario endpoints, and briefing endpoints
 - ingestion: fixture mode only through `python -m gridops.ingestion.runner`
 - quality: persisted dataset checks through `python -m gridops.quality.runner`
 - forecasting evaluation: forecast issue contracts, feature snapshots, baselines, backtest windows, metrics, slice reports, and simple runner previews
@@ -89,7 +89,8 @@ Implemented storage includes:
 - M06 alert foundation: deterministic alert contracts, high-demand/ramp/previous-forecast-deviation/source-health/combined-context rules, duplicate-active alert prevention, immutable alert evidence, and lifecycle history
 - M06 scenario foundation: deterministic demand-growth, approximate weather-adjustment, and combined weather/load scenarios with persisted assumptions, limitations, and result rows
 - M06 briefing foundation: deterministic structured briefing facts with evidence references and backend API output
-- tests: deterministic unit and PostgreSQL integration coverage for M01 through M06 fast-track chunk 2
+- M06 decision runner: standard-library commands for alert evaluation, scenario runs, and briefing generation
+- tests: deterministic unit and PostgreSQL integration coverage for M01 through M06
 
 ## Implemented M04 Capabilities
 
@@ -126,7 +127,6 @@ Implemented storage includes:
 - MLflow tracking or registry
 - scheduled production inference
 - production forecast API
-- runner commands for M06 decision outputs
 - frontend or dashboards
 - authentication
 - production deployment
@@ -137,7 +137,8 @@ Implemented storage includes:
 - M03 verification: `docs/verification/M03_VERIFICATION.md`
 - M04 verification: `docs/verification/M04_VERIFICATION.md`
 - M05 verification: `docs/verification/M05_VERIFICATION.md`
+- M06 verification: `docs/verification/M06_VERIFICATION.md`
 
 ## Immediate Next Action
 
-Continue M06 by adding any remaining decision runner commands, completing documentation cleanup, and producing final M06 verification and handoff artifacts when the milestone gate is ready.
+Begin M07 dashboard, deployment, and release work from the verified M06 decision-support backend.

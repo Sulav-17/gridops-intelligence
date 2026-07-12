@@ -20,12 +20,23 @@ from gridops.database import (
     make_session_factory,
     session_scope,
 )
+from gridops.decision.alert_engine import evaluate_and_persist_alerts
+from gridops.decision.alert_lifecycle import transition_alert_state
+from gridops.decision.alert_schemas import AlertLifecycleState
 from gridops.decision.briefing_facts import generate_briefing, latest_briefing, utc_now
 from gridops.decision.evidence import normalize_evidence
 from gridops.decision.scenario_engine import get_scenario, run_scenario
 from gridops.decision.scenario_schemas import ScenarioRequest, ScenarioType
 from gridops.logging import configure_logging
-from gridops.models import BriefingFact, BriefingRun, ScenarioAssumption, ScenarioResultRow
+from gridops.models import (
+    Alert,
+    AlertEvidence,
+    AlertLifecycleHistory,
+    BriefingFact,
+    BriefingRun,
+    ScenarioAssumption,
+    ScenarioResultRow,
+)
 from gridops.quality.source_health import summarize_source_health
 
 
@@ -64,6 +75,21 @@ class BriefingGenerateRequest(BaseModel):
 
     production_forecast_run_id: int
     generated_at_utc: str | None = None
+
+
+class AlertEvaluateRequest(BaseModel):
+    """Request body for deterministic alert evaluation."""
+
+    production_forecast_run_id: int
+    generated_at_utc: str | None = None
+
+
+class AlertStateUpdateRequest(BaseModel):
+    """Request body for alert lifecycle transitions."""
+
+    state: AlertLifecycleState
+    changed_at_utc: str | None = None
+    reason: str | None = None
 
 
 def create_app(
@@ -160,6 +186,127 @@ def create_app(
                 for summary in summaries
             ]
         )
+
+    @app.get("/alerts", response_model=None)
+    def alerts() -> dict[str, object] | JSONResponse:
+        """Return persisted alerts with current evidence."""
+
+        try:
+            with session_scope(app.state.session_factory) as session:
+                rows = list(session.scalars(select(Alert).order_by(Alert.id)).all())
+                body = _json_dict({"alerts": [_alert_summary(alert) for alert in rows]})
+        except Exception as exc:
+            logger.warning(
+                "Alert query failed",
+                extra={"error_type": type(exc).__name__},
+            )
+            return JSONResponse(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                content={"status": "not_ready", "dependency": "postgresql"},
+            )
+
+        return body
+
+    @app.get("/alerts/{alert_id}", response_model=None)
+    def alert_detail(alert_id: int) -> dict[str, object] | JSONResponse:
+        """Return one alert with immutable evidence and lifecycle history."""
+
+        try:
+            with session_scope(app.state.session_factory) as session:
+                alert = session.get(Alert, alert_id)
+                if alert is None:
+                    return JSONResponse(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        content={"detail": "alert not found"},
+                    )
+                body = _alert_detail_response(session, alert)
+        except Exception as exc:
+            logger.warning(
+                "Alert detail query failed",
+                extra={"error_type": type(exc).__name__},
+            )
+            return JSONResponse(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                content={"status": "not_ready", "dependency": "postgresql"},
+            )
+
+        return body
+
+    @app.post("/alerts/evaluate", response_model=None)
+    def evaluate_alerts(payload: AlertEvaluateRequest) -> dict[str, object] | JSONResponse:
+        """Evaluate deterministic alert rules and persist evidence."""
+
+        try:
+            with session_scope(app.state.session_factory) as session:
+                result = evaluate_and_persist_alerts(
+                    session,
+                    production_forecast_run_id=payload.production_forecast_run_id,
+                    generated_at_utc=_parse_api_datetime(payload.generated_at_utc),
+                )
+                body = _json_dict(
+                    {
+                        "evaluation_run_id": result.evaluation_run.id,
+                        "created_count": result.created_count,
+                        "reused_count": result.reused_count,
+                        "alerts": [_alert_summary(alert) for alert in result.alerts],
+                    }
+                )
+        except ValueError as exc:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"detail": str(exc)},
+            )
+        except Exception as exc:
+            logger.warning(
+                "Alert evaluation failed",
+                extra={"error_type": type(exc).__name__},
+            )
+            return JSONResponse(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                content={"status": "not_ready", "dependency": "postgresql"},
+            )
+
+        return body
+
+    @app.patch("/alerts/{alert_id}/state", response_model=None)
+    def update_alert_state(
+        alert_id: int,
+        payload: AlertStateUpdateRequest,
+    ) -> dict[str, object] | JSONResponse:
+        """Apply a validated alert lifecycle transition."""
+
+        try:
+            with session_scope(app.state.session_factory) as session:
+                alert = session.get(Alert, alert_id)
+                if alert is None:
+                    return JSONResponse(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        content={"detail": "alert not found"},
+                    )
+                transition_alert_state(
+                    session,
+                    alert=alert,
+                    to_state=payload.state,
+                    changed_at_utc=_parse_api_datetime(payload.changed_at_utc),
+                    reason=payload.reason,
+                )
+                body = _alert_detail_response(session, alert)
+        except ValueError as exc:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"detail": str(exc)},
+            )
+        except Exception as exc:
+            logger.warning(
+                "Alert lifecycle update failed",
+                extra={"error_type": type(exc).__name__},
+            )
+            return JSONResponse(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                content={"status": "not_ready", "dependency": "postgresql"},
+            )
+
+        return body
 
     @app.post("/scenarios", response_model=None)
     def create_scenario(payload: ScenarioCreateRequest) -> dict[str, object] | JSONResponse:
@@ -311,6 +458,73 @@ def _parse_api_decimal(value: str | None) -> Decimal | None:
     if value is None:
         return None
     return Decimal(value)
+
+
+def _alert_summary(alert: Alert) -> dict[str, object]:
+    """Build a JSON-safe alert summary."""
+
+    return {
+        "alert_id": alert.id,
+        "alert_type": alert.alert_type,
+        "severity": alert.severity,
+        "state": alert.state,
+        "fingerprint": alert.fingerprint,
+        "rule_name": alert.rule_name,
+        "rule_version": alert.rule_version,
+        "title": alert.title,
+        "explanation": alert.explanation,
+        "production_forecast_run_id": alert.production_forecast_run_id,
+        "forecast_issue_time_utc": alert.forecast_issue_time_utc,
+        "target_interval_start_utc": alert.target_interval_start_utc,
+        "target_interval_end_utc": alert.target_interval_end_utc,
+        "opened_at_utc": alert.opened_at_utc,
+        "updated_at_utc": alert.updated_at_utc,
+        "resolved_at_utc": alert.resolved_at_utc,
+        "current_evidence": alert.current_evidence_json,
+    }
+
+
+def _alert_detail_response(session: Session, alert: Alert) -> dict[str, object]:
+    """Build a JSON-safe alert response with evidence and lifecycle history."""
+
+    evidence_rows = list(
+        session.scalars(
+            select(AlertEvidence)
+            .where(AlertEvidence.alert_id == alert.id)
+            .order_by(AlertEvidence.generated_at_utc, AlertEvidence.id)
+        ).all()
+    )
+    lifecycle_rows = list(
+        session.scalars(
+            select(AlertLifecycleHistory)
+            .where(AlertLifecycleHistory.alert_id == alert.id)
+            .order_by(AlertLifecycleHistory.changed_at_utc, AlertLifecycleHistory.id)
+        ).all()
+    )
+    return _json_dict(
+        {
+            **_alert_summary(alert),
+            "evidence_records": [
+                {
+                    "alert_evidence_id": evidence.id,
+                    "alert_evaluation_run_id": evidence.alert_evaluation_run_id,
+                    "generated_at_utc": evidence.generated_at_utc,
+                    "evidence": evidence.evidence_json,
+                }
+                for evidence in evidence_rows
+            ],
+            "lifecycle_history": [
+                {
+                    "lifecycle_history_id": history.id,
+                    "from_state": history.from_state,
+                    "to_state": history.to_state,
+                    "transition_reason": history.transition_reason,
+                    "changed_at_utc": history.changed_at_utc,
+                }
+                for history in lifecycle_rows
+            ],
+        }
+    )
 
 
 def _scenario_response(session: Session, scenario_id: int) -> dict[str, object]:

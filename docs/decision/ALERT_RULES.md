@@ -2,7 +2,7 @@
 
 ## Status
 
-This document covers the M06 fast-track chunk 1 alert foundation. It does not mark the full M06 milestone complete.
+This document covers the M06 alert foundation.
 
 ## Alert Types
 
@@ -93,4 +93,36 @@ This does not redesign or replace M03 quality checks.
 - Prediction interval and confidence alerts are deferred because M05 stores nullable P10/P90 fields but does not generate true quantile forecasts or confidence indicators.
 - Forecast deviation uses the previous succeeded production forecast run, not actuals or seasonal expectation.
 - Combined-context alerts are intentionally simple and only combine deterministic forecast attention signals with source-health context.
-- No notification system, ticketing system, dashboard, alert API, scenario engine, briefing generator, or runner command is implemented in this chunk.
+- No notification system, ticketing system, dashboard, or confidence alerting is implemented.
+
+## API Usage
+
+Evaluate alerts:
+
+```powershell
+POST /alerts/evaluate
+```
+
+List alerts:
+
+```powershell
+GET /alerts
+```
+
+Fetch alert evidence and lifecycle history:
+
+```powershell
+GET /alerts/{alert_id}
+```
+
+Update lifecycle state:
+
+```powershell
+PATCH /alerts/{alert_id}/state
+```
+
+## Runner Usage
+
+```powershell
+uv run python -m gridops.decision.runner evaluate-alerts --forecast-run-id <forecast_run_id>
+```

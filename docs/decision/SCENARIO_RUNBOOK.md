@@ -2,7 +2,7 @@
 
 ## Status
 
-This runbook covers the M06 fast-track chunk 2 scenario engine. Scenario outputs are decision-support simulations, not production forecasts.
+This runbook covers the M06 scenario engine. Scenario outputs are decision-support simulations, not production forecasts.
 
 ## Supported Scenario Types
 
@@ -21,7 +21,7 @@ Supported assumptions:
 - `temperature_delta_c`
 - `humidity_delta_percent`
 
-Humidity deltas are recorded as explicit assumptions, but no humidity response coefficient is implemented in this chunk.
+Humidity deltas are recorded as explicit assumptions, but no humidity response coefficient is implemented in M06.
 
 ## Calculation Behavior
 
@@ -68,6 +68,26 @@ Fetch a scenario:
 GET /scenarios/{scenario_id}
 ```
 
+## Runner Usage
+
+Demand-growth scenario:
+
+```powershell
+uv run python -m gridops.decision.runner run-scenario --forecast-run-id <forecast_run_id> --load-growth-percent 2
+```
+
+Weather scenario:
+
+```powershell
+uv run python -m gridops.decision.runner run-scenario --forecast-run-id <forecast_run_id> --temperature-delta-c 3
+```
+
+Combined scenario:
+
+```powershell
+uv run python -m gridops.decision.runner run-scenario --forecast-run-id <forecast_run_id> --load-growth-percent 2 --temperature-delta-c 3
+```
+
 ## Persistence
 
 Tables:
@@ -93,11 +113,10 @@ Every scenario preserves:
 
 ## Interpretation
 
-Scenario outputs answer “what if these assumptions were applied to the base forecast values?” They are not official forecasts, do not replace M05 outputs, and do not imply causal attribution.
+Scenario outputs answer "what if these assumptions were applied to the base forecast values?" They are not official forecasts, do not replace M05 outputs, and do not imply causal attribution.
 
 ## Current Limitations
 
 - Weather adjustment is approximate because M05 does not safely recompute forecasts from changed weather features.
 - No model retraining or feature-snapshot rebuilding occurs.
-- No scenario runner command exists yet; Chunk 2 exposes API endpoints.
 - No dashboard or notification behavior is implemented.

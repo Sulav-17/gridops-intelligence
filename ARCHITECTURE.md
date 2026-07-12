@@ -6,7 +6,7 @@ This document distinguishes between approved target architecture and architectur
 
 ## Current Implemented Architecture
 
-M01 through M05 are implemented and complete. M06 is active on branch `m06`, owned by Marcus Lee, Senior Decision Systems Engineer.
+M01 through M06 are implemented and complete. M06 is complete on branch `m06`, owned by Marcus Lee, Senior Decision Systems Engineer.
 
 ### Foundation
 
@@ -155,7 +155,7 @@ Runner:
 
 ### M06 Alert Foundation
 
-M06 fast-track chunk 1 adds deterministic alert contracts, rule evaluation, evidence persistence, duplicate-active alert prevention, and lifecycle history. Chunk 2 adds scenario analysis, deterministic briefing facts, and backend API outputs. Runner commands and M07 dashboard presentation remain deferred.
+M06 adds deterministic alert contracts, rule evaluation, evidence persistence, duplicate-active alert prevention, lifecycle history, scenario analysis, deterministic briefing facts, backend API outputs, and simple runner commands. M07 dashboard presentation remains deferred.
 
 M06 alert storage:
 
@@ -175,6 +175,7 @@ Implemented alert behavior:
 - partial unique database protection against duplicate active alerts for the same fingerprint
 - lifecycle transitions from open to acknowledged, resolved, suppressed, or expired, and from acknowledged to resolved, suppressed, or expired
 - immutable evidence and lifecycle history rows
+- backend endpoints for listing alerts, fetching alert evidence, evaluating alerts, and updating lifecycle state
 
 True uncertainty/confidence alerting remains deferred because M05 stores nullable P10/P90 columns but does not generate true prediction intervals or confidence indicators.
 
@@ -205,10 +206,20 @@ Implemented briefing behavior:
 
 API outputs:
 
+- `GET /alerts`
+- `GET /alerts/{alert_id}`
+- `POST /alerts/evaluate`
+- `PATCH /alerts/{alert_id}/state`
 - `POST /scenarios`
 - `GET /scenarios/{scenario_id}`
 - `POST /briefings/generate`
 - `GET /briefings/latest`
+
+Runner:
+
+- `python -m gridops.decision.runner evaluate-alerts`
+- `python -m gridops.decision.runner run-scenario`
+- `python -m gridops.decision.runner generate-briefing`
 
 ## Approved Target Architecture
 
@@ -230,4 +241,4 @@ The planned system flow is:
 
 ## Current Boundaries
 
-The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, forecast APIs, dashboard work, authentication, or deployment. Alert APIs, runner commands, notifications, and ticketing are not implemented.
+The current repository does not implement live source fetching, Prefect orchestration, dbt transformations, MLflow, scheduled production inference, forecast APIs, dashboard work, authentication, or deployment. Notifications and ticketing are not implemented.

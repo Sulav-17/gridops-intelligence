@@ -2,7 +2,7 @@
 
 ## Current Repository
 
-The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, M04 forecasting evaluation foundation, and M05 production forecasting and MLOps milestone. M06 is active on branch `m06`. M06 fast-track chunk 1 implements the deterministic alert foundation. M06 fast-track chunk 2 implements scenario persistence, deterministic scenario calculations, deterministic briefing facts, and backend scenario/briefing API outputs.
+The repository contains the completed M01 foundation, M02 ingestion foundation, M03 data quality and observability milestone, M04 forecasting evaluation foundation, M05 production forecasting and MLOps milestone, and M06 alert, scenario, and briefing milestone.
 
 Implemented M02 ingestion is fixture-backed only:
 
@@ -112,6 +112,7 @@ Implemented M06 alert foundation includes:
 - combined-context alerts from deterministic component signals
 - deterministic business fingerprints and duplicate-active alert prevention
 - persisted alert evaluation runs, alert records, immutable evidence rows, and lifecycle history
+- backend endpoints for alert listing, detail, evaluation, and lifecycle transitions
 - alert rules documentation in `docs/decision/ALERT_RULES.md`
 
 Implemented M06 scenario and briefing foundation includes:
@@ -123,6 +124,7 @@ Implemented M06 scenario and briefing foundation includes:
 - deterministic briefing facts from forecasts, peaks, ramps, alerts, source health, scenarios, and known limitations
 - persisted briefing runs and briefing facts with evidence references
 - backend endpoints for scenario generation, scenario lookup, briefing generation, and latest briefing lookup
+- standard-library decision runner commands for alert evaluation, scenario runs, and briefing generation
 - scenario and briefing runbooks in `docs/decision/`
 
 ## Missing Capabilities
@@ -140,9 +142,7 @@ The following are intentionally not implemented yet:
 - scheduled production inference
 - production forecast API
 - uncertainty or confidence alerts
-- alert API endpoints or runner commands
 - alert notifications or ticketing
-- M06 decision runner commands
 - frontend or dashboards
 - authentication or authorization
 - production deployment
@@ -168,7 +168,7 @@ The following are intentionally not implemented yet:
 - The forecasting runner provides deterministic previews and feature-building persistence, but it is not an orchestrator or scheduled production inference service.
 - No production forecast API exists.
 - No MLflow registry exists.
-- No prediction intervals, alert API endpoints, dashboard, deployment, or production model serving exist.
+- No prediction intervals, dashboard, deployment, or production model serving exist.
 
 ## Scenario Limitations
 

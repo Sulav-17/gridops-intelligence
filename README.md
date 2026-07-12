@@ -4,7 +4,7 @@ GridOps Intelligence is a production-style energy data engineering, forecasting,
 
 The system is intended to ingest public electricity and weather data, preserve source evidence, validate and normalize changing source data, produce trusted day-ahead forecasting evaluations, and support production forecasting, alerts, scenarios, APIs, and an operational dashboard.
 
-M06 is active on branch `m06`. M01 through M05 are complete.
+M06 is complete on branch `m06`. M01 through M05 are complete.
 
 ## Current Status
 
@@ -14,10 +14,8 @@ Completed milestones:
 - M02 - Data ingestion foundation
 - M03 - Data quality and observability
 - M04 - Baselines and backtesting
-
-Active milestone:
-
-- M06 - Alerts, Scenarios, and Briefings, owned by Marcus Lee, Senior Decision Systems Engineer
+- M05 - Production Forecasting and MLOps
+- M06 - Alerts, Scenarios, and Briefings
 
 Implemented foundation:
 
@@ -50,6 +48,7 @@ Implemented foundation:
 - simple M05 production runner boundaries through `python -m gridops.forecasting.production_runner`
 - M06 alert foundation with deterministic alert contracts, fixed-threshold high-demand/ramp/deviation rules, M03 source-health context alerts, combined context alerts, duplicate-active alert prevention, immutable evidence, and lifecycle history
 - M06 scenario and briefing foundation with deterministic scenario calculations, persisted assumptions/results, deterministic briefing facts, and backend scenario/briefing endpoints
+- M06 alert API endpoints and simple decision runner commands
 
 Not implemented yet:
 
@@ -192,8 +191,36 @@ Endpoints:
 - `GET /health` returns process health and does not touch the database.
 - `GET /ready` checks real PostgreSQL connectivity and returns a safe `503` response when the dependency is unavailable.
 - `GET /quality/health` summarizes latest persisted quality status, worst severity, blocking state, check counts, and safe failure summaries for supported datasets.
+- `GET /alerts` lists persisted alerts and current evidence.
+- `GET /alerts/{alert_id}` returns alert evidence and lifecycle history.
+- `POST /alerts/evaluate` evaluates deterministic alert rules for a production forecast run.
+- `PATCH /alerts/{alert_id}/state` applies a validated lifecycle transition.
+- `POST /scenarios` runs a deterministic decision-support scenario.
+- `GET /scenarios/{scenario_id}` returns persisted scenario assumptions and result rows.
+- `POST /briefings/generate` creates deterministic briefing facts.
+- `GET /briefings/latest` returns the latest persisted briefing.
 
 No production forecast API exists yet.
+
+## Decision Support Runner
+
+Evaluate alerts:
+
+```powershell
+uv run python -m gridops.decision.runner evaluate-alerts --forecast-run-id 1
+```
+
+Run a demand-growth scenario:
+
+```powershell
+uv run python -m gridops.decision.runner run-scenario --forecast-run-id 1 --load-growth-percent 2
+```
+
+Generate briefing facts:
+
+```powershell
+uv run python -m gridops.decision.runner generate-briefing --forecast-run-id 1
+```
 
 ## Time Contract
 
@@ -235,7 +262,9 @@ Time utilities live in `gridops.time_utils`.
 | `docs/handoffs/M04_HANDOFF.md` | M04 completion handoff for M05 |
 | `docs/verification/M05_VERIFICATION.md` | M05 verification evidence and exact command results |
 | `docs/handoffs/M05_HANDOFF.md` | M05 completion handoff for M06 |
-| `milestones/M05.md` | Detailed M05 scope and completion requirements |
+| `docs/verification/M06_VERIFICATION.md` | M06 verification evidence and exact command results |
+| `docs/handoffs/M06_HANDOFF.md` | M06 completion handoff for M07 |
+| `milestones/M06.md` | Detailed M06 scope and completion requirements |
 
 ## Scope Boundaries
 

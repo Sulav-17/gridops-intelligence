@@ -2,7 +2,7 @@
 
 ## Status
 
-This runbook covers deterministic briefing facts from M06 fast-track chunk 2. It does not include free-form LLM narrative generation.
+This runbook covers deterministic briefing facts from M06. It does not include free-form LLM narrative generation.
 
 ## Briefing Facts
 
@@ -55,6 +55,14 @@ Fetch the latest briefing:
 
 ```powershell
 GET /briefings/latest
+```
+
+## Runner Usage
+
+Generate a briefing:
+
+```powershell
+uv run python -m gridops.decision.runner generate-briefing --forecast-run-id <forecast_run_id>
 ```
 
 ## Persistence
