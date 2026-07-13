@@ -28,13 +28,19 @@ Use `/health` for a process probe and `/readiness` for PostgreSQL readiness. `/r
 ```powershell
 Set-Location frontend
 npm.cmd ci
-$env:NEXT_PUBLIC_GRIDOPS_API_BASE_URL = "http://127.0.0.1:8000"
-$env:NEXT_PUBLIC_GRIDOPS_DEMO_MODE = "false"
-$env:NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA = "false"
+Copy-Item .env.example .env.local
 npm.cmd run dev
 ```
 
-The dashboard runs at `http://localhost:3000`.
+For local fixture mode, edit `frontend/.env.local` to set:
+
+```text
+NEXT_PUBLIC_GRIDOPS_API_BASE_URL=http://localhost:8000
+NEXT_PUBLIC_GRIDOPS_DEMO_MODE=true
+NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA=true
+```
+
+Restart `npm.cmd run dev` after changing any `NEXT_PUBLIC_` variable, then hard refresh the browser. Fixture fallback remains explicit and is selected only after a backend request fails; it does not replace a successful backend response or silently activate in production. The dashboard runs at `http://localhost:3000`.
 
 ## Environment variables
 

@@ -1,17 +1,27 @@
 import { render, screen } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
   AppShell,
   ForecastScreen,
+  OverviewIntroduction,
   OverviewScreen,
   PerformanceScreen,
   QualityScreen,
   SystemStatusScreen,
 } from "@/components/dashboard";
+import AboutPage from "@/app/about/page";
 import { fixtureDemoData } from "@/lib/demo-data";
 
 describe("dashboard screens", () => {
+  it("loads the global dashboard stylesheet from the root layout", () => {
+    const layoutSource = readFileSync(resolve(process.cwd(), "app/layout.tsx"), "utf8");
+
+    expect(layoutSource).toContain('import "./globals.css";');
+  });
+
   it("enables decision-support navigation without mutation controls", () => {
     render(<AppShell screen="overview" demoMode={true}><div>content</div></AppShell>);
 
@@ -20,9 +30,29 @@ describe("dashboard screens", () => {
     expect(screen.getAllByRole("link", { name: "Alerts" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: "Scenarios" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: "Briefing" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: "About" }).length).toBeGreaterThan(0);
     expect(screen.queryByText(/evaluate alerts/i)).toBeNull();
     expect(screen.queryByText(/generate briefing/i)).toBeNull();
     expect(screen.getByText(/Public demonstration mode/)).toBeTruthy();
+  });
+
+  it("renders the public overview introduction without internal delivery wording", () => {
+    const view = render(<OverviewIntroduction />);
+
+    expect(screen.getByRole("heading", { name: "Ontario electricity demand intelligence" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Explore forecasts" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Learn how it works" })).toBeTruthy();
+    expect(view.container.textContent).not.toMatch(/C03|milestone|chunk|implementation phase/i);
+  });
+
+  it("renders the About page, how-it-works flow, and demo explanation", () => {
+    render(<AboutPage />);
+
+    expect(screen.getByRole("heading", { name: "How GridOps Intelligence works" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "How it works" })).toBeTruthy();
+    expect(screen.getByText("Data ingestion")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Demo mode" })).toBeTruthy();
+    expect(screen.getByText(/not live IESO data/i)).toBeTruthy();
   });
 
   it("renders the overview from persisted-contract data", () => {

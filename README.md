@@ -47,11 +47,15 @@ In another terminal:
 ```powershell
 Set-Location frontend
 npm.cmd ci
-$env:NEXT_PUBLIC_GRIDOPS_API_BASE_URL = "http://127.0.0.1:8000"
+Copy-Item .env.example .env.local
+# For fixture-backed local demonstration data after a backend failure:
+# NEXT_PUBLIC_GRIDOPS_DEMO_MODE=true
+# NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA=true
+# NEXT_PUBLIC_GRIDOPS_API_BASE_URL=http://localhost:8000
 npm.cmd run dev
 ```
 
-The dashboard is available at `http://localhost:3000`. See the [deployment guide](docs/release/DEPLOYMENT_GUIDE.md) for demo mode, CORS, migrations, containers, and troubleshooting.
+Set the three commented values in `frontend/.env.local` for local fixture mode, then restart `npm.cmd run dev` after changing any `NEXT_PUBLIC_` variable and hard refresh the browser. Fixture fallback is explicit and appears only after the backend request fails. The dashboard is available at `http://localhost:3000`. See the [deployment guide](docs/release/DEPLOYMENT_GUIDE.md) for demo mode, CORS, migrations, containers, and troubleshooting.
 
 ## Demo mode
 

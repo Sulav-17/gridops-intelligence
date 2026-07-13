@@ -47,4 +47,17 @@ describe("GridOpsApiClient", () => {
     expect(data).toBe(fixtureDemoData);
     expect(data.data_source).toBe("fixture_demo");
   });
+
+  it("uses fixture fallback after a backend failure when the public environment flag is enabled", async () => {
+    const originalValue = process.env.NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA;
+    process.env.NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA = "true";
+    const client = new GridOpsApiClient({ fetchImpl: async () => { throw new TypeError("offline"); } });
+
+    try {
+      await expect(loadDashboardData({ client })).resolves.toBe(fixtureDemoData);
+    } finally {
+      if (originalValue === undefined) delete process.env.NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA;
+      else process.env.NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA = originalValue;
+    }
+  });
 });
