@@ -62,6 +62,25 @@ def test_ready_returns_ready_when_database_check_succeeds(
     }
 
 
+def test_readiness_supports_deployment_probe_and_configured_cors(
+    monkeypatch: pytest.MonkeyPatch,
+    settings: Settings,
+) -> None:
+    """The public readiness probe exposes the configured browser origin only."""
+
+    monkeypatch.setattr("gridops.api.check_database_connection", lambda _: True)
+    app = create_app(
+        settings.model_copy(update={"cors_allowed_origins": ("https://dashboard.example",)}),
+        engine=cast(Engine, Mock(spec=Engine)),
+    )
+
+    with TestClient(app) as client:
+        response = client.get("/readiness", headers={"Origin": "https://dashboard.example"})
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "https://dashboard.example"
+
+
 def test_ready_returns_safe_503_when_database_check_fails(
     monkeypatch: pytest.MonkeyPatch,
     settings: Settings,
