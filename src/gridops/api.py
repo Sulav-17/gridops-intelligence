@@ -7,6 +7,7 @@ from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
 from fastapi import FastAPI, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -124,6 +125,13 @@ def create_app(
         title=resolved_settings.app_name,
         lifespan=lifespan,
     )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=list(resolved_settings.cors_allowed_origins),
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
+        allow_headers=["Content-Type"],
+    )
     app.state.settings = resolved_settings
     app.state.database_engine = database_engine
     app.state.logger = logger
@@ -135,8 +143,7 @@ def create_app(
 
         return {"status": "ok"}
 
-    @app.get("/ready", response_model=None)
-    def ready() -> dict[str, str] | JSONResponse:
+    def readiness_response() -> dict[str, str] | JSONResponse:
         """Return readiness based on real PostgreSQL connectivity."""
 
         if _database_is_ready(database_engine, logger):
@@ -152,6 +159,18 @@ def create_app(
                 "dependency": "postgresql",
             },
         )
+
+    @app.get("/readiness", response_model=None)
+    def readiness() -> dict[str, str] | JSONResponse:
+        """Return the deployment readiness probe response."""
+
+        return readiness_response()
+
+    @app.get("/ready", response_model=None)
+    def ready() -> dict[str, str] | JSONResponse:
+        """Preserve the original readiness endpoint for existing clients."""
+
+        return readiness_response()
 
     @app.get("/quality/health", response_model=QualityHealthResponse)
     def quality_health() -> QualityHealthResponse | JSONResponse:

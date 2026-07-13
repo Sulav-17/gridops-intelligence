@@ -15,6 +15,7 @@ GRIDOPS_ENVIRONMENT_VARIABLES = (
     "GRIDOPS_API_PORT",
     "GRIDOPS_DATABASE_URL",
     "GRIDOPS_READINESS_TIMEOUT_SECONDS",
+    "GRIDOPS_CORS_ALLOWED_ORIGINS",
     "GRIDOPS_DEMO_MODE",
     "GRIDOPS_DEMO_SCENARIO_LOAD_GROWTH_PERCENT_LIMIT",
     "GRIDOPS_DEMO_SCENARIO_ADDED_LOAD_MW_LIMIT",
@@ -47,6 +48,7 @@ def test_settings_defaults() -> None:
     assert settings.api_host == "127.0.0.1"
     assert settings.api_port == 8000
     assert settings.readiness_timeout_seconds == 2.0
+    assert settings.cors_allowed_origins == ("http://localhost:3000", "http://127.0.0.1:3000")
     assert settings.demo_mode is False
     assert settings.demo_scenario_load_growth_percent_limit == 10.0
     assert settings.demo_scenario_added_load_mw_limit == 2000.0
@@ -74,6 +76,9 @@ def test_environment_variables_override_defaults(
     )
     monkeypatch.setenv("GRIDOPS_READINESS_TIMEOUT_SECONDS", "5.5")
     monkeypatch.setenv("GRIDOPS_DEMO_MODE", "true")
+    monkeypatch.setenv(
+        "GRIDOPS_CORS_ALLOWED_ORIGINS", "https://dashboard.example, https://preview.example"
+    )
 
     settings = Settings()
 
@@ -84,6 +89,7 @@ def test_environment_variables_override_defaults(
     assert settings.api_port == 9000
     assert settings.readiness_timeout_seconds == 5.5
     assert settings.demo_mode is True
+    assert settings.cors_allowed_origins == ("https://dashboard.example", "https://preview.example")
     assert (
         settings.database_url.get_secret_value()
         == "postgresql+psycopg://test-user:test-password@localhost:55432/test-gridops"
@@ -130,3 +136,13 @@ def test_database_url_is_hidden_from_representation() -> None:
     assert "sensitive-user" not in serialized
     assert "sensitive-password" not in serialized
     assert "**********" in representation
+
+
+def test_production_configuration_rejects_cors_wildcard() -> None:
+    """Production browser access must use explicit origins."""
+
+    with pytest.raises(ValidationError, match="cors_allowed_origins"):
+        Settings(
+            app_environment=AppEnvironment.PRODUCTION,
+            cors_allowed_origins=("*",),
+        )
