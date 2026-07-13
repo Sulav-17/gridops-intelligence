@@ -1,3 +1,5 @@
+[Live Demo](https://gridops-intelligence.vercel.app/) · [Architecture](ARCHITECTURE.md) · [Case Study](docs/release/CASE_STUDY.md)
+
 # GridOps Intelligence
 
 **Version 1.0.0**
@@ -124,7 +126,7 @@ The supported lightweight deployment shape is:
 - Containerized FastAPI backend on a small container platform.
 - Managed PostgreSQL.
 
-No live hosted deployment is claimed yet. See the [deployment guide](docs/release/DEPLOYMENT_GUIDE.md) for environment variables, CORS, migrations, demo restrictions, containers, and troubleshooting.
+A public fixture-backed dashboard demo is available on Vercel. It demonstrates the product workflow and interface without claiming live ingestion or production grid operations.
 
 ## Screenshots
 
