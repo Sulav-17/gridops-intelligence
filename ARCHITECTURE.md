@@ -2,42 +2,130 @@
 
 ## Product boundary
 
-GridOps Intelligence is an evidence-oriented Ontario electricity-demand decision-support application. It preserves and presents analytical records; it does not operate the grid or make official operational declarations.
+GridOps Intelligence is an evidence-oriented Ontario electricity-demand decision-support application. It preserves and presents analytical records; it does not operate the grid, replace official forecasts, or make operational declarations.
 
-## Implemented system
+## System architecture
+
+![GridOps Intelligence system architecture](docs/architecture/system-architecture.svg)
+
+### Data and evidence flow
+
+1. Fixture-backed demand, weather, and calendar inputs enter the ingestion layer.
+2. Raw source evidence, hashes, retrieval metadata, and revision state are preserved.
+3. Normalized facts are stored in PostgreSQL using timezone-aware UTC timestamps while retaining source-native IESO fields.
+4. Persisted quality checks evaluate freshness, completeness, continuity, uniqueness, range, and source health.
+5. Point-in-time-safe feature snapshots support leakage-aware backtesting and forecast evaluation.
+6. Forecast generation produces persisted hourly outputs, peak and ramp context, and monitoring summaries.
+7. Alert, scenario, and briefing services convert analytical outputs into deterministic decision-support evidence.
+8. FastAPI exposes the stored records to the Next.js dashboard.
+9. The frontend presents evidence but does not recalculate forecasts, alerts, or quality metrics.
+
+## Analyst decision workflow
+
+![GridOps Intelligence analyst workflow](docs/architecture/analyst-workflow.svg)
+
+The product flow is intentionally ordered around trust:
+
+- Confirm that the application and sources are healthy.
+- Review the next-day demand forecast.
+- Identify hours with peak, ramp, deviation, or data-quality attention conditions.
+- Inspect the evidence behind each alert.
+- Adjust bounded weather or load assumptions.
+- Compare the scenario result with the baseline forecast.
+- Review the structured daily briefing.
+
+## Storage and services
+
+- PostgreSQL is the system of record.
+- Alembic owns schema history.
+- Raw evidence includes content hashes, source identifiers, source-native fields, retrieval metadata, and revision state.
+- Canonical operational timestamps are timezone-aware UTC.
+- Dashboard presentation uses `America/Toronto`.
+- IESO hour-ending fields remain preserved separately.
+- Quality, forecast, alert, scenario, and briefing records are persisted before presentation.
+
+## Backend
+
+The Python 3.12 backend uses FastAPI, Pydantic Settings, SQLAlchemy 2.x, Alembic, and PostgreSQL.
+
+- `/health` is a process probe.
+- `/readiness` verifies PostgreSQL connectivity safely.
+- Browser origins are configured with `GRIDOPS_CORS_ALLOWED_ORIGINS`.
+- Wildcard CORS is rejected in production.
+- Demo mode keeps reads available while restricting mutation routes.
+- Scenario requests require finite values and configured server-side bounds.
+
+## Dashboard
+
+The Next.js App Router dashboard includes:
+
+- Overview
+- Forecasts
+- Alerts and alert detail
+- Data quality
+- Scenarios
+- Briefing
+- Model performance
+- System status
+- Product documentation
+
+`NEXT_PUBLIC_GRIDOPS_API_BASE_URL` configures the backend API.
+
+Fixture fallback requires `NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA=true`, activates only after a backend request fails, and is visibly labeled.
+
+## Deployment shape
+
+The supported lightweight topology is:
 
 ```text
-Fixture CSV sources
-  -> ingestion runs + raw snapshots + normalized PostgreSQL facts
-  -> persisted quality checks and source-health summaries
-  -> point-in-time feature snapshots and forecast evaluation
-  -> local model artifacts, production forecast outputs, monitoring summaries
-  -> deterministic alerts, scenarios, and briefing facts
-  -> FastAPI read/write API with demo-mode restrictions
-  -> Next.js dashboard or explicit fixture-backed fallback
+User
+  -> Vercel-compatible Next.js frontend
+  -> HTTPS FastAPI container service
+  -> Managed PostgreSQL
 ```
 
-### Storage and services
+The repository includes:
 
-- PostgreSQL is the system of record. Alembic owns schema history.
-- Source evidence includes ingestion metadata, content hashes, source-native fields, normalized UTC timestamps, and revision state.
-- Canonical timestamps are timezone-aware UTC. Dashboard presentation uses `America/Toronto`; IESO hour-ending fields are preserved separately.
-- Quality, forecast, alert, scenario, and briefing records are persisted before presentation. Browser pages do not recalculate metrics, forecasts, or alert evidence.
+- A non-root FastAPI container image
+- GitHub Actions quality gates
+- Alembic migrations
+- Explicit CORS configuration
+- Public demo restrictions
+- Frontend fixture fallback for demonstration continuity
 
-### Backend
+No public hosted environment or live ingestion deployment is claimed yet.
 
-The Python 3.12 backend uses FastAPI, Pydantic Settings, SQLAlchemy 2.x, Alembic, and PostgreSQL. `/health` is a process probe; `/readiness` verifies PostgreSQL safely. Browser CORS origins are configured with `GRIDOPS_CORS_ALLOWED_ORIGINS` and cannot be wildcarded in production.
+## Safety and operational boundaries
 
-Public demo mode (`GRIDOPS_DEMO_MODE=true`) keeps reads available but returns `403` for alert evaluation, alert state changes, and briefing generation. Scenarios remain available only after server-side finite-value and configured-bound validation.
+Public demo mode (`GRIDOPS_DEMO_MODE=true`) allows reads but returns `403` for:
 
-### Dashboard
+- Alert evaluation
+- Alert lifecycle changes
+- Briefing generation
 
-The Next.js App Router dashboard has pages for overview, forecasts, alerts and detail, data quality, scenarios, briefing, model performance, system status, and product documentation. `NEXT_PUBLIC_GRIDOPS_API_BASE_URL` configures the API. Fixture fallback requires the separate explicit setting `NEXT_PUBLIC_GRIDOPS_USE_DEMO_DATA=true` and is visibly labeled.
+Bounded scenarios remain available after server-side validation.
 
-### Deployment shape
+The platform does not:
 
-The repository supplies a non-root FastAPI container image. The documented deployment path is a Vercel-compatible frontend, a small container platform for the API, and managed PostgreSQL. No hosted environment or live ingestion deployment is asserted.
+- Control electricity infrastructure
+- Dispatch resources
+- Issue emergency declarations
+- Replace official IESO forecasts
+- Provide trading recommendations
+- Perform power-flow calculations
+- Make unsupported causal claims
 
 ## Deliberately absent
 
-No live source client, scheduler, Prefect flow, dbt project, MLflow registry, authentication, notification service, true quantile model, or grid-control capability is implemented. See [Known limitations](KNOWN_LIMITATIONS.md).
+The implemented release does not include:
+
+- Live source clients
+- Production scheduling or Prefect orchestration
+- A dbt project
+- MLflow registry
+- Authentication
+- Notification delivery
+- True quantile prediction intervals
+- Verified production reliability
+
+See [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md).

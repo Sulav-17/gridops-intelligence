@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="520" viewBox="0 0 1400 520">
+<style>
+text{font-family:Arial,sans-serif;fill:#102030}.title{font-size:34px;font-weight:700}.sub{font-size:18px}.box{fill:#f7fafc;stroke:#355b7d;stroke-width:2;rx:16}.accent{fill:#e9f3fb}.arrow{stroke:#4a657d;stroke-width:3;fill:none;marker-end:url(#a)}
+</style>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#4a657d"/></marker></defs>
+<text x="55" y="55" class="title">GridOps Analyst Decision Workflow</text>
+<text x="55" y="87" class="sub">A trust-first path from system health to daily briefing</text>
+<rect x="45" y="180" width="180" height="110" class="box accent"/><text x="135" y="220" text-anchor="middle" font-size="20" font-weight="700">1. Check health</text><text x="135" y="250" text-anchor="middle" font-size="15">System and sources</text>
+<rect x="245" y="180" width="180" height="110" class="box"/><text x="335" y="220" text-anchor="middle" font-size="20" font-weight="700">2. Review</text><text x="335" y="250" text-anchor="middle" font-size="15">Next-day forecast</text>
+<rect x="445" y="180" width="180" height="110" class="box accent"/><text x="535" y="215" text-anchor="middle" font-size="20" font-weight="700">3. Identify</text><text x="535" y="244" text-anchor="middle" font-size="15">Peak, ramp, deviation</text><text x="535" y="268" text-anchor="middle" font-size="15">or quality issues</text>
+<rect x="645" y="180" width="180" height="110" class="box"/><text x="735" y="220" text-anchor="middle" font-size="20" font-weight="700">4. Inspect</text><text x="735" y="250" text-anchor="middle" font-size="15">Alert evidence</text>
+<rect x="845" y="180" width="180" height="110" class="box accent"/><text x="935" y="215" text-anchor="middle" font-size="20" font-weight="700">5. Adjust</text><text x="935" y="244" text-anchor="middle" font-size="15">Weather or load</text><text x="935" y="268" text-anchor="middle" font-size="15">assumptions</text>
+<rect x="1045" y="180" width="180" height="110" class="box"/><text x="1135" y="215" text-anchor="middle" font-size="20" font-weight="700">6. Compare</text><text x="1135" y="244" text-anchor="middle" font-size="15">Scenario against</text><text x="1135" y="268" text-anchor="middle" font-size="15">baseline</text>
+<rect x="1245" y="180" width="120" height="110" class="box accent"/><text x="1305" y="215" text-anchor="middle" font-size="20" font-weight="700">7. Read</text><text x="1305" y="244" text-anchor="middle" font-size="15">Daily</text><text x="1305" y="268" text-anchor="middle" font-size="15">briefing</text>
+<path d="M225 235 L245 235" class="arrow"/><path d="M425 235 L445 235" class="arrow"/><path d="M625 235 L645 235" class="arrow"/><path d="M825 235 L845 235" class="arrow"/><path d="M1025 235 L1045 235" class="arrow"/><path d="M1225 235 L1245 235" class="arrow"/>
+<text x="700" y="390" text-anchor="middle" font-size="18">Every step is based on persisted, traceable evidence rather than browser-side recalculation.</text>
+</svg>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+<style>
+text{font-family:Arial,sans-serif;fill:#102030}.title{font-size:34px;font-weight:700}.sub{font-size:18px}.box{fill:#f7fafc;stroke:#355b7d;stroke-width:2;rx:16}.accent{fill:#e9f3fb}.store{fill:#fff4df;stroke:#9a6a1f;stroke-width:2}.arrow{stroke:#4a657d;stroke-width:3;fill:none;marker-end:url(#a)}
+</style>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#4a657d"/></marker></defs>
+<text x="60" y="60" class="title">GridOps Intelligence System Architecture</text>
+<text x="60" y="92" class="sub">From source evidence to operational decision support</text>
+
+<rect x="60" y="150" width="240" height="90" class="box accent"/><text x="180" y="188" text-anchor="middle" font-size="22" font-weight="700">Demand fixtures</text><text x="180" y="218" text-anchor="middle" font-size="16">IESO hourly demand</text>
+<rect x="60" y="280" width="240" height="90" class="box accent"/><text x="180" y="318" text-anchor="middle" font-size="22" font-weight="700">Weather fixtures</text><text x="180" y="348" text-anchor="middle" font-size="16">Observed and forecast</text>
+<rect x="60" y="410" width="240" height="90" class="box accent"/><text x="180" y="448" text-anchor="middle" font-size="22" font-weight="700">Calendar context</text><text x="180" y="478" text-anchor="middle" font-size="16">Hour, day, season</text>
+
+<rect x="380" y="235" width="250" height="120" class="box"/><text x="505" y="275" text-anchor="middle" font-size="23" font-weight="700">Ingestion</text><text x="505" y="306" text-anchor="middle" font-size="16">Raw evidence, hashes</text><text x="505" y="332" text-anchor="middle" font-size="16">revisions, metadata</text>
+<rect x="700" y="235" width="250" height="120" class="store"/><text x="825" y="275" text-anchor="middle" font-size="23" font-weight="700">PostgreSQL</text><text x="825" y="306" text-anchor="middle" font-size="16">Normalized facts</text><text x="825" y="332" text-anchor="middle" font-size="16">Persisted evidence</text>
+
+<rect x="1030" y="130" width="250" height="90" class="box"/><text x="1155" y="168" text-anchor="middle" font-size="22" font-weight="700">Data quality</text><text x="1155" y="198" text-anchor="middle" font-size="16">Freshness and health</text>
+<rect x="1030" y="255" width="250" height="90" class="box"/><text x="1155" y="293" text-anchor="middle" font-size="22" font-weight="700">Feature snapshots</text><text x="1155" y="323" text-anchor="middle" font-size="16">Point-in-time safe</text>
+<rect x="1030" y="380" width="250" height="90" class="box"/><text x="1155" y="418" text-anchor="middle" font-size="22" font-weight="700">Forecasting</text><text x="1155" y="448" text-anchor="middle" font-size="16">Backtesting and monitoring</text>
+
+<rect x="700" y="540" width="250" height="90" class="box accent"/><text x="825" y="578" text-anchor="middle" font-size="22" font-weight="700">Decision services</text><text x="825" y="608" text-anchor="middle" font-size="16">Alerts, scenarios, briefings</text>
+<rect x="1030" y="540" width="250" height="90" class="box"/><text x="1155" y="578" text-anchor="middle" font-size="22" font-weight="700">FastAPI</text><text x="1155" y="608" text-anchor="middle" font-size="16">Read and guarded write APIs</text>
+<rect x="1330" y="540" width="220" height="90" class="box accent"/><text x="1440" y="578" text-anchor="middle" font-size="22" font-weight="700">Next.js</text><text x="1440" y="608" text-anchor="middle" font-size="16">Operational dashboard</text>
+
+<rect x="380" y="690" width="220" height="80" class="box"/><text x="490" y="725" text-anchor="middle" font-size="20" font-weight="700">GitHub Actions</text><text x="490" y="752" text-anchor="middle" font-size="15">Quality gates</text>
+<rect x="680" y="690" width="220" height="80" class="box"/><text x="790" y="725" text-anchor="middle" font-size="20" font-weight="700">Alembic</text><text x="790" y="752" text-anchor="middle" font-size="15">Schema history</text>
+<rect x="980" y="690" width="220" height="80" class="box"/><text x="1090" y="725" text-anchor="middle" font-size="20" font-weight="700">Docker</text><text x="1090" y="752" text-anchor="middle" font-size="15">Container runtime</text>
+<rect x="1280" y="690" width="250" height="80" class="box"/><text x="1405" y="725" text-anchor="middle" font-size="20" font-weight="700">Demo controls</text><text x="1405" y="752" text-anchor="middle" font-size="15">Restricted public mode</text>
+
+<path d="M300 195 L380 270" class="arrow"/><path d="M300 325 L380 300" class="arrow"/><path d="M300 455 L380 325" class="arrow"/>
+<path d="M630 295 L700 295" class="arrow"/>
+<path d="M950 275 L1030 175" class="arrow"/><path d="M950 295 L1030 300" class="arrow"/><path d="M950 315 L1030 425" class="arrow"/>
+<path d="M1155 220 L900 540" class="arrow"/><path d="M1155 345 L900 540" class="arrow"/><path d="M1155 470 L900 540" class="arrow"/>
+<path d="M950 585 L1030 585" class="arrow"/><path d="M1280 585 L1330 585" class="arrow"/>
+<path d="M600 730 L700 330" class="arrow"/><path d="M790 690 L825 355" class="arrow"/><path d="M1090 690 L1155 630" class="arrow"/><path d="M1405 690 L1440 630" class="arrow"/>
+</svg>
